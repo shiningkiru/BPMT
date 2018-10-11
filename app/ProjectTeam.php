@@ -35,14 +35,4 @@ class ProjectTeam extends Model
     {
       return $this->belongsTo(User::class, 'team_user_id');
     }
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function role()
-    {
-      return $this->belongsTo(MassParameter::class, 'team_role_id');
-    }
 }

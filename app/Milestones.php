@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Sprint;
 use Illuminate\Database\Eloquent\Model;
 
 class Milestones extends Model
@@ -26,23 +27,12 @@ class Milestones extends Model
       return $this->belongsTo(Project::class, 'project_milestone_id');
     }
 
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-      return $this->belongsTo(User::class, 'milestone_assigned_to');
-    }
-
     /**
      * Get the comments for the blog post.
      */
-    public function tasks()
+    public function sprints()
     {
-        return $this->hasMany(Tasks::class, 'milestone_id');
+        return $this->hasMany(Sprint::class, 'milestone_id');
     }
 
 

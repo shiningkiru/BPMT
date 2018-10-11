@@ -162,7 +162,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', false),
+    'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', true),
 
     /*
     |--------------------------------------------------------------------------

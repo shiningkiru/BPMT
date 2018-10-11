@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'employeeId', 'firstName', 'lastName', 'email', 'mobileNumber', 'password', 'address', 'profilePic', 'dob', 'doj', 'salary', 'bloodGroup', 'relievingDate', 'isActive',
+        'employeeId', 'firstName', 'lastName', 'email', 'mobileNumber', 'password', 'reset_token', 'address', 'profilePic', 'dob', 'doj', 'salary', 'bloodGroup', 'relievingDate', 'isActive',
     ];
 
     /**
@@ -24,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'reset_token',
     ];
 
 
@@ -60,30 +60,12 @@ class User extends Authenticatable
       return $this->belongsTo(Company::class, 'company_id');
     }
 
-
-    /**
-     * Get the comments for the blog post.
-     */
-    public function department_hod()
-    {
-        return $this->hasMany(BranchDepartment::class, 'hod_id');
-    }
-
     /**
      * Get the comments for the blog post.
      */
     public function project_team()
     {
         return $this->hasMany(ProjectTeam::class, 'team_user_id');
-    }
-
-
-    /**
-     * Get the comments for the blog post.
-     */
-    public function milestones()
-    {
-        return $this->hasMany(Milestones::class, 'milestone_assigned_to');
     }
 
 
@@ -102,42 +84,6 @@ class User extends Authenticatable
     public function tasks_assigned()
     {
         return $this->hasMany(Tasks::class, 'task_assigned_by');
-    }
-
-
-    /**
-     * user asigned sprint to others
-     */
-    public function assigned_sprints()
-    {
-        return $this->hasMany(Sprint::class, 'sprint_assigned_by');
-    }
-
-
-    /**
-     * user assigns the work to others
-     */
-    public function handled_sprints()
-    {
-        return $this->hasMany(Sprint::class, 'sprint_handled_by');
-    }
-
-
-    /**
-     * Sprint work log user previous handling the project
-     */
-    public function sprint_handled_by()
-    {
-        return $this->hasMany(SprintWorkLog::class, 'sprint_handled_user');
-    }
-
-
-    /**
-     * sprint work log user who next handles the project
-     */
-    public function sprint_moved_to()
-    {
-        return $this->hasMany(SprintWorkLog::class, 'sprint_next_user');
     }
 
 

@@ -13,16 +13,8 @@ class Client extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'mobileNumber', 'secondaryMobileNumber', 'email', 'secondaryEmail', 'profilePic', 'address', 'longitude', 'latitude'
+        'name', 'mobileNumber', 'secondaryMobileNumber', 'email', 'secondaryEmail', 'profilePic', 'address', 'longitude', 'latitude', 'status'
     ];
-
-    /**
-     * Get the comments for the blog post.
-     */
-    public function company()
-    {
-        return $this->hasMany(CompanyClients::class, 'company_client_id');
-    }
 
     /**
      * Get the comments for the blog post.
@@ -30,5 +22,15 @@ class Client extends Model
     public function projects()
     {
         return $this->hasMany(Project::class, 'client_project_id');
+    }
+
+    /**
+     * A message belong to a user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company()
+    {
+      return $this->belongsTo(Company::class, 'client_company_id');
     }
 }
