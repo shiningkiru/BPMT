@@ -12,6 +12,176 @@
         "https"
     ],
     "paths": {
+        "/v1/user": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Users list",
+                "description": "Returns Users list",
+                "operationId": "list of Users",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register user",
+                "description": "Returns new user",
+                "operationId": "careat-update-user",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "User Id at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "firstName",
+                        "in": "formData",
+                        "description": "firstName of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "lastName",
+                        "in": "formData",
+                        "description": "lastName of the user",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "mobileNumber",
+                        "in": "formData",
+                        "description": "mobileNumber of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "email of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "formData",
+                        "description": "address of the user",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dob",
+                        "in": "formData",
+                        "description": "date of birth of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "doj",
+                        "in": "formData",
+                        "description": "date of join of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "salary",
+                        "in": "formData",
+                        "description": "salary of the user",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "bloodGroup",
+                        "in": "formData",
+                        "description": "bloodGroup of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "password of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "formData",
+                        "description": "company_id of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "designation_id",
+                        "in": "formData",
+                        "description": "designation_id of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "profilePic",
+                        "in": "formData",
+                        "description": "profilePic of the user",
+                        "required": false,
+                        "type": "file"
+                    },
+                    {
+                        "name": "branch_id",
+                        "in": "formData",
+                        "description": "branch id of the user",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "dept_id",
+                        "in": "formData",
+                        "description": "department id of the user",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "roles",
+                        "in": "formData",
+                        "description": "role of the user(admin/management/hr/team-lead/project-lead/employee)",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/login": {
             "post": {
                 "tags": [
@@ -49,8 +219,8 @@
                 }
             }
         },
-        "/current-user": {
-            "post": {
+        "/v1/current-user": {
+            "get": {
                 "tags": [
                     "Auth"
                 ],
@@ -59,10 +229,2869 @@
                 "operationId": "current-logged-in-user",
                 "parameters": [
                     {
-                        "name": "companyName",
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get single user details",
+                "description": "Returns details of user",
+                "operationId": "single-user-user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "user id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "description": "logout user",
+                "operationId": "logout-user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "forgot user password",
+                "description": "forgot password sends forgot link",
+                "operationId": "forgot-email",
+                "parameters": [
+                    {
+                        "name": "email",
                         "in": "formData",
-                        "description": "Name of the company",
+                        "description": "email of the user",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/forgot-password/reset": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "forgot user password reset",
+                "description": "forgot password to reset password",
+                "operationId": "forgot-email-reset",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "email of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "token",
+                        "in": "formData",
+                        "description": "token from the link of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "password of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "formData",
+                        "description": "confirm password",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/branch": {
+            "get": {
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Branch list",
+                "description": "Returns branch list",
+                "operationId": "list of branch",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Create or update Branch",
+                "description": "Create or update Branch",
+                "operationId": "create Branch",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "Branch Id at the time of update",
                         "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "branchName",
+                        "in": "formData",
+                        "description": "branchName",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "branchCode",
+                        "in": "formData",
+                        "description": "branchCode",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "formData",
+                        "description": "address",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "formData",
+                        "description": "longitude",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "latitude",
+                        "in": "formData",
+                        "description": "latitude",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "formData",
+                        "description": "Id of the company",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/branch/{id}": {
+            "get": {
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "branch details",
+                "description": "Returns company details",
+                "operationId": "single branch",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "branch Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Delete a branch",
+                "description": "Delete a branch",
+                "operationId": "delete branch",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Branch Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/client": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Client list",
+                "description": "Returns client list",
+                "operationId": "list client",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Create or update client",
+                "description": "Create or update client",
+                "operationId": "create client",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "Client Id at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "description": "Client Name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "mobileNumber",
+                        "in": "formData",
+                        "description": "Client Mobile Number",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "secondaryMobileNumber",
+                        "in": "formData",
+                        "description": "Client Secondary Mobile Number",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "Client Email",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "secondaryEmail",
+                        "in": "formData",
+                        "description": "Client Secondary Email",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "formData",
+                        "description": "Client address",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "profilePic",
+                        "in": "formData",
+                        "description": "profilePic of the user",
+                        "required": false,
+                        "type": "file"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Client active status (active/inactive)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "formData",
+                        "description": "Id of the company",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/client/{id}": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Client details",
+                "description": "Returns client details",
+                "operationId": "single client",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Client Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Delete a client",
+                "description": "Delete a client",
+                "operationId": "delete client",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Client Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/company": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Company list",
+                "description": "Returns company list",
+                "operationId": "list company",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Company creation",
+                "description": "Returnscompany details",
+                "operationId": "create company",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the company at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "description": "name of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "email of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "mobileNumber",
+                        "in": "formData",
+                        "description": "mobileNumber of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "formData",
+                        "description": "address of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "logo",
+                        "in": "formData",
+                        "description": "logo of the company",
+                        "required": false,
+                        "type": "file"
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "formData",
+                        "description": "longitude of the address",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "latitude",
+                        "in": "formData",
+                        "description": "latitude of the address",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/company/{id}": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Company details",
+                "description": "Returns company details",
+                "operationId": "single company",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Company Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Delete a company",
+                "description": "Delete a company",
+                "operationId": "delete company",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Company Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/department": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Department list",
+                "description": "Returns department list",
+                "operationId": "list of department",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Create or update department",
+                "description": "Create or update department",
+                "operationId": "create department",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "department Id at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "title",
+                        "in": "formData",
+                        "description": "department title",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "formData",
+                        "description": "Id of the company",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/department/{id}/users": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "list of users according to department",
+                "description": "Returns list of users according to department",
+                "operationId": "list of users according to department",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "department Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/department/{id}": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "department details",
+                "description": "Returns company details",
+                "operationId": "single department",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "department Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Delete a department",
+                "description": "Delete a department",
+                "operationId": "delete department",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Department Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/designation": {
+            "get": {
+                "tags": [
+                    "Designation"
+                ],
+                "summary": "Designation list",
+                "description": "Returns designation list",
+                "operationId": "list of designation",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Designation"
+                ],
+                "summary": "Create or update designation",
+                "description": "Create or update designation",
+                "operationId": "create designation",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "designation Id at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "title",
+                        "in": "formData",
+                        "description": "designation title",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "formData",
+                        "description": "Id of the company",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/designation/{id}": {
+            "get": {
+                "tags": [
+                    "Designation"
+                ],
+                "summary": "designation details",
+                "description": "Returns company details",
+                "operationId": "single designation",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "designation Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Designation"
+                ],
+                "summary": "Delete a designation",
+                "description": "Delete a designation",
+                "operationId": "delete designation",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Designation Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/document-manager": {
+            "get": {
+                "tags": [
+                    "Document"
+                ],
+                "summary": "Document list",
+                "description": "Returns Document list",
+                "operationId": "list-of-document",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Document"
+                ],
+                "summary": "Document creation",
+                "description": "Returns Document details",
+                "operationId": "create-document",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the Document at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "title",
+                        "in": "formData",
+                        "description": "title of the Document",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "fileUrl",
+                        "in": "formData",
+                        "description": "File URL of the project",
+                        "required": true,
+                        "type": "file"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "Description",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "project_id",
+                        "in": "formData",
+                        "description": "Id of the Project",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "milestone_id",
+                        "in": "formData",
+                        "description": "ID of the Milestone",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "doc_task_id",
+                        "in": "formData",
+                        "description": "Task ID",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "doc_sprint_id",
+                        "in": "formData",
+                        "description": "Sprint ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/document-manager/{id}": {
+            "get": {
+                "tags": [
+                    "Document"
+                ],
+                "summary": "project related documents",
+                "description": "Returns project related documents",
+                "operationId": "project-related",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Document"
+                ],
+                "summary": "Delete a document",
+                "description": "Delete a document",
+                "operationId": "delete-document",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Document Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/location": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Location list",
+                "description": "Returns Location list",
+                "operationId": "location list",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "location creation",
+                "description": "Returns location details",
+                "operationId": "create location",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the location at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "title",
+                        "in": "formData",
+                        "description": "title of the location",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description of the location",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "formData",
+                        "description": "Address of the location",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "formData",
+                        "description": "longitude of the location",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "latitude",
+                        "in": "formData",
+                        "description": "latitude of the location",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "project_id",
+                        "in": "formData",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/location/{id}": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Location details",
+                "description": "Returns Location details",
+                "operationId": "single location",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Location Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Delete a Location",
+                "description": "Delete a Location",
+                "operationId": "delete Location",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Location Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/milestone": {
+            "post": {
+                "tags": [
+                    "Milestones"
+                ],
+                "summary": "milestone creation",
+                "description": "Returns created milestone",
+                "operationId": "create-milestone",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the milestone at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "title",
+                        "in": "formData",
+                        "description": "title for milestone",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description of the milestone",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "formData",
+                        "description": "start datetime",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "formData",
+                        "description": "End Datetime",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "estimatedHours",
+                        "in": "formData",
+                        "description": "Estimated Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Milestone Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "project_id",
+                        "in": "formData",
+                        "description": "Id of the project",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/milestone/{id}": {
+            "get": {
+                "tags": [
+                    "Milestones"
+                ],
+                "summary": "single Milestones details",
+                "description": "Returns single Milestone details",
+                "operationId": "single Milestone Details",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Milestone Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Milestones"
+                ],
+                "summary": "Delete a Milestone",
+                "description": "Delete a Milestone",
+                "operationId": "delete Milestone",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Milestone Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/milestone/by-project/{id}": {
+            "get": {
+                "tags": [
+                    "Milestones"
+                ],
+                "summary": "Milestone from projects",
+                "description": "Returns Milestone from projects",
+                "operationId": "All-Milestone-from-projects",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project list",
+                "description": "Returns Project list",
+                "operationId": "project list",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project creation",
+                "description": "Returns project details",
+                "operationId": "create project",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the project at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "projectName",
+                        "in": "formData",
+                        "description": "name of the project",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description of the project",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "projectCode",
+                        "in": "formData",
+                        "description": "project code",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "formData",
+                        "description": "start date",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "formData",
+                        "description": "End Date",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "budget",
+                        "in": "formData",
+                        "description": "Project Budget",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Status of the project(received/pending/started/in-progress/in-hold/completed/cancelled)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "formData",
+                        "description": "Id of the company",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "client_project_id",
+                        "in": "formData",
+                        "description": "client ID",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "project_lead_id",
+                        "in": "formData",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project/{id}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project details",
+                "description": "Returns Project details",
+                "operationId": "single project",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Delete a Project",
+                "description": "Delete a Project",
+                "operationId": "delete Project",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project-team": {
+            "post": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "adding team member to project",
+                "description": "creating a project team",
+                "operationId": "add new member to project",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the project team at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "team_user_id",
+                        "in": "formData",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "team_project_id",
+                        "in": "formData",
+                        "description": "Project ID",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Status of the team member(active/inactive)",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project-team/{id}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project team",
+                "description": "Returns Project team",
+                "operationId": "single project team",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Delete a team member",
+                "description": "Delete a team member",
+                "operationId": "delete team member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Team Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/sprint": {
+            "post": {
+                "tags": [
+                    "Sprint"
+                ],
+                "summary": "Sprint creation",
+                "description": "Returns created Sprint",
+                "operationId": "create-sprint",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sprintTitle",
+                        "in": "formData",
+                        "description": "Sprint Title",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "formData",
+                        "description": "start datetime",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "formData",
+                        "description": "End Datetime",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "priority",
+                        "in": "formData",
+                        "description": "Sprint Priority('critical', 'high', 'medium', 'low')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Id of the Task",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "dependent_sprint_id",
+                        "in": "formData",
+                        "description": "Dependent Sprint ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/sprint/{id}": {
+            "get": {
+                "tags": [
+                    "Sprint"
+                ],
+                "summary": "Sprint details",
+                "description": "Returns Sprint details",
+                "operationId": "single-Sprint",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sprint Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sprint"
+                ],
+                "summary": "Sprint updation",
+                "description": "Returns updated Sprint",
+                "operationId": "update-sprint",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the Sprint",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "sprintTitle",
+                        "in": "formData",
+                        "description": "Sprint Title",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "formData",
+                        "description": "start datetime",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "formData",
+                        "description": "End Datetime",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "priority",
+                        "in": "formData",
+                        "description": "Sprint Priority('critical', 'high', 'medium', 'low')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Id of the Task",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "sprint_assigned_by",
+                        "in": "formData",
+                        "description": "Id of the User",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "sprint_handled_by",
+                        "in": "formData",
+                        "description": "Id of the User",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "dependent_sprint_id",
+                        "in": "formData",
+                        "description": "Dependent Sprint ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sprint"
+                ],
+                "summary": "Delete a Sprint",
+                "description": "Delete a Sprint",
+                "operationId": "delete Sprint",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sprint Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/sprint/by-milestone/{id}": {
+            "get": {
+                "tags": [
+                    "Sprint"
+                ],
+                "summary": "Dependent Sprint details from milestone",
+                "description": "Returns Dependent Sprint details",
+                "operationId": "Dependent-Sprint-Details",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "milestone Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task": {
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task creation",
+                "description": "Returns created Task",
+                "operationId": "create-task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "taskName",
+                        "in": "formData",
+                        "description": "Task name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description of the Task",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "formData",
+                        "description": "start datetime",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "formData",
+                        "description": "End Datetime",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "estimatedHours",
+                        "in": "formData",
+                        "description": "Estimated Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "takenHours",
+                        "in": "formData",
+                        "description": "Taken Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "takenHours",
+                        "in": "formData",
+                        "description": "Taken Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Task Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "priority",
+                        "in": "formData",
+                        "description": "Task Priority('critical', 'high', 'medium', 'low')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "milestone_id",
+                        "in": "formData",
+                        "description": "Id of the Milestone",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "task_assigned_to",
+                        "in": "formData",
+                        "description": "Id of the User",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "task_assigned_by",
+                        "in": "formData",
+                        "description": "Id of the User",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "dependent_task_id",
+                        "in": "formData",
+                        "description": "Dependent Task ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task/{id}": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task details",
+                "description": "Returns Task details",
+                "operationId": "single Task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task Updation",
+                "description": "Returns Updated Task",
+                "operationId": "Update-task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the Task",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "name": "taskName",
+                        "in": "formData",
+                        "description": "Task name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description of the Task",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "formData",
+                        "description": "start datetime",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "formData",
+                        "description": "End Datetime",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "estimatedHours",
+                        "in": "formData",
+                        "description": "Estimated Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "takenHours",
+                        "in": "formData",
+                        "description": "Taken Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "takenHours",
+                        "in": "formData",
+                        "description": "Taken Hours",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "status",
+                        "in": "formData",
+                        "description": "Task Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "priority",
+                        "in": "formData",
+                        "description": "Task Priority('critical', 'high', 'medium', 'low')",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "milestone_id",
+                        "in": "formData",
+                        "description": "Id of the Milestone",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "task_assigned_to",
+                        "in": "formData",
+                        "description": "Id of the User",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "task_assigned_by",
+                        "in": "formData",
+                        "description": "Id of the User",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "dependent_task_id",
+                        "in": "formData",
+                        "description": "Dependent Task ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Delete a Task",
+                "description": "Delete a Task",
+                "operationId": "delete Task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task/by-sprints/{id}": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task List from sprints",
+                "description": "Returns Task List from sprints",
+                "operationId": "Task-List-from-sprints",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sprint Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/show-email/{email}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Current User Profile pic",
+                "description": "Returns User Profile pic",
+                "operationId": "show-email",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "description": "email of the user",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/reset-password": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "reset user password",
+                "description": "reset user password",
+                "operationId": "reset-password",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "formData",
+                        "description": "id of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "password of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "formData",
+                        "description": "confirm password",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/admin": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Admin User list",
+                "description": "Admin User list",
+                "operationId": "admin-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/hr": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "hr User list",
+                "description": "hr User list",
+                "operationId": "hr-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/management": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "management User list",
+                "description": "management User list",
+                "operationId": "management-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/team-lead": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "team-lead User list",
+                "description": "team-lead User list",
+                "operationId": "team-lead-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/project-lead": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "project-lead User list",
+                "description": "project-lead User list",
+                "operationId": "project-lead-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/user/employee": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "employee User list",
+                "description": "employee User list",
+                "operationId": "employee-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
                         "type": "string"
                     }
                 ],

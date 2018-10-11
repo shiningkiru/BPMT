@@ -12,7 +12,7 @@ class DocumentManager extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'fileUrl', 'description', 'documentType'
+        'title', 'fileUrl', 'description', 'documentType', 'relatedTo', 'document'
     ];
 
 

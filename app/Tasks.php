@@ -40,9 +40,9 @@ class Tasks extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function milestone()
+    public function sprint()
     {
-      return $this->belongsTo(Milestones::class, 'milestone_id');
+      return $this->belongsTo(Sprint::class, 'sprint_id');
     }
 
 

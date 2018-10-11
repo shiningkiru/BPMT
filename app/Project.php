@@ -30,6 +30,17 @@ class Project extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function company()
+    {
+      return $this->belongsTo(Company::class, 'project_company_id');
+    }
+
+
+    /**
+     * A message belong to a user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function client()
     {
       return $this->belongsTo(Client::class, 'client_project_id');

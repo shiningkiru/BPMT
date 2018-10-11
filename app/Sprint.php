@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Milestones;
 use Illuminate\Database\Eloquent\Model;
 
 class Sprint extends Model
@@ -40,37 +41,17 @@ class Sprint extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function task()
+    public function milestone()
     {
-      return $this->belongsTo(Tasks::class, 'task_id');
-    }
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sprint_assigned()
-    {
-      return $this->belongsTo(User::class, 'sprint_assigned_by');
-    }
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sprint_handled()
-    {
-      return $this->belongsTo(User::class, 'sprint_handled_by');
+      return $this->belongsTo(Milestones::class, 'milestone_id');
     }
 
     /**
      * Get the comments for the blog post.
      */
-    public function sprint_work_log()
+    public function tasks()
     {
-        return $this->hasMany(SprintWorkLog::class, 'sprint_id');
+        return $this->hasMany(Tasks::class, 'sprint_id');
     }
 
 

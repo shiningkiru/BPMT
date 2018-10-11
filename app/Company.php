@@ -28,7 +28,7 @@ class Company extends Model
      */
     public function branches()
     {
-        return $this->hasMany(Branch::class, 'company_id');
+        return $this->hasMany(Branch::class, 'br_company_id');
     }
 
     /**
@@ -36,7 +36,7 @@ class Company extends Model
      */
     public function mass_parameters()
     {
-        return $this->hasMany(MassParameter::class, 'company_id');
+        return $this->hasMany(MassParameter::class, 'ms_company_id');
     }
 
     /**
@@ -44,6 +44,14 @@ class Company extends Model
      */
     public function clients()
     {
-        return $this->hasMany(CompanyClients::class, 'client_company_id');
+        return $this->hasMany(Client::class, 'client_company_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function projects()
+    {
+        return $this->hasMany(Project::class, 'project_company_id');
     }
 }

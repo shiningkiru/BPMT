@@ -6,8 +6,10 @@ npm-debug.log
 bootstrap/compiled.php
 app/storage/
 
+
 # Laravel 5 & Lumen specific
 public/storage
+public/uploads
 public/hot
 public/uploads
 storage/*.key

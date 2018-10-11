@@ -32,7 +32,7 @@ class MassParameter extends Model
      */
     public function company()
     {
-      return $this->belongsTo(Company::class, 'company_id');
+      return $this->belongsTo(Company::class, 'ms_company_id');
     }
 
     /**
@@ -46,8 +46,8 @@ class MassParameter extends Model
     /**
      * Get the comments for the blog post.
      */
-    public function project_team()
+    public function project_team_member()
     {
-        return $this->hasMany(ProjectTeam::class, 'team_role_id');
+        return $this->hasMany(ProjectTeam::class, 'team_designation_id');
     }
 }

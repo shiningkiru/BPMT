@@ -18,10 +18,10 @@ class CreateUserModuleTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('mobileNumber')->unique();
-            $table->string('logo')->nullbale();
+            $table->string('logo')->nullable(true);
             $table->string('address');
-            $table->string('longitude')->nullbale();
-            $table->string('latitude')->nullbale();
+            $table->string('longitude')->nullable(true);
+            $table->string('latitude')->nullable(true);
             $table->timestamps();
         });
 
@@ -29,8 +29,8 @@ class CreateUserModuleTable extends Migration
             $table->increments('id');
             $table->string('title');
             $table->enum('type', ['department', 'designation', 'role']);
-            $table->unsignedInteger('company_id');
-            $table->foreign('company_id')
+            $table->unsignedInteger('ms_company_id');
+            $table->foreign('ms_company_id')
                     ->references('id')
                     ->on('companies')
                     ->onDelete('cascade');
@@ -40,12 +40,12 @@ class CreateUserModuleTable extends Migration
         Schema::create('branches', function (Blueprint $table) {
             $table->increments('id');
             $table->string('branchName');
-            $table->string('branchCode')->unique();;
+            $table->string('branchCode')->unique();
             $table->string('address');
-            $table->string('longitude')->nullbale();
-            $table->string('latitude')->nullbale();
-            $table->unsignedInteger('company_id');
-            $table->foreign('company_id')
+            $table->string('longitude')->nullable(true);
+            $table->string('latitude')->nullable(true);
+            $table->unsignedInteger('br_company_id');
+            $table->foreign('br_company_id')
                     ->references('id')
                     ->on('companies')
                     ->onDelete('cascade');
@@ -71,21 +71,23 @@ class CreateUserModuleTable extends Migration
 
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('employeeId')->unique();
+            $table->unsignedInteger('employeeId')->unique();
             $table->string('firstName');
-            $table->string('lastName')->nullbale();
+            $table->string('lastName')->nullable(true);
             $table->string('email')->unique();
             $table->string('mobileNumber')->unique();
             $table->string('password');
-            $table->text('address')->nullbale();
-            $table->string('profilePic')->nullbale();
+            $table->text('reset_token')->nullable(true);
+            $table->text('address')->nullable(true);
+            $table->string('profilePic')->nullable(true);
             $table->dateTimeTz('dob');
             $table->dateTimeTz('doj');
             $table->string('salary');
-            $table->string('bloodGroup')->nullbale();
-            $table->string('relievingDate')->nullbale();
-            $table->string('isActive');
-            $table->unsignedInteger('branch_dept_id');
+            $table->string('bloodGroup')->nullable(true);
+            $table->string('relievingDate')->nullable(true);
+            $table->string('isActive')->default(1);
+            $table->enum('roles', ['admin', 'management', 'hr', 'team-lead', 'project-lead', 'employee']);
+            $table->unsignedInteger('branch_dept_id')->nullable(true);
             $table->foreign('branch_dept_id')
                     ->references('id')
                     ->on('branch_departments')
@@ -104,55 +106,44 @@ class CreateUserModuleTable extends Migration
             $table->timestamps();
         });
 
-        Schema::table('branch_departments', function($table) {
-            $table->unsignedInteger('hod_id');
-            $table->foreign('hod_id')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
-        });
-
 
         Schema::create('clients', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->string('mobileNumber')->unique();
-            $table->string('secondaryMobileNumber')->nullbale();
-            $table->string('email')->unique();
-            $table->string('secondaryEmail')->nullbale();
-            $table->string('profilePic')->nullbale();
+            $table->string('mobileNumber');
+            $table->string('secondaryMobileNumber')->nullable(true);
+            $table->string('email');
+            $table->string('secondaryEmail')->nullable(true);
+            $table->string('profilePic')->nullable(true);
             $table->string('address');
-            $table->string('longitude')->nullbale();
-            $table->string('latitude')->nullbale();
-            $table->timestamps();
-        });
-
-
-        Schema::create('company_clients', function (Blueprint $table) {
-            $table->increments('id');
-            $table->dateTimeTz('doj');
-            $table->unsignedInteger('company_client_id');
-            $table->foreign('company_client_id')
-                    ->references('id')
-                    ->on('clients')
-                    ->onDelete('cascade');
+            $table->string('longitude')->nullable(true);
+            $table->string('latitude')->nullable(true);
+            $table->enum('status', ['active', 'inactive']);
             $table->unsignedInteger('client_company_id');
             $table->foreign('client_company_id')
                     ->references('id')
                     ->on('companies')
                     ->onDelete('cascade');
+            $table->unique(['mobileNumber', 'client_company_id']);
+            $table->unique(['email', 'client_company_id']);
             $table->timestamps();
         });
 
+
         Schema::create('projects', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('projectName')->unique();;
-            $table->string('description')->nullbale();
+            $table->string('projectName')->unique();
+            $table->string('description')->nullable(true);
             $table->string('projectCode')->unique();;
-            $table->dateTimeTz('startDate')->nullbale();
-            $table->dateTimeTz('endDate')->nullbale();
-            $table->string('budget')->nullbale();
-            $table->string('status');
+            $table->dateTimeTz('startDate')->nullable(true);
+            $table->dateTimeTz('endDate')->nullable(true);
+            $table->string('budget')->nullable(true);
+            $table->enum('status', ['received', 'pending', 'started', 'in-progress', 'in-hold', 'completed', 'cancelled']);
+            $table->unsignedInteger('project_company_id');
+            $table->foreign('project_company_id')
+                    ->references('id')
+                    ->on('companies')
+                    ->onDelete('cascade');
             $table->unsignedInteger('client_project_id');
             $table->foreign('client_project_id')
                     ->references('id')
@@ -170,10 +161,10 @@ class CreateUserModuleTable extends Migration
         Schema::create('locations', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->text('description')->nullbale();
+            $table->text('description')->nullable(true);
             $table->string('address');
-            $table->string('longitude')->nullbale();
-            $table->string('latitude')->nullbale();
+            $table->string('longitude')->nullable(true);
+            $table->string('latitude')->nullable(true);
             $table->unsignedInteger('project_id');
             $table->foreign('project_id')
                     ->references('id')
@@ -184,7 +175,7 @@ class CreateUserModuleTable extends Migration
 
         Schema::create('project_teams', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('status');
+            $table->enum('status', ['active', 'inactive']);
             $table->unsignedInteger('team_project_id');
             $table->foreign('team_project_id')
                     ->references('id')
@@ -195,11 +186,6 @@ class CreateUserModuleTable extends Migration
                     ->references('id')
                     ->on('users')
                     ->onDelete('cascade');
-            $table->unsignedInteger('team_role_id');
-            $table->foreign('team_role_id')
-                    ->references('id')
-                    ->on('mass_parameters')
-                    ->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -207,44 +193,61 @@ class CreateUserModuleTable extends Migration
         Schema::create('milestones', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->text('description')->nullbale();
-            $table->dateTimeTz('startDate');
-            $table->dateTimeTz('endDate');
-            $table->float('estimatedHours');
+            $table->text('description')->nullable(true);
+            $table->dateTimeTz('startDate')->nullable(true);
+            $table->dateTimeTz('endDate')->nullable(true);
+            $table->float('estimatedHours')->default(0.0);
             $table->float('progress')->default(0.0);
-            $table->string('status');
+            $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
             $table->unsignedInteger('project_milestone_id');
             $table->foreign('project_milestone_id')
                     ->references('id')
                     ->on('projects')
                     ->onDelete('cascade');
-            $table->unsignedInteger('assigned_to');
-            $table->foreign('assigned_to')
+            $table->unique(['title', 'project_milestone_id']);
+            $table->timestamps();
+        });
+
+        Schema::create('sprints', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('sprintTitle');
+            $table->dateTimeTz('startDate');
+            $table->dateTimeTz('endDate');
+            $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
+            $table->enum('priority', ['critical', 'high', 'medium', 'low']);
+            $table->unsignedInteger('dependent_sprint_id')->nullable(true);
+            $table->foreign('dependent_sprint_id')
                     ->references('id')
-                    ->on('users')
+                    ->on('sprints')
                     ->onDelete('cascade');
+            $table->unsignedInteger('milestone_id');
+            $table->foreign('milestone_id')
+                    ->references('id')
+                    ->on('milestones')
+                    ->onDelete('cascade');
+            $table->unique(['sprintTitle', 'milestone_id']);
             $table->timestamps();
         });
 
         Schema::create('tasks', function (Blueprint $table) {
             $table->increments('id');
             $table->string('taskName');
-            $table->text('description')->nullbale();;
+            $table->text('description')->nullable(true);
             $table->dateTimeTz('startDate');
             $table->dateTimeTz('endDate');
             $table->float('estimatedHours');
             $table->float('takenHours')->default(0.0);
-            $table->string('status');
-            $table->integer('priority');
-            $table->unsignedInteger('dependent_task_id');
+            $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
+            $table->enum('priority', ['critical', 'high', 'medium', 'low']);
+            $table->unsignedInteger('dependent_task_id')->nullable(true);
             $table->foreign('dependent_task_id')
                     ->references('id')
                     ->on('tasks')
                     ->onDelete('cascade');
-            $table->unsignedInteger('milestone_id');
-            $table->foreign('milestone_id')
+            $table->unsignedInteger('sprint_id');
+            $table->foreign('sprint_id')
                     ->references('id')
-                    ->on('milestones')
+                    ->on('sprints')
                     ->onDelete('cascade');
             $table->unsignedInteger('task_assigned_to');
             $table->foreign('task_assigned_to')
@@ -256,86 +259,33 @@ class CreateUserModuleTable extends Migration
                     ->references('id')
                     ->on('users')
                     ->onDelete('cascade');
-            $table->timestamps();
-        });
-
-        Schema::create('sprints', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('sprintTitle');
-            $table->dateTimeTz('startDate');
-            $table->dateTimeTz('endDate');
-            $table->string('status');
-            $table->integer('priority');
-            $table->unsignedInteger('dependent_sprint_id');
-            $table->foreign('dependent_sprint_id')
-                    ->references('id')
-                    ->on('sprints')
-                    ->onDelete('cascade');
-            $table->unsignedInteger('task_id');
-            $table->foreign('task_id')
-                    ->references('id')
-                    ->on('tasks')
-                    ->onDelete('cascade');
-            $table->unsignedInteger('sprint_assigned_by');
-            $table->foreign('sprint_assigned_by')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
-            $table->unsignedInteger('sprint_handled_by');
-            $table->foreign('sprint_handled_by')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
-            $table->timestamps();
-        });
-
-        Schema::create('sprint_work_logs', function (Blueprint $table) {
-            $table->increments('id');
-            $table->dateTimeTz('startDate');
-            $table->dateTimeTz('endDate');
-            $table->float('totalHours');
-            $table->string('work');
-            $table->enum('type', ['work', 'other']);
-            $table->unsignedInteger('sprint_id');
-            $table->foreign('sprint_id')
-                    ->references('id')
-                    ->on('sprints')
-                    ->onDelete('cascade');
-            $table->unsignedInteger('sprint_handled_user');
-            $table->foreign('sprint_handled_user')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
-            $table->unsignedInteger('sprint_next_user');
-            $table->foreign('sprint_next_user')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
+            $table->unique(['taskName', 'sprint_id']);
             $table->timestamps();
         });
 
         Schema::create('document_managers', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->string('fileUrl')->nullbale();
-            $table->text('description')->nullbale();
-            $table->enum('documentType', ['file', 'image', 'no-file']);
-            $table->unsignedInteger('doc_project_id');
+            $table->string('fileUrl')->nullable(true);
+            $table->text('description')->nullable(true);
+            $table->string('documentType')->nullable(true);
+            $table->enum('relatedTo', ['project', 'milestone', 'sprint', 'task']);
+            $table->unsignedInteger('doc_project_id')->nullable(true);
             $table->foreign('doc_project_id')
                     ->references('id')
                     ->on('projects')
                     ->onDelete('cascade');
-            $table->unsignedInteger('doc_task_id');
+            $table->unsignedInteger('doc_task_id')->nullable(true);
             $table->foreign('doc_task_id')
                     ->references('id')
                     ->on('tasks')
                     ->onDelete('cascade');
-            $table->unsignedInteger('doc_milestone_id');
+            $table->unsignedInteger('doc_milestone_id')->nullable(true);
             $table->foreign('doc_milestone_id')
                     ->references('id')
                     ->on('milestones')
                     ->onDelete('cascade');
-            $table->unsignedInteger('doc_sprint_id');
+            $table->unsignedInteger('doc_sprint_id')->nullable(true);
             $table->foreign('doc_sprint_id')
                     ->references('id')
                     ->on('sprints')
@@ -380,9 +330,8 @@ class CreateUserModuleTable extends Migration
     {
         Schema::dropIfExists('activity_logs');
         Schema::dropIfExists('document_managers');
-        Schema::dropIfExists('company_clients');
-        Schema::dropIfExists('branches');
         Schema::dropIfExists('mass_parameters');
+        Schema::dropIfExists('branches');
         Schema::dropIfExists('project_teams');
         Schema::dropIfExists('users');
         Schema::dropIfExists('branch_departments');
