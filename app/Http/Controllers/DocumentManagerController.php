@@ -220,7 +220,7 @@ class DocumentManagerController extends Controller
      * @SWG\Get(
      *      path="/v1/document-manager/download-file/{id}",
      *      operationId="download-file",
-     *      tags={"Download File"},
+     *      tags={"Document"},
      *      summary="Download File",
      *      description="Returns Download File",
      *      @SWG\Parameter(

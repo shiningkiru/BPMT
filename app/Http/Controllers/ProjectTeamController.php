@@ -202,7 +202,7 @@ class ProjectTeamController extends Controller
     * @SWG\Get(
     *      path="/v1/project-team/members/{id}",
     *      operationId="team-members",
-    *      tags={"Project Team Members"},
+    *      tags={"Project"},
     *      summary="Project Team Members",
     *      description="Returns Project Team Members",
     *      @SWG\Parameter(
