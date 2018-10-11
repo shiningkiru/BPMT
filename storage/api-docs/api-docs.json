@@ -5,7 +5,7 @@
         "description": "Project management operations",
         "version": "1.0.0"
     },
-    "host": "127.0.0.1:8000",
+    "host": "http://my-default-host.com",
     "basePath": "/api/",
     "schemes": [
         "http",
