@@ -1,0 +1,84 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "BPMT API's",
+        "description": "Project management operations",
+        "version": "1.0.0"
+    },
+    "host": "127.0.0.1:8000",
+    "basePath": "/api/",
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "paths": {
+        "/v1/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login user",
+                "description": "Returns token for the user",
+                "operationId": "login-user",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "email of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "password of the user",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/current-user": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get current user details",
+                "description": "Returns details of user",
+                "operationId": "current-logged-in-user",
+                "parameters": [
+                    {
+                        "name": "companyName",
+                        "in": "formData",
+                        "description": "Name of the company",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {}
+}
