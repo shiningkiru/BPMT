@@ -236,7 +236,7 @@ class ProjectTeamController extends Controller
         $i=0;
         foreach($departments as $dept):
             $users=User::leftJoin('project_teams','users.id','=','project_teams.team_user_id')->leftJoin('branch_departments','users.branch_dept_id','=','branch_departments.id')->leftJoin('mass_parameters as designation','designation_id','=','designation.id')->where('project_teams.team_project_id','=',$id)->where('branch_departments.dept_id','=',$dept->id)->select('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.mobileNumber', 'users.profilePic', 'users.id', 'designation.title as designation')->get();
-            $dept['team-members']=$users;
+            $dept['teamMembers']=$users;
             $teamData[$i]=$dept;
             $i++;
         endforeach;
