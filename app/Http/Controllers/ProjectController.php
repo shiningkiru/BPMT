@@ -233,4 +233,11 @@ class ProjectController extends Controller
         $projects->delete();
         return $projects;
     }
+
+    public function taskChartList()
+    {
+        $path = public_path(). "/js/sampleweather.json"; // ie: /var/www/laravel/app/storage/json/filename.json
+        $json = json_decode(file_get_contents($path), true); 
+        return response()->json($json , 200);
+    }
 }

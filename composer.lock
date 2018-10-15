@@ -1576,7 +1576,6 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-<<<<<<< HEAD
             "version": "v3.19.3",
             "source": {
                 "type": "git",
@@ -1587,18 +1586,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/94b1355700599ace6f0e96f3e07c94592a0e34e0",
                 "reference": "94b1355700599ace6f0e96f3e07c94592a0e34e0",
-=======
-            "version": "v3.19.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "c949483dac6857d4f3a2d28cf2fa79eef2c982d5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/c949483dac6857d4f3a2d28cf2fa79eef2c982d5",
-                "reference": "c949483dac6857d4f3a2d28cf2fa79eef2c982d5",
->>>>>>> 02514c88e8c540a6ccaa663138a06bad14229b25
                 "shasum": ""
             },
             "type": "library",
