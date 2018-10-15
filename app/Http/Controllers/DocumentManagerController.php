@@ -8,7 +8,7 @@ use Illuminate\Http\UploadedFile;
 
 class DocumentManagerController extends Controller
 {
- /**
+    /**
      * @SWG\Post(
      *      path="/v1/document-manager",
      *      operationId="create-document",
