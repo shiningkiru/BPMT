@@ -5,7 +5,7 @@
         "description": "Project management operations",
         "version": "1.0.0"
     },
-    "host": "http://my-default-host.com",
+    "host": "127.0.0.1:8000",
     "basePath": "/api/",
     "schemes": [
         "http",
@@ -1487,6 +1487,36 @@
                 }
             }
         },
+        "/v1/document-manager/download-file/{id}": {
+            "get": {
+                "tags": [
+                    "Document"
+                ],
+                "summary": "Download File",
+                "description": "Returns Download File",
+                "operationId": "download-file",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/location": {
             "get": {
                 "tags": [
@@ -1861,6 +1891,43 @@
                 }
             }
         },
+        "/v1/milestone/total-milestones/{id}": {
+            "get": {
+                "tags": [
+                    "Milestones"
+                ],
+                "summary": "Total Number of Milestones created",
+                "description": "Returns Total Number of Milestones created",
+                "operationId": "total-milestones",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/project": {
             "get": {
                 "tags": [
@@ -2181,6 +2248,87 @@
                         "name": "id",
                         "in": "path",
                         "description": "Project Team Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project-team/{id}/{prid}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Delete a team member",
+                "description": "Delete a team member",
+                "operationId": "delete team member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User Id",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "prid",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project-team/members/{id}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project Team Members",
+                "description": "Returns Project Team Members",
+                "operationId": "team-members",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
                         "required": true,
                         "type": "number"
                     }
