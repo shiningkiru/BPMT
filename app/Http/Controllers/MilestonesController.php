@@ -78,6 +78,14 @@ class MilestonesController extends Controller
      *          type="number",
      *          in="formData"
      *      ),
+     *      @SWG\Parameter(
+     *          name="dependent_milestone_id",
+     *          description="Id of the Milestone",
+     *          required=true,
+     *          type="number",
+     *          in="formData"
+     *      ),
+     * 
      *      @SWG\Response(
      *          response=200,
      *          description="successful operation"
@@ -102,6 +110,7 @@ class MilestonesController extends Controller
         $milestone->estimatedHours=$request->estimatedHours;
         $milestone->status=$request->status;
         $milestone->project_milestone_id=$request->project_id;
+        $milestone->dependent_milestone_id=$request->dependent_milestone_id;
         $milestone->save();
         return $milestone;
     }
@@ -248,7 +257,7 @@ class MilestonesController extends Controller
      */
     public function totalMilestones($id){
         $milestone = Milestones::where('project_milestone_id','=',$id)->get([
-        \DB::raw("COUNT(IF(id,1,0)) as total_milestones"),
+        \DB::raw("COUNT(id) as total_milestones"),
         \DB::raw("SUM(IF(status='completed',1,0)) as completed_milestones")
         ]);
         return $milestone[0];

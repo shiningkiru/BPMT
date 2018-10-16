@@ -199,6 +199,11 @@ class CreateUserModuleTable extends Migration
             $table->float('estimatedHours')->default(0.0);
             $table->float('progress')->default(0.0);
             $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
+            $table->unsignedInteger('dependent_milestone_id')->nullable(true);
+            $table->foreign('dependent_milestone_id')
+                    ->references('id')
+                    ->on('milestones')
+                    ->onDelete('cascade');
             $table->unsignedInteger('project_milestone_id');
             $table->foreign('project_milestone_id')
                     ->references('id')

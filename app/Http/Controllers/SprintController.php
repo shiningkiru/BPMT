@@ -157,20 +157,6 @@ class SprintController extends Controller
      *          type="number",
      *          in="formData"
      *      ),
-     *    @SWG\Parameter(
-     *          name="sprint_assigned_by",
-     *          description="Id of the User",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *     @SWG\Parameter(
-     *          name="sprint_handled_by",
-     *          description="Id of the User",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
      *     @SWG\Parameter(
      *          name="dependent_sprint_id",
      *          description="Dependent Sprint ID",
@@ -198,8 +184,6 @@ class SprintController extends Controller
         $sprint->priority=$request->priority;
         $sprint->dependent_sprint_id=$request->dependent_sprint_id;
         $sprint->milestone_id=$request->milestone_id;
-        $sprint->sprint_assigned_by=$request->sprint_assigned_by;
-        $sprint->sprint_handled_by=$request->sprint_handled_by;
         $sprint->save();
         return $sprint;
     }
