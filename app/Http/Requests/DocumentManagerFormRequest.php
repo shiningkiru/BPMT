@@ -26,7 +26,7 @@ class DocumentManagerFormRequest extends FormRequest
         return [
             'id' => 'exists:document_managers,id',
             'title' => 'required|string',
-            'fileUrl' => 'mimes:jpeg,png,jpg,gif,svg,ppt,pptx,pdf,doc,docx,xls,xlsx,zip,tar|max:2048',
+            'fileUrl' => 'mimes:jpeg,png,txt,jpg,gif,svg,ppt,pptx,pdf,doc,docx,xls,xlsx,zip,tar|max:2048',
             'project_id' => 'required|exists:projects,id',//'nullable|required_without_all:doc_task_id,milestone_id,doc_sprint_id',
             'milestone_id' => 'exists:milestones,id',
             'doc_sprint_id' => 'exists:sprints,id',
