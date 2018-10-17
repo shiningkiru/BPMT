@@ -24,7 +24,7 @@ class SprintFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'exists:sprints,id',
+            // 'id' => 'exists:sprints,id',
             'sprintTitle' => 'required|string|unique:sprints,sprintTitle,'.$this->request->get('id').',id,milestone_id,'.$this->request->get('milestone_id'),
             'status' => 'required|in:created,assigned,onhold,inprogress,completed,cancelled,failed',
             'priority' => 'required|in:critical,high,medium,low',
