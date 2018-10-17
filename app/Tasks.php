@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\TaskMember;
 use Illuminate\Database\Eloquent\Model;
 
 class Tasks extends Model
@@ -45,28 +46,6 @@ class Tasks extends Model
       return $this->belongsTo(Sprint::class, 'sprint_id');
     }
 
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user_working()
-    {
-      return $this->belongsTo(User::class, 'task_assigned_to');
-    }
-
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user_assigned_by()
-    {
-      return $this->belongsTo(User::class, 'task_assigned_by');
-    }
-
     /**
      * Get the comments for the blog post.
      */
@@ -91,5 +70,13 @@ class Tasks extends Model
     public function activity_log()
     {
         return $this->hasMany(ActivityLog::class, 'activity_tasks_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function taskMember()
+    {
+        return $this->hasMany(TaskMember::class, 'task_identification');
     }
 }

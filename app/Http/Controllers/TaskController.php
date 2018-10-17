@@ -92,20 +92,6 @@ class TaskController extends Controller
      *          in="formData"
      *      ),
      *      @SWG\Parameter(
-     *          name="task_assigned_to",
-     *          description="Id of the User",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="task_assigned_by",
-     *          description="Id of the User",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
      *          name="dependent_task_id",
      *          description="Dependent Task ID",
      *          required=true,

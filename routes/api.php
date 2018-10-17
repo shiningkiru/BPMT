@@ -37,6 +37,7 @@ Route::prefix('v1')->group(function () {
 
 
     Route::middleware('jwt.refresh')->get('/token/refresh', 'AuthController@refresh');
+    
     Route::post('user', 'AuthController@register');
     Route::post('login', 'AuthController@login');
     Route::post('forgot-password', 'AuthController@forgotVerification');
