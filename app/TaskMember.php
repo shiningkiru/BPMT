@@ -15,7 +15,7 @@ class TaskMember extends Model
      * @var array
      */
     protected $fillable = [
-        'estimatedHour','takenHour'
+        'estimatedHours','takenHours'
     ];
 
     /**

@@ -1767,6 +1767,13 @@
                         "description": "Id of the project",
                         "required": true,
                         "type": "number"
+                    },
+                    {
+                        "name": "dependent_milestone_id",
+                        "in": "formData",
+                        "description": "Id of the Milestone",
+                        "required": true,
+                        "type": "number"
                     }
                 ],
                 "responses": {
@@ -2526,20 +2533,6 @@
                         "type": "number"
                     },
                     {
-                        "name": "sprint_assigned_by",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "sprint_handled_by",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
                         "name": "dependent_sprint_id",
                         "in": "formData",
                         "description": "Dependent Sprint ID",
@@ -2712,23 +2705,9 @@
                         "type": "string"
                     },
                     {
-                        "name": "milestone_id",
+                        "name": "sprint_id",
                         "in": "formData",
-                        "description": "Id of the Milestone",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_to",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_by",
-                        "in": "formData",
-                        "description": "Id of the User",
+                        "description": "Id of the sprint",
                         "required": true,
                         "type": "number"
                     },
@@ -2875,23 +2854,9 @@
                         "type": "string"
                     },
                     {
-                        "name": "milestone_id",
+                        "name": "sprint_id",
                         "in": "formData",
-                        "description": "Id of the Milestone",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_to",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_by",
-                        "in": "formData",
-                        "description": "Id of the User",
+                        "description": "Id of the sprint",
                         "required": true,
                         "type": "number"
                     },
@@ -2971,6 +2936,129 @@
                         "name": "id",
                         "in": "path",
                         "description": "Sprint Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member": {
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task member assign",
+                "description": "Returns Task Member",
+                "operationId": "assign-task-member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "estimatedHour",
+                        "in": "formData",
+                        "description": "estimatedHour",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Task id",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "member_id",
+                        "in": "formData",
+                        "description": "Member id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member/{id}": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task members list",
+                "description": "Returns Task members list",
+                "operationId": "task member get",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Delete a Task",
+                "description": "Delete a Task member",
+                "operationId": "delete Task member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task member Id",
                         "required": true,
                         "type": "number"
                     }
