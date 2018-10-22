@@ -134,6 +134,13 @@ Route::prefix('v1')->group(function () {
         Route::delete('task/{id}', 'TaskController@delete');
     });
 
+    //Task member routes
+   // Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('task-member/{id}', 'TaskMemberController@getAssignedMembers');
+        Route::post('task-member', 'TaskMemberController@addMember');
+        Route::delete('task-member/{id}', 'TaskMemberController@removeMember');
+  //  });
+
     //Document Manager routes
     // Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('document-manager/{id}', 'DocumentManagerController@show');

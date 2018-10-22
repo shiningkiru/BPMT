@@ -25,7 +25,6 @@ class TaskMemberRequest extends FormRequest
     {
         return [
             'estimatedHour' => 'required|numeric|between:0,999.99',
-            'takenHour' => 'required|numeric|between:0,999.99',
             'task_id' => 'required|exists:tasks,id',
             'member_id' => 'required|exists:users,id',
         ];
