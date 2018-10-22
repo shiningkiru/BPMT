@@ -85,8 +85,8 @@ class TaskController extends Controller
      *          in="formData"
      *      ),
      *      @SWG\Parameter(
-     *          name="milestone_id",
-     *          description="Id of the Milestone",
+     *          name="sprint_id",
+     *          description="Id of the sprint",
      *          required=true,
      *          type="number",
      *          in="formData"
@@ -120,8 +120,6 @@ class TaskController extends Controller
         $task->status=$request->status;
         $task->priority=$request->priority;
         $task->sprint_id=$request->sprint_id;
-        $task->task_assigned_to=$request->task_assigned_to;
-        $task->task_assigned_by=$request->task_assigned_by;
         $task->dependent_task_id=$request->dependent_task_id;
         $task->save();
         return $task;
@@ -212,22 +210,8 @@ class TaskController extends Controller
      *          in="formData"
      *      ),
      *      @SWG\Parameter(
-     *          name="milestone_id",
-     *          description="Id of the Milestone",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="task_assigned_to",
-     *          description="Id of the User",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="task_assigned_by",
-     *          description="Id of the User",
+     *          name="sprint_id",
+     *          description="Id of the sprint",
      *          required=true,
      *          type="number",
      *          in="formData"
@@ -261,8 +245,6 @@ class TaskController extends Controller
         $task->status=$request->status;
         $task->priority=$request->priority;
         $task->sprint_id=$request->sprint_id;
-        $task->task_assigned_to=$request->task_assigned_to;
-        $task->task_assigned_by=$request->task_assigned_by;
         $task->dependent_task_id=$request->dependent_task_id;
         $task->save();
         return $task;

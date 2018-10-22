@@ -46,14 +46,6 @@ class Tasks extends Model
       return $this->belongsTo(Sprint::class, 'sprint_id');
     }
 
-    /**
-     * Get the comments for the blog post.
-     */
-    public function sprints()
-    {
-        return $this->hasMany(Sprint::class, 'task_id');
-    }
-
 
     /**
      * Get the comments for the blog post.
