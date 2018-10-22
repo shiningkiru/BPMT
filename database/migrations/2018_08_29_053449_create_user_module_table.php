@@ -274,6 +274,7 @@ class CreateUserModuleTable extends Migration
                         ->references('id')
                         ->on('users')
                         ->onDelete('cascade');
+                $table->unique(['task_identification', 'member_identification']);
                 $table->timestamps();
         });
 
@@ -282,6 +283,8 @@ class CreateUserModuleTable extends Migration
                 $table->increments('id');
                 $table->text('description');
                 $table->float('takenHours');
+                $table->dateTimeTz('dateOfEntry');
+                $table->boolean('isUpdated');
                 $table->unsignedInteger('task_member_identification');
                 $table->foreign('task_member_identification')
                         ->references('id')
