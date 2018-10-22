@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\Sprint;
+use App\Milestones;
 use Illuminate\Http\Request;
+use Response;
 use App\Http\Requests\SprintFormRequest;
 
 class SprintController extends Controller
@@ -22,6 +24,13 @@ class SprintController extends Controller
      *          in="header"
      *      ),
      *      @SWG\Parameter(
+     *          name="id",
+     *          description="id of the sprint at the time of update",
+     *          required=false,
+     *          type="number",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
      *          name="sprintTitle",
      *          description="Sprint Title",
      *          required=true,
@@ -42,6 +51,13 @@ class SprintController extends Controller
      *          type="string",
      *          in="formData"
      *      ),
+     *      @SWG\Parameter(
+     *          name="estimatedHours",
+     *          description="estimatedHours",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
      *   @SWG\Parameter(
      *          name="status",
      *          description="Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
@@ -57,8 +73,8 @@ class SprintController extends Controller
      *          in="formData"
      *      ),
      *    @SWG\Parameter(
-     *          name="task_id",
-     *          description="Id of the Task",
+     *          name="milestone_id",
+     *          description="Id of the Milestone",
      *          required=true,
      *          type="number",
      *          in="formData"
@@ -66,7 +82,7 @@ class SprintController extends Controller
      *     @SWG\Parameter(
      *          name="dependent_sprint_id",
      *          description="Dependent Sprint ID",
-     *          required=true,
+     *          required=false,
      *          type="number",
      *          in="formData"
      *      ),
@@ -82,7 +98,11 @@ class SprintController extends Controller
      */
     public function create(SprintFormRequest $request)
     {
-        $sprint=new Sprint();
+        $id=$request->id;
+        if(empty($id))
+            $sprint=new Sprint();
+        else
+            $sprint=Sprint::find($id);
         $sprint->sprintTitle=$request->sprintTitle;
         $sprint->startDate=new \Datetime($request->startDate);
         $sprint->endDate=new \Datetime($request->endDate);
@@ -90,100 +110,18 @@ class SprintController extends Controller
         $sprint->priority=$request->priority;
         $sprint->dependent_sprint_id=$request->dependent_sprint_id;
         $sprint->milestone_id=$request->milestone_id;
-        $sprint->save();
-        return $sprint;
-    }
+        $sprint->estimatedHours=$request->estimatedHours;
 
-    /**
-     * @SWG\Put(
-     *      path="/v1/sprint/{id}",
-     *      operationId="update-sprint",
-     *      tags={"Sprint"},
-     *      summary="Sprint updation",
-     *      description="Returns updated Sprint",
-     *      @SWG\Parameter(
-     *          name="Authorization",
-     *          description="authorization header",
-     *          required=true,
-     *          type="string",
-     *          in="header"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="id",
-     *          description="id of the Sprint",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="sprintTitle",
-     *          description="Sprint Title",
-     *          required=true,
-     *          type="string",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="startDate",
-     *          description="start datetime",
-     *          required=true,
-     *          type="string",
-     *          in="formData"
-     *      ),
-     *      @SWG\Parameter(
-     *          name="endDate",
-     *          description="End Datetime",
-     *          required=false,
-     *          type="string",
-     *          in="formData"
-     *      ),
-     *   @SWG\Parameter(
-     *          name="status",
-     *          description="Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
-     *          required=true,
-     *          type="string",
-     *          in="formData"
-     *      ),
-     * @SWG\Parameter(
-     *          name="priority",
-     *          description="Sprint Priority('critical', 'high', 'medium', 'low')",
-     *          required=true,
-     *          type="string",
-     *          in="formData"
-     *      ),
-     *    @SWG\Parameter(
-     *          name="task_id",
-     *          description="Id of the Task",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *     @SWG\Parameter(
-     *          name="dependent_sprint_id",
-     *          description="Dependent Sprint ID",
-     *          required=true,
-     *          type="number",
-     *          in="formData"
-     *      ),
-     *      @SWG\Response(
-     *          response=200,
-     *          description="successful operation"
-     *       ),
-     *       @SWG\Response(response=500, description="Internal server error"),
-     *       @SWG\Response(response=400, description="Bad request"),
-     *     )
-     *
-     * Returns created Sprint
-     */
-    public function update(SprintFormRequest $request, $id)
-    {
-        $sprint = Sprint::find($id);
-        $sprint->sprintTitle=$request->sprintTitle;
-        $sprint->startDate=new \Datetime($request->startDate);
-        $sprint->endDate=new \Datetime($request->endDate);
-        $sprint->status=$request->status;
-        $sprint->priority=$request->priority;
-        $sprint->dependent_sprint_id=$request->dependent_sprint_id;
-        $sprint->milestone_id=$request->milestone_id;
+        
+        $milestone=Milestones::find($request->milestone_id);
+        $total = Sprint::where('milestone_id','=',$request->milestone_id)->first([
+            \DB::raw('SUM(estimatedHours) as total')
+        ]);  
+        $total = $total->total + (float)$request->estimatedHours;          
+        if($total > $milestone->estimatedHours){
+            return Response::json(['error'=>['estimatedHours'=>'Estimated limit crossed']], 401);
+        }
+
         $sprint->save();
         return $sprint;
     }

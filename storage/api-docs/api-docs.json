@@ -2391,6 +2391,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "estimatedHours",
+                        "in": "formData",
+                        "description": "estimatedHours",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "name": "status",
                         "in": "formData",
                         "description": "Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
@@ -2405,9 +2412,9 @@
                         "type": "string"
                     },
                     {
-                        "name": "task_id",
+                        "name": "milestone_id",
                         "in": "formData",
-                        "description": "Id of the Task",
+                        "description": "Id of the Milestone",
                         "required": true,
                         "type": "number"
                     },
@@ -2415,7 +2422,7 @@
                         "name": "dependent_sprint_id",
                         "in": "formData",
                         "description": "Dependent Sprint ID",
-                        "required": true,
+                        "required": false,
                         "type": "number"
                     }
                 ],
@@ -2512,6 +2519,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "estimatedHours",
+                        "in": "formData",
+                        "description": "estimatedHours",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "name": "status",
                         "in": "formData",
                         "description": "Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
@@ -2526,9 +2540,9 @@
                         "type": "string"
                     },
                     {
-                        "name": "task_id",
+                        "name": "milestone_id",
                         "in": "formData",
-                        "description": "Id of the Task",
+                        "description": "Id of the Milestone",
                         "required": true,
                         "type": "number"
                     },
@@ -2536,7 +2550,7 @@
                         "name": "dependent_sprint_id",
                         "in": "formData",
                         "description": "Dependent Sprint ID",
-                        "required": true,
+                        "required": false,
                         "type": "number"
                     }
                 ],

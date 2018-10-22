@@ -183,7 +183,7 @@ class MilestonesController extends Controller
      * Returns list of Milestone from projects
      */
     public function index($id){
-        $milestone = Milestones::with('project')->where('project_milestone_id','=',$id)->get();
+        $milestone = Milestones::where('project_milestone_id','=',$id)->get();
         return $milestone;
     }
 

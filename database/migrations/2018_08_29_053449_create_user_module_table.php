@@ -218,6 +218,7 @@ class CreateUserModuleTable extends Migration
                 $table->string('sprintTitle');
                 $table->dateTimeTz('startDate');
                 $table->dateTimeTz('endDate');
+                $table->float('estimatedHours');
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_sprint_id')->nullable(true);

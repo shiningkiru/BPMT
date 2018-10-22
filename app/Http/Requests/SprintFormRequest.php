@@ -28,6 +28,7 @@ class SprintFormRequest extends FormRequest
             'sprintTitle' => 'required|string|unique:sprints,sprintTitle,'.$this->request->get('id').',id,milestone_id,'.$this->request->get('milestone_id'),
             'status' => 'required|in:created,assigned,onhold,inprogress,completed,cancelled,failed',
             'priority' => 'required|in:critical,high,medium,low',
+            'estimatedHours' =>  'required',
             'milestone_id' => 'required|exists:milestones,id',
         ];
     }

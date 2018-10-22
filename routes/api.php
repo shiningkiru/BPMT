@@ -86,7 +86,7 @@ Route::prefix('v1')->group(function () {
     });
 
      //Project routes
-    Route::group(['middleware' => 'jwt.auth'], function(){
+    //Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
         Route::get('project/{id}', 'ProjectController@show');
         Route::get('project', 'ProjectController@index');
@@ -97,7 +97,7 @@ Route::prefix('v1')->group(function () {
         Route::get('project-team/delete/{id}/{prid}', 'ProjectTeamController@deletebyUserAndProject');
         Route::get('project-team/{id}', 'ProjectTeamController@show');
         Route::get('project-team/members/{id}', 'ProjectTeamController@teamMembers');
-    });
+    //});
 
     //Location routes
     Route::group(['middleware' => 'jwt.auth'], function(){
@@ -108,28 +108,26 @@ Route::prefix('v1')->group(function () {
     });
 
     //Milestone routes
-    Route::group(['middleware' => 'jwt.auth'], function(){
+    //Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('milestone/{id}', 'MilestonesController@show');
         Route::get('milestone/by-project/{id}', 'MilestonesController@index');
         Route::post('milestone', 'MilestonesController@create');
         Route::delete('milestone/{id}', 'MilestonesController@delete');
         Route::get('milestone/total-milestones/{id}', 'MilestonesController@totalMilestones');
-    });
+    //});
 
     //Sprint routes
-    Route::group(['middleware' => 'jwt.auth'], function(){
+    //Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('sprint/{id}', 'SprintController@show');
         Route::get('sprint/by-milestone/{id}', 'SprintController@index');
-        Route::put('sprint/{id}', 'SprintController@update');
         Route::post('sprint', 'SprintController@create');
         Route::delete('sprint/{id}', 'SprintController@delete');
-    });
+    //});
 
     //Task routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('task/{id}', 'TaskController@show');
         Route::get('task/by-sprints/{id}', 'TaskController@index');
-        Route::put('task/{id}', 'TaskController@update');
         Route::post('task', 'TaskController@create');
         Route::delete('task/{id}', 'TaskController@delete');
     });
