@@ -278,18 +278,18 @@ class CreateUserModuleTable extends Migration
                 $table->timestamps();
         });
 
-        
         Schema::create('work_time_tracks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('description');
                 $table->float('takenHours');
-                $table->dateTimeTz('dateOfEntry');
-                $table->boolean('isUpdated');
+                $table->date('dateOfEntry');
+                $table->boolean('isUpdated')->default(false);
                 $table->unsignedInteger('task_member_identification');
                 $table->foreign('task_member_identification')
                         ->references('id')
                         ->on('task_members')
                         ->onDelete('cascade');
+                $table->unique(['task_member_identification', 'dateOfEntry']);
                 $table->timestamps();
         });
 
