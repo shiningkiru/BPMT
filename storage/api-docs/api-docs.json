@@ -3249,6 +3249,13 @@
                         "description": "taken hours",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -3282,7 +3289,7 @@
                     },
                     {
                         "name": "task_id",
-                        "in": "formData",
+                        "in": "query",
                         "description": "task id",
                         "required": true,
                         "type": "string"
@@ -3301,14 +3308,14 @@
                 }
             }
         },
-        "/v1/time-track/get-by-task-and member": {
+        "/v1/time-track/get-by-task-and-member": {
             "get": {
                 "tags": [
                     "Time Track"
                 ],
                 "summary": "Get by task",
                 "description": "Get by task",
-                "operationId": "admin-get-by-task",
+                "operationId": "admin-get-by-task-member",
                 "parameters": [
                     {
                         "name": "Authorization",
@@ -3319,14 +3326,14 @@
                     },
                     {
                         "name": "task_id",
-                        "in": "formData",
+                        "in": "query",
                         "description": "task id",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "user_id",
-                        "in": "formData",
+                        "in": "query",
                         "description": "user id",
                         "required": true,
                         "type": "string"
@@ -3345,19 +3352,77 @@
                 }
             }
         },
-        "/v1/time-track/test": {
-            "get": {
+        "/v1/time-track/get-logs-by-week": {
+            "post": {
                 "tags": [
                     "Time Track"
                 ],
-                "summary": "Get by task",
-                "description": "Get by task",
-                "operationId": "admin-get-by-test",
+                "summary": "Get Logs by week according to user",
+                "description": "Get Logs by week according to user",
+                "operationId": "get-logs-by-week",
                 "parameters": [
                     {
                         "name": "Authorization",
                         "in": "header",
                         "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Id of the task",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-logs-by-week/single-user": {
+            "post": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get Logs by week according to logged in user",
+                "description": "Get Logs by week according to logged in user",
+                "operationId": "get-logs-by-week-single-user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Id of the task",
                         "required": true,
                         "type": "string"
                     }

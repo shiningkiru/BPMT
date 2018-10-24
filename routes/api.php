@@ -141,12 +141,13 @@ Route::prefix('v1')->group(function () {
     });
 
     //Task member routes
-    //Route::group(['middleware' => 'jwt.auth'], function(){
+    Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('time-track/add-time', 'WorkTrackController@addMyTime');
         Route::get('time-track/get-by-task', 'WorkTrackController@getTaskLogs');
-        Route::get('time-track/get-by-task-and member', 'WorkTrackController@getTaskMemberLogs');
-        Route::get('time-track/test', 'WorkTrackController@test');
-    //});
+        Route::get('time-track/get-by-task-and-member', 'WorkTrackController@getTaskMemberLogs');
+        Route::post('time-track/get-logs-by-week', 'WorkTrackController@getLogsByWeekAccordingUser');
+        Route::post('time-track/get-logs-by-week/single-user', 'WorkTrackController@getLogsByWeekAccordingLoggedInUser');
+    });
 
     //Document Manager routes
     Route::group(['middleware' => 'jwt.auth'], function(){
