@@ -2070,6 +2070,43 @@
                 }
             }
         },
+        "/v1/project/by-client/{id}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project list by client",
+                "description": "Returns Project list by client",
+                "operationId": "project list by client",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Client Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/project/{id}": {
             "get": {
                 "tags": [
@@ -3147,6 +3184,175 @@
                 "summary": "employee User list",
                 "description": "employee User list",
                 "operationId": "employee-show",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/add-time": {
+            "post": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "add my work time",
+                "description": "add my work time",
+                "operationId": "add-my-time",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "id of the task",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "formData",
+                        "description": "id of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "entryDate",
+                        "in": "formData",
+                        "description": "date of entry",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "takenHours",
+                        "in": "formData",
+                        "description": "taken hours",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-by-task": {
+            "get": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get by task",
+                "description": "Get by task",
+                "operationId": "admin-get-by-task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "task id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-by-task-and member": {
+            "get": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get by task",
+                "description": "Get by task",
+                "operationId": "admin-get-by-task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "task id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "formData",
+                        "description": "user id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/test": {
+            "get": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get by task",
+                "description": "Get by task",
+                "operationId": "admin-get-by-test",
                 "parameters": [
                     {
                         "name": "Authorization",

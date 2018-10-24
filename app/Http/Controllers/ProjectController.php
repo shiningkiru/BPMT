@@ -156,9 +156,47 @@ class ProjectController extends Controller
      */
     public function index(){
         $user = \Auth::user();
-        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(10);
+        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
         return $projects;
     }
+
+
+    /**
+       * @SWG\Get(
+       *      path="/v1/project/by-client/{id}",
+       *      operationId="project list by client",
+       *      tags={"Project"},
+       *      summary="Project list by client",
+       *      description="Returns Project list by client",
+       *      @SWG\Parameter(
+       *          name="Authorization",
+       *          description="authorization header",
+       *          required=true,
+       *          type="string",
+       *          in="header"
+       *      ),
+       *      @SWG\Parameter(
+       *          name="id",
+       *          description="Client Id",
+       *          required=true,
+       *          type="number",
+       *          in="path"
+       *      ),
+       *      @SWG\Response(
+       *          response=200,
+       *          description="successful operation"
+       *       ),
+       *       @SWG\Response(response=500, description="Internal server error"),
+       *       @SWG\Response(response=400, description="Bad request"),
+       *     )
+       *
+       * Returns list of projects by client
+       */
+      public function byClient(Request $request,$id){
+          $user = \Auth::user();
+          $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id)->where('clients.id','=',$id)->orderBy('projects.startDate','ASC')->get();
+          return $projects;
+      }
 
 
      /**

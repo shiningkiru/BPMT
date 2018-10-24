@@ -89,6 +89,7 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
         Route::get('project/{id}', 'ProjectController@show');
+        Route::get('project/by-client/{id}', 'ProjectController@byClient');
         Route::get('project', 'ProjectController@index');
         Route::post('project', 'ProjectController@create');
         Route::delete('project/{id}', 'ProjectController@delete');
@@ -140,11 +141,12 @@ Route::prefix('v1')->group(function () {
     });
 
     //Task member routes
-    Route::group(['middleware' => 'jwt.auth'], function(){
+    //Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('time-track/add-time', 'WorkTrackController@addMyTime');
         Route::get('time-track/get-by-task', 'WorkTrackController@getTaskLogs');
         Route::get('time-track/get-by-task-and member', 'WorkTrackController@getTaskMemberLogs');
-    });
+        Route::get('time-track/test', 'WorkTrackController@test');
+    //});
 
     //Document Manager routes
     Route::group(['middleware' => 'jwt.auth'], function(){

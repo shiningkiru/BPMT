@@ -164,4 +164,47 @@ class WorkTrackController extends Controller
         return $workTracks;
     }
 
+    /**
+     * @SWG\Get(
+     *      path="/v1/time-track/test",
+     *      operationId="admin-get-by-test",
+     *      tags={"Time Track"},
+     *      summary="Get by task",
+     *      description="Get by task",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns Get by task
+     */
+    public function test(Request $request){
+        $ddate = "24-10-2018";
+        $date = new \DateTime($ddate);
+        $week = $date->format("W")-1;
+
+        return $this->getStartAndEndDate($week,"2018");
+    }
+
+    public function getStartAndEndDate($week, $year)
+    {
+        $time = strtotime("1 January ".$year, time());
+        $day = date('w', $time);
+        $time += ((7*$week)+1-$day)*24*3600;
+        $return[0] = date('Y-n-j', $time);
+        $time += 6*24*3600;
+        $return[1] = date('Y-n-j', $time);
+        return $return;
+    }
+
 }
