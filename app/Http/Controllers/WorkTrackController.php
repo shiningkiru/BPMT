@@ -83,11 +83,81 @@ class WorkTrackController extends Controller
         return $workTrack;
     }
 
+    /**
+     * @SWG\Get(
+     *      path="/v1/time-track/get-by-task",
+     *      operationId="admin-get-by-task",
+     *      tags={"Time Track"},
+     *      summary="Get by task",
+     *      description="Get by task",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="task_id",
+     *          description="task id",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns Get by task
+     */
     public function getTaskLogs(Request $request){
         $workTracks=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->where('task_members.task_identification','=',$request->task_id)->get();
         return $workTracks;
     }
 
+    
+    /**
+     * @SWG\Get(
+     *      path="/v1/time-track/get-by-task-and member",
+     *      operationId="admin-get-by-task",
+     *      tags={"Time Track"},
+     *      summary="Get by task",
+     *      description="Get by task",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="task_id",
+     *          description="task id",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="user_id",
+     *          description="user id",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns Get by task
+     */
     public function getTaskMemberLogs(Request $request){
         $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
         $workTracks=WorkTimeTrack::where('task_member_identification','=',$taskMember->id)->get();
