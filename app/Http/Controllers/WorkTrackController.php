@@ -288,9 +288,9 @@ class WorkTrackController extends Controller
         $time = strtotime("1 January ".$year, time());
         $day = date('w', $time);
         $time += ((7*$week)+1-$day)*24*3600;
-        $timeGaps[0] = date('Y-n-j', $time);//new \Datetime(date('Y-n-j', $time));
+        $timeGaps[0] = new \Datetime(date('Y-n-j', $time));
         $time += 6*24*3600;
-        $timeGaps[1] = date('Y-n-j', $time);//new \Datetime(date('Y-n-j', $time));
+        $timeGaps[1] = new \Datetime(date('Y-n-j', $time));
         return $timeGaps;
     }
 
