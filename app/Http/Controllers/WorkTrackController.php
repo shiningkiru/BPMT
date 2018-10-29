@@ -221,8 +221,14 @@ class WorkTrackController extends Controller
         $dateGap=$this->getStartAndEndDate($week,$year);
         $members = User::leftJoin('task_members','task_members.member_identification','=','users.id')->select('users.id as userId', 'users.employeeId','firstName','lastName','email','mobileNumber','profilePic','roles')->where('task_members.task_identification','=',$taskId)->get();
         $memberLogs['data']=[];
-        $memberLogs['dates']['startDate']=$dateGap[0]->format('d-m-Y');
-        $memberLogs['dates']['endDate']=$dateGap[1]->format('d-m-Y');
+        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
+        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
+        $dates=[];
+        while($fromTime <= $toTime){
+            $dates[]=date("d-m-Y",$fromTime);
+            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
+        }
+        $memberLogs['dates']=$dates;
         foreach($members as $member){
             $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->where('task_identification','=',$taskId)->where('member_identification','=',$member->userId)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
             $member['trackRecords']=$logs;
