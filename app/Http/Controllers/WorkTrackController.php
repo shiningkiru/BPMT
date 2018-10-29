@@ -225,7 +225,7 @@ class WorkTrackController extends Controller
         $toTime=strtotime($dateGap[1]->format('d-m-Y'));
         $dates=[];
         while($fromTime <= $toTime){
-            $dates[]=date("d-m-Y",$fromTime);
+            $dates[]=date("m-d-Y",$fromTime);
             $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
         }
         $memberLogs['dates']=$dates;

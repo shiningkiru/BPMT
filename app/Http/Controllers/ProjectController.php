@@ -288,7 +288,7 @@ class ProjectController extends Controller
             ->where('projects.projectName', 'like', '%'. $request->input('projectName').'%')
             ->where('projects.status', 'like', '%'.$request->input('status').'%')
             ->where('clients.name', 'like', '%'.$request->input('name').'%')
-            ->whereBetween('projects.startDate', [$fromDate, $toDate])
+            ->WhereBetween('projects.startDate', [$fromDate, $toDate])
             ->get();
             return $projects;
         }
