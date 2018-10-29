@@ -281,7 +281,7 @@ class ProjectController extends Controller
 
     public function searchproject(Request $request)
     {
-        if (($request->has('projectName')) && ($request->has('status')) && ($request->has('name')) && ($request->has('startDate')) && ($request->has('endDate'))) {
+        if (($request->has('projectName')) || ($request->has('status')) || ($request->has('name')) || ($request->has('startDate')) || ($request->has('endDate'))) {
             $fromDate = $request->input('startDate');
             $toDate = $request->input('endDate');
             $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')
