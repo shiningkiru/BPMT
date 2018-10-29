@@ -31,8 +31,8 @@ class TaskFormRequest extends FormRequest
             'sprint_id' => 'required|exists:sprints,id',
             'task_assigned_to' => 'required|exists:users,id',
             'task_assigned_by' => 'required|exists:users,id',
-            'startDate' =>'required|date_format:Y-m-d H:i:s|before_or_equal:endDate',
-            'endDate' =>  'required|date_format:Y-m-d H:i:s|after_or_equal:startDate',
+            'startDate' =>'required|before_or_equal:endDate',
+            'endDate' =>  'required|after_or_equal:startDate',
         ];
     }
 }

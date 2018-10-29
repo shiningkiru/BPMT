@@ -328,4 +328,10 @@ public function employeeShow()
     return $users;
 }
    //rolewise user list end
+
+   public function designationFilter($id)
+    {
+        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')->where('designation_id','=', $id)->paginate(10);
+        return $allusers;
+    }
 }

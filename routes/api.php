@@ -31,9 +31,12 @@ Route::prefix('v1')->group(function () {
         Route::get('user/project-lead', 'UserController@projectleadShow');
         Route::get('user/employee', 'UserController@employeeShow');
         Route::post('user/reset-password', 'UserController@resetPassword');
-        Route::get('user/{id}', 'AuthController@singleUser');        
+        Route::get('user/{id}', 'AuthController@singleUser');
+       
+              
     });
         Route::get('user/show-email/{email}', 'UserController@show');
+        Route::get('user/filter/{id}', 'UserController@designationFilter');    
 
 
     Route::middleware('jwt.refresh')->get('/token/refresh', 'AuthController@refresh');
@@ -91,12 +94,14 @@ Route::prefix('v1')->group(function () {
         Route::get('project', 'ProjectController@index');
         Route::post('project', 'ProjectController@create');
         Route::delete('project/{id}', 'ProjectController@delete');
+       
         Route::post('project-team', 'ProjectTeamController@create');
         Route::delete('project-team/{id}', 'ProjectTeamController@delete');
         Route::get('project-team/delete/{id}/{prid}', 'ProjectTeamController@deletebyUserAndProject');
         Route::get('project-team/{id}', 'ProjectTeamController@show');
         Route::get('project-team/members/{id}', 'ProjectTeamController@teamMembers');
     });
+    Route::post('project/search-project', 'ProjectController@searchproject');
 
     //Location routes
     Route::group(['middleware' => 'jwt.auth'], function(){
@@ -141,7 +146,4 @@ Route::prefix('v1')->group(function () {
         Route::delete('document-manager/{id}', 'DocumentManagerController@delete');
         Route::get('document-manager/download-file/{id}', 'DocumentManagerController@downloadFile');
     // });
-
-    
-
 });
