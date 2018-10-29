@@ -1767,6 +1767,13 @@
                         "description": "Id of the project",
                         "required": true,
                         "type": "number"
+                    },
+                    {
+                        "name": "dependent_milestone_id",
+                        "in": "formData",
+                        "description": "Id of the Milestone",
+                        "required": true,
+                        "type": "number"
                     }
                 ],
                 "responses": {
@@ -2046,6 +2053,43 @@
                         "name": "project_lead_id",
                         "in": "formData",
                         "description": "User ID",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project/by-client/{id}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project list by client",
+                "description": "Returns Project list by client",
+                "operationId": "project list by client",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Client Id",
                         "required": true,
                         "type": "number"
                     }
@@ -2363,6 +2407,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the sprint at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
                         "name": "sprintTitle",
                         "in": "formData",
                         "description": "Sprint Title",
@@ -2384,6 +2435,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "estimatedHours",
+                        "in": "formData",
+                        "description": "estimatedHours",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "name": "status",
                         "in": "formData",
                         "description": "Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
@@ -2398,9 +2456,9 @@
                         "type": "string"
                     },
                     {
-                        "name": "task_id",
+                        "name": "milestone_id",
                         "in": "formData",
-                        "description": "Id of the Task",
+                        "description": "Id of the Milestone",
                         "required": true,
                         "type": "number"
                     },
@@ -2408,7 +2466,7 @@
                         "name": "dependent_sprint_id",
                         "in": "formData",
                         "description": "Dependent Sprint ID",
-                        "required": true,
+                        "required": false,
                         "type": "number"
                     }
                 ],
@@ -2445,104 +2503,6 @@
                         "name": "id",
                         "in": "path",
                         "description": "Sprint Id",
-                        "required": true,
-                        "type": "number"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Sprint"
-                ],
-                "summary": "Sprint updation",
-                "description": "Returns updated Sprint",
-                "operationId": "update-sprint",
-                "parameters": [
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "description": "authorization header",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "id",
-                        "in": "formData",
-                        "description": "id of the Sprint",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "sprintTitle",
-                        "in": "formData",
-                        "description": "Sprint Title",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "startDate",
-                        "in": "formData",
-                        "description": "start datetime",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "formData",
-                        "description": "End Datetime",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "status",
-                        "in": "formData",
-                        "description": "Sprint Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "priority",
-                        "in": "formData",
-                        "description": "Sprint Priority('critical', 'high', 'medium', 'low')",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "task_id",
-                        "in": "formData",
-                        "description": "Id of the Task",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "sprint_assigned_by",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "sprint_handled_by",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "dependent_sprint_id",
-                        "in": "formData",
-                        "description": "Dependent Sprint ID",
                         "required": true,
                         "type": "number"
                     }
@@ -2649,6 +2609,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the task at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
                         "name": "taskName",
                         "in": "formData",
                         "description": "Task name",
@@ -2712,23 +2679,9 @@
                         "type": "string"
                     },
                     {
-                        "name": "milestone_id",
+                        "name": "sprint_id",
                         "in": "formData",
-                        "description": "Id of the Milestone",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_to",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_by",
-                        "in": "formData",
-                        "description": "Id of the User",
+                        "description": "Id of the sprint",
                         "required": true,
                         "type": "number"
                     },
@@ -2773,132 +2726,6 @@
                         "name": "id",
                         "in": "path",
                         "description": "Task Id",
-                        "required": true,
-                        "type": "number"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Task"
-                ],
-                "summary": "Task Updation",
-                "description": "Returns Updated Task",
-                "operationId": "Update-task",
-                "parameters": [
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "description": "authorization header",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "id",
-                        "in": "formData",
-                        "description": "id of the Task",
-                        "required": false,
-                        "type": "number"
-                    },
-                    {
-                        "name": "taskName",
-                        "in": "formData",
-                        "description": "Task name",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "description",
-                        "in": "formData",
-                        "description": "description of the Task",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "startDate",
-                        "in": "formData",
-                        "description": "start datetime",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "formData",
-                        "description": "End Datetime",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "estimatedHours",
-                        "in": "formData",
-                        "description": "Estimated Hours",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "takenHours",
-                        "in": "formData",
-                        "description": "Taken Hours",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "takenHours",
-                        "in": "formData",
-                        "description": "Taken Hours",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "status",
-                        "in": "formData",
-                        "description": "Task Status('created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed')",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "priority",
-                        "in": "formData",
-                        "description": "Task Priority('critical', 'high', 'medium', 'low')",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "milestone_id",
-                        "in": "formData",
-                        "description": "Id of the Milestone",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_to",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "task_assigned_by",
-                        "in": "formData",
-                        "description": "Id of the User",
-                        "required": true,
-                        "type": "number"
-                    },
-                    {
-                        "name": "dependent_task_id",
-                        "in": "formData",
-                        "description": "Dependent Task ID",
                         "required": true,
                         "type": "number"
                     }
@@ -2971,6 +2798,129 @@
                         "name": "id",
                         "in": "path",
                         "description": "Sprint Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member": {
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task member assign",
+                "description": "Returns Task Member",
+                "operationId": "assign-task-member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "estimatedHour",
+                        "in": "formData",
+                        "description": "estimatedHour",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Task id",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "member_id",
+                        "in": "formData",
+                        "description": "Member id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member/{id}": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Task members list",
+                "description": "Returns Task members list",
+                "operationId": "task member get",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Delete a Task",
+                "description": "Delete a Task member",
+                "operationId": "delete Task member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task member Id",
                         "required": true,
                         "type": "number"
                     }
@@ -3239,6 +3189,240 @@
                         "name": "Authorization",
                         "in": "header",
                         "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/add-time": {
+            "post": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "add my work time",
+                "description": "add my work time",
+                "operationId": "add-my-time",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "id of the task",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "formData",
+                        "description": "id of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "entryDate",
+                        "in": "formData",
+                        "description": "date of entry",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "takenHours",
+                        "in": "formData",
+                        "description": "taken hours",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "description": "description",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-by-task": {
+            "get": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get by task",
+                "description": "Get by task",
+                "operationId": "admin-get-by-task",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "query",
+                        "description": "task id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-by-task-and-member": {
+            "get": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get by task",
+                "description": "Get by task",
+                "operationId": "admin-get-by-task-member",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "query",
+                        "description": "task id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "user id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-logs-by-week": {
+            "post": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get Logs by week according to user",
+                "description": "Get Logs by week according to user",
+                "operationId": "get-logs-by-week",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Id of the task",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/time-track/get-logs-by-week/single-user": {
+            "post": {
+                "tags": [
+                    "Time Track"
+                ],
+                "summary": "Get Logs by week according to logged in user",
+                "description": "Get Logs by week according to logged in user",
+                "operationId": "get-logs-by-week-single-user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "formData",
+                        "description": "Id of the task",
                         "required": true,
                         "type": "string"
                     }

@@ -40,6 +40,7 @@ Route::prefix('v1')->group(function () {
 
 
     Route::middleware('jwt.refresh')->get('/token/refresh', 'AuthController@refresh');
+    
     Route::post('user', 'AuthController@register');
     Route::post('login', 'AuthController@login');
     Route::post('forgot-password', 'AuthController@forgotVerification');
@@ -91,6 +92,7 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
         Route::get('project/{id}', 'ProjectController@show');
+        Route::get('project/by-client/{id}', 'ProjectController@byClient');
         Route::get('project', 'ProjectController@index');
         Route::post('project', 'ProjectController@create');
         Route::delete('project/{id}', 'ProjectController@delete');
@@ -124,26 +126,43 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('sprint/{id}', 'SprintController@show');
         Route::get('sprint/by-milestone/{id}', 'SprintController@index');
-        Route::put('sprint/{id}', 'SprintController@update');
         Route::post('sprint', 'SprintController@create');
         Route::delete('sprint/{id}', 'SprintController@delete');
-    });
+     });
 
     //Task routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('task/{id}', 'TaskController@show');
         Route::get('task/by-sprints/{id}', 'TaskController@index');
-        Route::put('task/{id}', 'TaskController@update');
         Route::post('task', 'TaskController@create');
         Route::delete('task/{id}', 'TaskController@delete');
     });
 
+    //Task member routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('task-member/{id}', 'TaskMemberController@getAssignedMembers');
+        Route::post('task-member', 'TaskMemberController@addMember');
+        Route::delete('task-member/{id}', 'TaskMemberController@removeMember');
+    });
+
+    //Task member routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('time-track/add-time', 'WorkTrackController@addMyTime');
+        Route::get('time-track/get-by-task', 'WorkTrackController@getTaskLogs');
+        Route::get('time-track/get-by-task-and-member', 'WorkTrackController@getTaskMemberLogs');
+        Route::post('time-track/get-logs-by-week', 'WorkTrackController@getLogsByWeekAccordingUser');
+        Route::post('time-track/get-logs-by-week/single-user', 'WorkTrackController@getLogsByWeekAccordingLoggedInUser');
+    });
+
     //Document Manager routes
-    // Route::group(['middleware' => 'jwt.auth'], function(){
+    Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('document-manager/{id}', 'DocumentManagerController@show');
         Route::get('document-manager', 'DocumentManagerController@index');
         Route::post('document-manager', 'DocumentManagerController@create');
         Route::delete('document-manager/{id}', 'DocumentManagerController@delete');
         Route::get('document-manager/download-file/{id}', 'DocumentManagerController@downloadFile');
-    // });
+    });
+
+    
+
 });

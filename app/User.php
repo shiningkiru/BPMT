@@ -70,24 +70,6 @@ class User extends Authenticatable
 
 
     /**
-     * user has to do the work
-     */
-    public function tasks_taken()
-    {
-        return $this->hasMany(Tasks::class, 'task_assigned_to');
-    }
-
-
-    /**
-     * user assigns the work to others
-     */
-    public function tasks_assigned()
-    {
-        return $this->hasMany(Tasks::class, 'task_assigned_by');
-    }
-
-
-    /**
      * user assigns the work to others
      */
     public function leading_project()
@@ -102,5 +84,13 @@ class User extends Authenticatable
     public function activity_logs()
     {
         return $this->hasMany(ActivityLog::class, 'entry_by');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function taskMember()
+    {
+        return $this->hasMany(TaskMember::class, 'member_identification');
     }
 }
