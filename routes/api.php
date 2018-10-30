@@ -93,18 +93,19 @@ Route::prefix('v1')->group(function () {
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
         Route::get('project/{id}', 'ProjectController@show');
         Route::get('project/by-client/{id}', 'ProjectController@byClient');
-        Route::get('project', 'ProjectController@index');
+    
         Route::post('project', 'ProjectController@create');
         Route::delete('project/{id}', 'ProjectController@delete');
-       
+        Route::get('project', 'ProjectController@index');
+        Route::post('project/search-project', 'ProjectController@searchproject');
         Route::post('project-team', 'ProjectTeamController@create');
         Route::delete('project-team/{id}', 'ProjectTeamController@delete');
         Route::get('project-team/delete/{id}/{prid}', 'ProjectTeamController@deletebyUserAndProject');
         Route::get('project-team/{id}', 'ProjectTeamController@show');
         Route::get('project-team/members/{id}', 'ProjectTeamController@teamMembers');
     });
-    Route::post('project/search-project', 'ProjectController@searchproject');
-
+   
+    
     //Location routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('location/{id}', 'LocationController@show');
