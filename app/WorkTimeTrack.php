@@ -12,7 +12,7 @@ class WorkTimeTrack extends Model
      * @var array
      */
     protected $fillable = [
-        'description','takenHour','dateOfEntry','isUpdated'
+        'description','takenHours','dateOfEntry','isUpdated'
     ];
 
     /**
