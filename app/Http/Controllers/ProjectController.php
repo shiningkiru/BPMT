@@ -278,4 +278,34 @@ class ProjectController extends Controller
         $json = json_decode(file_get_contents($path), true); 
         return response()->json($json , 200);
     }
+
+    public function searchproject(Request $request)
+    {
+        // if (($request->has('projectName')) || ($request->has('status')) || ($request->has('name')) || ($request->has('startDate')) || ($request->has('endDate'))) {
+        //     $fromDate = $request->input('startDate');
+        //     $toDate = $request->input('endDate');
+        //     $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')
+        //     ->where('projects.projectName', 'like', '%'. $request->input('projectName').'%')
+        //     ->where('projects.status', $request->input('status'))
+        //     ->where('clients.name', 'like', '%'.$request->input('name').'%')
+        //     ->when($fromDate, function($query) use($fromDate, $toDate ) { 
+        //         $query->WhereBetween('projects.startDate', [$fromDate, $toDate]);
+        //     })
+        //     ->get();
+        //     return $projects;
+        // }
+        $user = \Auth::user();
+       $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
+       if (!empty($request->get('projectName')))
+       $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
+       if (!empty($request->get('status')))
+       $projects->where('projects.status', $request->get('status'));
+       if (!empty($request->get('name')))
+       $projects->where('clients.name', 'like', '%'.$request->get('name').'%');
+       if (!empty($request->get('startDate')) && !empty($request->get('endDate')))
+       $projects->WhereBetween('projects.startDate', [$request->get('startDate'), $request->get('endDate')]);
+       if (!empty($request->get('startDate')) && empty($request->get('endDate')))
+       $projects->where('projects.startDate',$request->get('startDate'));
+       return  $projects->get();
+    } 
 }
