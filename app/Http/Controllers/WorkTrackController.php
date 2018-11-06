@@ -285,8 +285,17 @@ class WorkTrackController extends Controller
         $week = $date->format("W")-1;
         $dateGap=$this->getStartAndEndDate($week,$year);
         
+        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
+        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
+        $dates=[];
+        while($fromTime <= $toTime){
+            $dates[]=date("m-d-Y",$fromTime);
+            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
+        }
+
         $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
         $user['trackRecords']=$logs;
+        $user['dates']=$dates;
         return $user;
     }
 
