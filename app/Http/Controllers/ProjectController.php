@@ -118,9 +118,10 @@ class ProjectController extends Controller
         $project->projectName=$request->projectName;
         $project->description=$request->description;
         $project->projectCode=$request->projectCode;
-        $date=new \Datetime($request->startDate);
-        $project->startDate=$date->format('Y/m/d') ;
-        $project->endDate=new \Datetime($request->endDate);
+        $startdate=new \Datetime($request->startDate);
+        $project->startDate=$startdate->format('Y/m/d');
+        $enddate=new \Datetime($request->endDate);
+        $project->endDate=$enddate->format('Y/m/d');
         $project->budget=$request->budget;
         $project->status=$request->status;
         $project->client_project_id=$request->client_project_id;
@@ -296,20 +297,21 @@ class ProjectController extends Controller
         //     return $projects;
         // }
         $user = \Auth::user();
-       $date=new \Datetime($request->get('startDate'));
-       $projectdate=$date->format('Y-m-d') ;
-       $projectstart =($projectdate.' 00:00:00');
-       $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
-       if (!empty($request->get('projectName')))
-       $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
-       if (!empty($request->get('status')))
-       $projects->where('projects.status', $request->get('status'));
-       if (!empty($request->get('name')))
-       $projects->where('clients.name', 'like', '%'.$request->get('name').'%');
-       if (!empty($projectstart) && !empty($request->get('endDate')))
-       $projects->WhereBetween('projects.startDate', [$projectstart, $request->get('endDate')]);
-       if (!empty($projectstart) && empty($request->get('endDate')))
-       $projects->where('projects.startDate',$projectstart);
-       return  $projects->get();
+        // $date=strtotime("+1 day",$date);
+        $projectstart= date('Y-m-d',strtotime($request->get('startDate'))); 
+        $projectend= date('Y-m-d',strtotime($request->get('endDate')));
+        //dd($projectstart);
+        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
+        if (!empty($request->get('projectName')))
+        $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
+        if (!empty($request->get('status')))
+        $projects->where('projects.status', $request->get('status'));
+        if (!empty($request->get('name')))
+        $projects->where('clients.name', 'like', '%'.$request->get('name').'%');
+        if (!empty($request->get('startDate')) && !empty($request->get('endDate')))
+        $projects->WhereBetween('projects.startDate', [$projectstart,  $projectend]);
+        if (!empty($request->get('startDate')) && empty($request->get('endDate')))
+        $projects->where('projects.startDate',$projectstart);
+        return  $projects->get();
     } 
 }
