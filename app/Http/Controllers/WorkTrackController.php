@@ -71,11 +71,11 @@ class WorkTrackController extends Controller
     * Returns success message
     */
     public function addMyTime(WorkTrackRequest $request){
-        $task=Tasks::find($request->task_id);
+        $task=Tasks::find($request->task_id); 
         $date=new \Datetime($request->entryDate);
         $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
         $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('task_member_identification','=',$taskMember->id)->first();
-        if(!($workTrack instanceof WorkTimeTrack)){
+         if(!($workTrack instanceof WorkTimeTrack)){
             $workTrack=new WorkTimeTrack();
             $workTrack->dateOfEntry=$date;
             $workTrack->task_member_identification=$taskMember->id;
