@@ -2938,6 +2938,66 @@
                 }
             }
         },
+        "/v1/task-member/current-assigned-tasks": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Assigned task list",
+                "description": "Returns current Assigned task list",
+                "operationId": "task current assigned get",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member/all-assigned-tasks": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Assigned task list",
+                "description": "Returns All Assigned task list",
+                "operationId": "task All assigned get",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/user/show-email/{email}": {
             "get": {
                 "tags": [

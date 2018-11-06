@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Tasks;
 use App\TaskMember;
 use Illuminate\Http\Request;
 use App\Http\Requests\TaskMemberRequest;
@@ -99,6 +100,82 @@ class TaskMemberController extends Controller
         $members = User::leftJoin('task_members','task_members.member_identification','=','users.id')->select('users.id as userId', 'users.employeeId','firstName','lastName','email','mobileNumber','profilePic','roles','task_members.id as taskMemberId')->where('task_members.task_identification','=',$id)->get();
         return $members;
     }
+
+    /**
+       * @SWG\Get(
+       *      path="/v1/task-member/current-assigned-tasks",
+       *      operationId="task current assigned get",
+       *      tags={"Task"},
+       *      summary="Assigned task list",
+       *      description="Returns current Assigned task list",
+       *      @SWG\Parameter(
+       *          name="Authorization",
+       *          description="authorization header",
+       *          required=true,
+       *          type="string",
+       *          in="header"
+       *      ),
+       *      @SWG\Response(
+       *          response=200,
+       *          description="successful operation"
+       *       ),
+       *       @SWG\Response(response=500, description="Internal server error"),
+       *       @SWG\Response(response=400, description="Bad request"),
+       *     )
+       *
+       * Returns current Assigned task list
+       */
+      public function getCurrentAssignedTasks(){
+          $user = \Auth::user();
+          $id=$user->id;
+          $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                        ->select('tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
+                        ->where('task_members.member_identification','=',$id)
+                        ->where(function($q){
+                            $q->where('tasks.status', '=', "created")
+                              ->orWhere('tasks.status', '=', "assigned")
+                              ->orWhere('tasks.status', '=', "onhold")
+                              ->orWhere('tasks.status', '=', "inprogress");
+                        })
+                        ->orderBy('task_members.created_at', 'DESC')
+                        ->get();
+          return $tasks;
+      }
+
+      /**
+         * @SWG\Get(
+         *      path="/v1/task-member/all-assigned-tasks",
+         *      operationId="task All assigned get",
+         *      tags={"Task"},
+         *      summary="Assigned task list",
+         *      description="Returns All Assigned task list",
+         *      @SWG\Parameter(
+         *          name="Authorization",
+         *          description="authorization header",
+         *          required=true,
+         *          type="string",
+         *          in="header"
+         *      ),
+         *      @SWG\Response(
+         *          response=200,
+         *          description="successful operation"
+         *       ),
+         *       @SWG\Response(response=500, description="Internal server error"),
+         *       @SWG\Response(response=400, description="Bad request"),
+         *     )
+         *
+         * Returns All Assigned task list
+         */
+        public function getAllAssignedTasks(){
+            $user = \Auth::user();
+            $id=$user->id;
+            $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                          ->select('tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
+                          ->where('task_members.member_identification','=',$id)
+                          ->orderBy('task_members.created_at', 'DESC')
+                          ->get();
+            return $tasks;
+        }
 
     
 
