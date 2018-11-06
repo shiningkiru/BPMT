@@ -141,6 +141,8 @@ Route::prefix('v1')->group(function () {
 
     //Task member routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('task-member/current-assigned-tasks', 'TaskMemberController@getCurrentAssignedTasks');
+        Route::get('task-member/all-assigned-tasks', 'TaskMemberController@getAllAssignedTasks');
         Route::get('task-member/{id}', 'TaskMemberController@getAssignedMembers');
         Route::post('task-member', 'TaskMemberController@addMember');
         Route::delete('task-member/{id}', 'TaskMemberController@removeMember');
