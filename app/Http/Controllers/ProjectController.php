@@ -282,34 +282,62 @@ class ProjectController extends Controller
 
     public function searchproject(Request $request)
     {
-        // if (($request->has('projectName')) || ($request->has('status')) || ($request->has('name')) || ($request->has('startDate')) || ($request->has('endDate'))) {
-        //     $fromDate = $request->input('startDate');
-        //     $toDate = $request->input('endDate');
-        //     $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')
-        //     ->where('projects.projectName', 'like', '%'. $request->input('projectName').'%')
-        //     ->where('projects.status', $request->input('status'))
-        //     ->where('clients.name', 'like', '%'.$request->input('name').'%')
-        //     ->when($fromDate, function($query) use($fromDate, $toDate ) { 
-        //         $query->WhereBetween('projects.startDate', [$fromDate, $toDate]);
-        //     })
-        //     ->get();
-        //     return $projects;
-        // }
         $user = \Auth::user();
-       $date=new \Datetime($request->get('startDate'));
-       $projectdate=$date->format('Y-m-d') ;
-       $projectstart =($projectdate.' 00:00:00');
-       $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
-       if (!empty($request->get('projectName')))
-       $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
-       if (!empty($request->get('status')))
-       $projects->where('projects.status', $request->get('status'));
-       if (!empty($request->get('name')))
-       $projects->where('clients.name', 'like', '%'.$request->get('name').'%');
-       if (!empty($projectstart) && !empty($request->get('endDate')))
-       $projects->WhereBetween('projects.startDate', [$projectstart, $request->get('endDate')]);
-       if (!empty($projectstart) && empty($request->get('endDate')))
-       $projects->where('projects.startDate',$projectstart);
-       return  $projects->get();
+        $date=new \Datetime($request->get('startDate'));
+        $projectdate=$date->format('Y-m-d') ;
+        $projectstart =($projectdate.' 00:00:00');
+        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
+        if (!empty($request->get('projectName')))
+            $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
+        if (!empty($request->get('status')))
+            $projects->where('projects.status', $request->get('status'));
+        if (!empty($request->get('name')))
+            $projects->where('clients.name', 'like', '%'.$request->get('name').'%');
+        if (!empty($projectstart) && !empty($request->get('endDate')))
+            $projects->WhereBetween('projects.startDate', [$projectstart, $request->get('endDate')]);
+        if (!empty($projectstart) && empty($request->get('endDate')))
+            $projects->where('projects.startDate',$projectstart);
+        return  $projects->get();
     } 
+
+
+    
+
+
+  /**
+     * @SWG\Get(
+     *      path="/v1/project/assigned",
+     *      operationId="project-assigned",
+     *      tags={"Project"},
+     *      summary="Project list of assigned to logged in user",
+     *      description="Returns Project list of assigned to logged in user",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns Project list of assigned to logged in user
+     */
+    public function assignedPrjects(Request $request){
+        $user = \Auth::user();
+        $projects = Project::leftJoin('milestones','milestones.project_milestone_id', '=', 'projects.id')
+                            ->leftJoin('sprints','sprints.milestone_id','=','milestones.id')
+                            ->leftJoin('tasks','tasks.sprint_id','=','sprints.id')
+                            ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                            ->where('task_members.member_identification','=',$user->id)
+                            ->groupBy('projects.id','projects.projectName','projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.status')
+                            ->selectRaw('projects.id, projects.projectName,projects.description,projects.projectCode,projects.startDate,projects.endDate,projects.status, sum(IF(task_members.member_identification = 1,1,0)) as countTasks')
+                            ->get();
+        return $projects;
+    }
 }

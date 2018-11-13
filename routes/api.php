@@ -91,12 +91,13 @@ Route::prefix('v1')->group(function () {
      //Project routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
+        Route::post('project', 'ProjectController@create');
+        Route::get('project', 'ProjectController@index');
+        Route::get('project/assigned', 'ProjectController@assignedPrjects');
         Route::get('project/{id}', 'ProjectController@show');
         Route::get('project/by-client/{id}', 'ProjectController@byClient');
     
-        Route::post('project', 'ProjectController@create');
         Route::delete('project/{id}', 'ProjectController@delete');
-        Route::get('project', 'ProjectController@index');
         Route::post('project/search-project', 'ProjectController@searchproject');
         Route::post('project-team', 'ProjectTeamController@create');
         Route::delete('project-team/{id}', 'ProjectTeamController@delete');
@@ -155,6 +156,8 @@ Route::prefix('v1')->group(function () {
         Route::get('time-track/get-by-task-and-member', 'WorkTrackController@getTaskMemberLogs');
         Route::post('time-track/get-logs-by-week', 'WorkTrackController@getLogsByWeekAccordingUser');
         Route::post('time-track/get-logs-by-week/single-user', 'WorkTrackController@getLogsByWeekAccordingLoggedInUser');
+        Route::post('task-member/current-assigned-tasks/project', 'WorkTrackController@getCurrentAssignedTasksOnProject');
+        Route::post('task-member/all-assigned-tasks/project', 'WorkTrackController@getAllAssignedTasksOnProject');
     });
 
     //Document Manager routes

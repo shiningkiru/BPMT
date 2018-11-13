@@ -2179,6 +2179,36 @@
                 }
             }
         },
+        "/v1/project/assigned": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project list of assigned to logged in user",
+                "description": "Returns Project list of assigned to logged in user",
+                "operationId": "project-assigned",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/project-team": {
             "post": {
                 "tags": [
@@ -3483,6 +3513,94 @@
                         "name": "task_id",
                         "in": "formData",
                         "description": "Id of the task",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member/current-assigned-tasks/project": {
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Assigned task list",
+                "description": "Returns current Assigned task list",
+                "operationId": "task current assigned get project",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "projectId",
+                        "in": "formData",
+                        "description": "projectId",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task-member/all-assigned-tasks/project": {
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Assigned task list",
+                "description": "Returns All Assigned task list",
+                "operationId": "task All assigned get projecta",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "projectId",
+                        "in": "formData",
+                        "description": "projectId",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
                         "required": true,
                         "type": "string"
                     }
