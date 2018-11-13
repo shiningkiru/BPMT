@@ -118,9 +118,10 @@ class ProjectController extends Controller
         $project->projectName=$request->projectName;
         $project->description=$request->description;
         $project->projectCode=$request->projectCode;
-        $date=new \Datetime($request->startDate);
-        $project->startDate=$date->format('Y/m/d') ;
-        $project->endDate=new \Datetime($request->endDate);
+        $startdate=new \Datetime($request->startDate);
+        $project->startDate=$startdate->format('Y/m/d');
+        $enddate=new \Datetime($request->endDate);
+        $project->endDate=$enddate->format('Y/m/d');
         $project->budget=$request->budget;
         $project->status=$request->status;
         $project->client_project_id=$request->client_project_id;
