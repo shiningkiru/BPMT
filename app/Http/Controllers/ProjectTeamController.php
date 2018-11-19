@@ -242,4 +242,15 @@ class ProjectTeamController extends Controller
         endforeach;
         return $teamData;
     }
+
+    public function TotalteamMembers($id){
+         $tasks = ProjectTeam::leftjoin('projects','projects.id','=','team_project_id')
+        ->leftjoin('users','users.id','=','project_lead_id')
+        -> select(\DB::raw("COUNT(project_teams.id) as team_members"),
+                  \DB::raw("users.firstName as lead_name") ) 
+        ->where('projects.id','=',$id)
+        ->groupBy('users.firstName')
+        ->get();
+        return $tasks[0];
+    }
 }

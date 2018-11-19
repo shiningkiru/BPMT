@@ -254,7 +254,7 @@ class AuthController extends Controller
             return response()->json(['access_denied'], 404);
         }
         $user = \Auth::user();
-        $customClaims=['user_id'=>$user->id, 'fullName'=>$user->firstName." ".$user->lastName,  'profile_pic' => $user->profilePic, 'email'=>$user->email, 'company_id'=> $user->company_id];
+        $customClaims=['user_id'=>$user->id, 'fullName'=>$user->firstName." ".$user->lastName,  'profile_pic' => $user->profilePic, 'email'=>$user->email, 'company_id'=> $user->company_id, 'roles'=> $user->roles];
         $token = JWTAuth::fromUser(\Auth::user(), $customClaims);
         return response([
                 'status' => 'success',

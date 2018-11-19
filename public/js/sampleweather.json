@@ -1,34 +1,29 @@
 {
-    "message": "",
-    "cod": "200",
-    "city_id": 2643743,
-    "calctime": 0.0875,
-    "cnt": 3,
     "list": [
         {
-            "esitamte_time": 281.946,
-            "achieved_time": 282.946,
+            "esitamte_time": 1,
+            "achieved_time": 2,
             "task": "Designation update"
         },
         {
-            "esitamte_time": 280.200,
-            "achieved_time": 281.946,
+            "esitamte_time": 3,
+            "achieved_time": 4,
             "task": "Milestone creation"
         },
         {
            
-            "esitamte_time": 281.946,
-            "achieved_time": 280.952,
+            "esitamte_time": 5,
+            "achieved_time": 1,
             "task": "Sprint Delete"
         },
         {
-            "esitamte_time": 281.950,
-            "achieved_time": 280.996,
+            "esitamte_time": 6,
+            "achieved_time": 9,
             "task": "JWT Authentication"
         },
         {
-            "esitamte_time": 280.956,
-            "achieved_time": 280.936,
+            "esitamte_time": 4,
+            "achieved_time": 9,
             "task": "Project Dashboard "
         }
       

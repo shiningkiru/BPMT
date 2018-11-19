@@ -103,6 +103,7 @@ Route::prefix('v1')->group(function () {
         Route::get('project-team/delete/{id}/{prid}', 'ProjectTeamController@deletebyUserAndProject');
         Route::get('project-team/{id}', 'ProjectTeamController@show');
         Route::get('project-team/members/{id}', 'ProjectTeamController@teamMembers');
+        Route::get('project-team/total-team-members/{id}', 'ProjectTeamController@TotalteamMembers');
     });
    
     
@@ -129,6 +130,7 @@ Route::prefix('v1')->group(function () {
         Route::get('sprint/by-milestone/{id}', 'SprintController@index');
         Route::post('sprint', 'SprintController@create');
         Route::delete('sprint/{id}', 'SprintController@delete');
+        Route::get('sprint/total-sprints/{id}', 'SprintController@totalSprints');
      });
 
     //Task routes
@@ -137,6 +139,8 @@ Route::prefix('v1')->group(function () {
         Route::get('task/by-sprints/{id}', 'TaskController@index');
         Route::post('task', 'TaskController@create');
         Route::delete('task/{id}', 'TaskController@delete');
+        Route::get('task/chart/{id}', 'TaskController@showChart');
+        Route::get('task/total-tasks/{id}', 'TaskController@totalTasks');
     });
 
     //Task member routes
@@ -165,7 +169,5 @@ Route::prefix('v1')->group(function () {
         Route::delete('document-manager/{id}', 'DocumentManagerController@delete');
         Route::get('document-manager/download-file/{id}', 'DocumentManagerController@downloadFile');
     });
-
-    
 
 });

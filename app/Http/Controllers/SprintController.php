@@ -236,4 +236,45 @@ class SprintController extends Controller
         $sprint->delete();
         return $sprint;
     }
+
+       /**
+     * @SWG\Get(
+     *      path="/v1/sprint/total-sprints/{id}",
+     *      operationId="total-sprints",
+     *      tags={"Sprints"},
+     *      summary="Total Number of Sprints created",
+     *      description="Returns Total Number of Sprints created",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="id",
+     *          description="Project Id",
+     *          required=true,
+     *          type="number",
+     *          in="path"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns list of Total Number of Sprints created and completed
+     */
+    public function totalSprints($id){
+        $sprints = Sprint::leftjoin('milestones','milestones.id','=','milestone_id')
+        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+        ->where('projects.id','=',$id)->get([
+        \DB::raw("COUNT(sprints.id) as total_sprints"),
+        \DB::raw("SUM(IF(sprints.status='completed',1,0)) as completed_sprints")
+        ]);
+        return $sprints[0];
+    }
 }

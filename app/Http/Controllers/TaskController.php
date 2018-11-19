@@ -142,8 +142,6 @@ class TaskController extends Controller
         if($total > $sprint->estimatedHours){
             return Response::json(['error'=>['estimatedHours'=>'Estimated limit crossed']], 401);
         }
-
-
         $task->save();
         return $task;
     }
@@ -257,5 +255,60 @@ class TaskController extends Controller
         $task = Tasks::find($id);
         $task->delete();
         return $task;
+    }
+
+
+       /**
+     * @SWG\Get(
+     *      path="/v1/task/total-tasks/{id}",
+     *      operationId="total-tasks",
+     *      tags={"Task"},
+     *      summary="Total Number of Tasks created",
+     *      description="Returns Total Number of Tasks created",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="id",
+     *          description="Project Id",
+     *          required=true,
+     *          type="number",
+     *          in="path"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns list of Total Number of Tasks created and completed
+     */
+    public function totalTasks($id){
+        $tasks = Tasks::leftjoin('sprints','sprints.id','=','sprint_id')
+        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+        ->where('projects.id','=',$id)->get([
+        \DB::raw("COUNT(tasks.id) as total_tasks"),
+        \DB::raw("SUM(IF(tasks.status='completed',1,0)) as completed_tasks")
+        ]);
+        return $tasks[0];
+    }
+
+    public function showChart($id)
+    {
+     $chartData=[];
+     $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+     ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+     ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+     ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
+     ->where('projects.id','=',$id)->get();
+     $chartData['list']=$chart;
+    return $chartData;
     }
 }
