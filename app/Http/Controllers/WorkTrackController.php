@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Tasks;
+use App\Project;
 use App\TaskMember;
 use App\WorkTimeTrack;
 use Illuminate\Http\Request;
@@ -277,9 +278,9 @@ class WorkTrackController extends Controller
      * Returns Get Logs by week according to user
      */
     public function getLogsByWeekAccordingLoggedInUser(Request $request){
-        $ddate = $request->dateFromWeek;
         $taskId = $request->task_id;
         $user = \Auth::user();
+        $ddate = $request->dateFromWeek;
         $date = new \DateTime($ddate);
         $year=$date->format("Y");
         $week = $date->format("W")-1;
@@ -308,6 +309,168 @@ class WorkTrackController extends Controller
         $time += 6*24*3600;
         $timeGaps[1] = new \Datetime(date('Y-n-j', $time));
         return $timeGaps;
+    }
+
+
+    
+
+
+    /**
+     * @SWG\Post(
+     *      path="/v1/task-member/current-assigned-tasks/project",
+     *      operationId="task current assigned get project",
+     *      tags={"Task"},
+     *      summary="Assigned task list",
+     *      description="Returns current Assigned task list",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="projectId",
+     *          description="projectId",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="dateFromWeek",
+     *          description="date in dd-mm-yyyy format",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns current Assigned task list
+     */
+    public function getCurrentAssignedTasksOnProject(Request $request){
+        $user = \Auth::user();
+        $id=$user->id;
+        $projectId = $request->projectId;
+        $ddate = $request->dateFromWeek;
+        $date = new \DateTime($ddate);
+        $year=$date->format("Y");
+        $week = $date->format("W")-1;
+        $dateGap=$this->getStartAndEndDate($week,$year);
+        
+        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
+        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
+        $dates=[];
+        while($fromTime <= $toTime){
+            $dates[]=date("m-d-Y",$fromTime);
+            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
+        }
+
+        $project = Project::find($projectId);
+
+        $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                        ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
+                        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                        ->select('tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
+                        ->where('task_members.member_identification','=',$id)
+                        ->where('milestones.project_milestone_id','=',$projectId)
+                        ->where(function($q){
+                            $q->where('tasks.status', '=', "created")
+                                ->orWhere('tasks.status', '=', "assigned")
+                                ->orWhere('tasks.status', '=', "onhold")
+                                ->orWhere('tasks.status', '=', "inprogress");
+                        })
+                        ->orderBy('task_members.created_at', 'DESC')
+                        ->get();
+        foreach($tasks as $task){
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $task['timeTrack']=$logs;
+        }  
+        $project['tasks']=$tasks;
+        $project['dates']=$dates;             
+        return $project;
+    }
+
+
+
+    /**
+     * @SWG\Post(
+     *      path="/v1/task-member/all-assigned-tasks/project",
+     *      operationId="task All assigned get projecta",
+     *      tags={"Task"},
+     *      summary="Assigned task list",
+     *      description="Returns All Assigned task list",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="projectId",
+     *          description="projectId",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="dateFromWeek",
+     *          description="date in dd-mm-yyyy format",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns All Assigned task list
+     */
+    public function getAllAssignedTasksOnProject(Request $request){
+        $user = \Auth::user();
+        $id=$user->id;
+        $projectId = $request->projectId;
+        $ddate = $request->dateFromWeek;
+        $date = new \DateTime($ddate);
+        $year=$date->format("Y");
+        $week = $date->format("W")-1;
+        $dateGap=$this->getStartAndEndDate($week,$year);
+        
+        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
+        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
+        $dates=[];
+        while($fromTime <= $toTime){
+            $dates[]=date("m-d-Y",$fromTime);
+            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
+        }
+
+        $project = Project::find($projectId);
+
+        $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                        ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
+                        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                        ->select('tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
+                        ->where('task_members.member_identification','=',$id)
+                        ->where('milestones.project_milestone_id','=',$projectId)
+                        ->orderBy('task_members.created_at', 'DESC')
+                        ->get();
+        foreach($tasks as $task){
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $task['timeTrack']=$logs;
+        }  
+        $project['tasks']=$tasks;
+        $project['dates']=$dates;             
+        return $project;
     }
 
 }
