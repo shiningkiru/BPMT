@@ -140,7 +140,7 @@ Route::prefix('v1')->group(function () {
         Route::get('task/by-sprints/{id}', 'TaskController@index');
         Route::post('task', 'TaskController@create');
         Route::delete('task/{id}', 'TaskController@delete');
-        Route::get('task/chart/{id}', 'TaskController@showChart');
+        Route::get('task/chart/{id}/{status}', 'TaskController@showChart');
         Route::get('task/total-tasks/{id}', 'TaskController@totalTasks');
     });
 

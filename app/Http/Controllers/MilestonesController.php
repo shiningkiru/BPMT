@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Milestones;
+use App\Sprint;
 use Illuminate\Http\Request;
 use App\Http\Requests\MilestonesFormRequest;
 use App\Http\Controllers\DB;
@@ -183,8 +184,24 @@ class MilestonesController extends Controller
      * Returns list of Milestone from projects
      */
     public function index($id){
-        $milestone = Milestones::where('project_milestone_id','=',$id)->get();
-        return $milestone;
+        // $milestone = Milestones::where('project_milestone_id','=',$id)->get();
+        // return $milestone;
+
+        $sprint = Milestones::leftjoin('sprints','milestone_id','=','milestones.id')
+        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+        ->where('projects.id','=',$id)
+        ->select(\DB::raw("ifnull(count(sprints.id),0) as total_sprints"),
+                  \DB::raw("milestones.id as id"),
+                  \DB::raw("milestones.title as title"),
+                  \DB::raw("milestones.description as description"),
+                  \DB::raw("milestones.startDate as startDate"),
+                  \DB::raw("milestones.endDate as endDate"),
+                  \DB::raw("milestones.estimatedHours as estimatedHours"),
+                  \DB::raw("milestones.status as status"),
+                  \DB::raw("milestones.progress as progress")) 
+        ->groupBy('milestones.id','milestones.title','milestones.description','milestones.startDate','milestones.endDate','milestones.estimatedHours','milestones.status','milestones.progress')
+        ->get();
+        return  $sprint; 
     }
 
  /**

@@ -300,15 +300,28 @@ class TaskController extends Controller
         return $tasks[0];
     }
 
-    public function showChart($id)
+    public function showChart($id, $status)
     {
-     $chartData=[];
-     $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
-     ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-     ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-     ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
-     ->where('projects.id','=',$id)->get();
-     $chartData['list']=$chart;
-    return $chartData;
+        if($status=='none')
+        {
+        $chartData=[];
+        $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+        ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
+        ->where('projects.id','=',$id)->get();
+        $chartData['list']=$chart;
+       return $chartData;
+        }else {
+       $chartData=[];
+       $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+       ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+       ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+       ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
+       ->where('projects.id','=',$id)
+       ->where('tasks.status','=', $status)->get();
+       $chartData['list']=$chart;
+       return $chartData;
     }
+}
 }

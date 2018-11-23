@@ -235,7 +235,21 @@ class ProjectTeamController extends Controller
         $departments=MassParameter::where('ms_company_id','=',$project->project_company_id)->where('type','=','department')->get();
         $i=0;
         foreach($departments as $dept):
-            $users=User::leftJoin('project_teams','users.id','=','project_teams.team_user_id')->leftJoin('branch_departments','users.branch_dept_id','=','branch_departments.id')->leftJoin('mass_parameters as designation','designation_id','=','designation.id')->where('project_teams.team_project_id','=',$id)->where('branch_departments.dept_id','=',$dept->id)->select('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.mobileNumber', 'users.profilePic', 'users.id', 'designation.title as designation')->get();
+            $users=User::leftJoin('project_teams','users.id','=','project_teams.team_user_id')
+            ->leftJoin('branch_departments','users.branch_dept_id','=','branch_departments.id')
+            ->leftJoin('mass_parameters as designation','designation_id','=','designation.id')
+            ->leftjoin('task_members','member_identification','=','users.id')
+            ->where('project_teams.team_project_id','=',$id)
+            ->where('branch_departments.dept_id','=',$dept->id)
+            ->select(\DB::raw("ifnull(count(sprints.id),0) as total_sprints"),
+            \DB::raw("users.id as id"),
+            \DB::raw("users.firstName as firstName"),
+            \DB::raw("users.lastName as lastName"),
+            \DB::raw("users.email as email"),
+            \DB::raw("users.mobileNumber as mobileNumber"),
+            \DB::raw("users.profilePic as profilePic"),
+            \DB::raw("designation.title as designation"))
+            ->get();
             $dept['teamMembers']=$users;
             $teamData[$i]=$dept;
             $i++;
