@@ -241,14 +241,8 @@ class ProjectTeamController extends Controller
             ->leftjoin('task_members','member_identification','=','users.id')
             ->where('project_teams.team_project_id','=',$id)
             ->where('branch_departments.dept_id','=',$dept->id)
-            ->select(\DB::raw("ifnull(count(sprints.id),0) as total_sprints"),
-            \DB::raw("users.id as id"),
-            \DB::raw("users.firstName as firstName"),
-            \DB::raw("users.lastName as lastName"),
-            \DB::raw("users.email as email"),
-            \DB::raw("users.mobileNumber as mobileNumber"),
-            \DB::raw("users.profilePic as profilePic"),
-            \DB::raw("designation.title as designation"))
+            ->selectRaw('ifnull(count(task_members.task_identification),0) as total_tasks,users.id,users.firstName,users.lastName,users.email,users.mobileNumber,users.profilePic,designation.title as designation')
+            ->groupBy('users.id', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.profilePic','designation.title')
             ->get();
             $dept['teamMembers']=$users;
             $teamData[$i]=$dept;
@@ -260,8 +254,7 @@ class ProjectTeamController extends Controller
     public function TotalteamMembers($id){
          $tasks = ProjectTeam::leftjoin('projects','projects.id','=','team_project_id')
         ->leftjoin('users','users.id','=','project_lead_id')
-        -> select(\DB::raw("COUNT(project_teams.id) as team_members"),
-                  \DB::raw("users.firstName as lead_name") ) 
+        ->selectRaw('COUNT(project_teams.id) as team_members, users.firstName as lead_name')
         ->where('projects.id','=',$id)
         ->groupBy('users.firstName')
         ->get();

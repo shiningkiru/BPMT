@@ -190,15 +190,7 @@ class MilestonesController extends Controller
         $sprint = Milestones::leftjoin('sprints','milestone_id','=','milestones.id')
         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
         ->where('projects.id','=',$id)
-        ->select(\DB::raw("ifnull(count(sprints.id),0) as total_sprints"),
-                  \DB::raw("milestones.id as id"),
-                  \DB::raw("milestones.title as title"),
-                  \DB::raw("milestones.description as description"),
-                  \DB::raw("milestones.startDate as startDate"),
-                  \DB::raw("milestones.endDate as endDate"),
-                  \DB::raw("milestones.estimatedHours as estimatedHours"),
-                  \DB::raw("milestones.status as status"),
-                  \DB::raw("milestones.progress as progress")) 
+        ->selectRaw('milestones.id,milestones.title,milestones.description,milestones.startDate,milestones.endDate,milestones.estimatedHours,milestones.status,milestones.progress,ifnull(count(sprints.id),0) as total_sprints')
         ->groupBy('milestones.id','milestones.title','milestones.description','milestones.startDate','milestones.endDate','milestones.estimatedHours','milestones.status','milestones.progress')
         ->get();
         return  $sprint; 
@@ -273,10 +265,9 @@ class MilestonesController extends Controller
      * Returns list of Total Number of Milestones created and completed
      */
     public function totalMilestones($id){
-        $milestone = Milestones::where('project_milestone_id','=',$id)->get([
-        \DB::raw("COUNT(id) as total_milestones"),
-        \DB::raw("SUM(IF(status='completed',1,0)) as completed_milestones")
-        ]);
+        $milestone = Milestones::where('project_milestone_id','=',$id)
+        ->selectRaw('COUNT(id) as total_milestones, SUM(IF(status="completed",1,0)) as completed_milestones')
+        ->get();
         return $milestone[0];
     }
 }

@@ -293,10 +293,9 @@ class TaskController extends Controller
         $tasks = Tasks::leftjoin('sprints','sprints.id','=','sprint_id')
         ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-        ->where('projects.id','=',$id)->get([
-        \DB::raw("COUNT(tasks.id) as total_tasks"),
-        \DB::raw("SUM(IF(tasks.status='completed',1,0)) as completed_tasks")
-        ]);
+        ->where('projects.id','=',$id)
+        ->selectRaw('COUNT(tasks.id) as total_tasks, SUM(IF(tasks.status="completed",1,0)) as completed_tasks')
+        ->get();
         return $tasks[0];
     }
 

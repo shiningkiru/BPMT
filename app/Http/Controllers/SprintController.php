@@ -271,10 +271,8 @@ class SprintController extends Controller
     public function totalSprints($id){
         $sprints = Sprint::leftjoin('milestones','milestones.id','=','milestone_id')
         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-        ->where('projects.id','=',$id)->get([
-        \DB::raw("COUNT(sprints.id) as total_sprints"),
-        \DB::raw("SUM(IF(sprints.status='completed',1,0)) as completed_sprints")
-        ]);
+        ->selectRaw('COUNT(sprints.id) as total_sprints, SUM(IF(sprints.status="completed",1,0)) as completed_sprints')
+        ->where('projects.id','=',$id)->get();
         return $sprints[0];
     }
 }
