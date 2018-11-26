@@ -349,6 +349,15 @@ class CreateUserModuleTable extends Migration
                         ->onDelete('cascade');
                 $table->timestamps();
         });
+
+        Schema::create('access_previleges', function (Blueprint $table) {
+                $table->increments('id');
+                $table->enum('module_name', ['project', 'milestone', 'sprint', 'task', 'client', 'user', 'task_work_log', 'settings', 'access_previlages']);
+                $table->string('roles');
+                $table->enum('access_previlage', ['read-only', 'editable', 'full-access', 'denied']);
+                $table->unique(['module_name', 'roles']);
+                $table->timestamps();
+        });
     }
 
     /**
@@ -375,5 +384,6 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('milestones');
         Schema::dropIfExists('projects');
         Schema::dropIfExists('companies');
+        Schema::dropIfExists('access_previleges');
     }
 }

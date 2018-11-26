@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 use App\Tasks;
 use App\Sprint;
+use App\Milestones;
 use Illuminate\Http\Request;
+use Response;
 use App\Http\Requests\TaskFormRequest;
 
 class TaskController extends Controller
@@ -123,6 +125,7 @@ class TaskController extends Controller
             $task=new Tasks();
         else
             $task=Tasks::find($id);
+        $oldTask = clone $task;
         $task->taskName=$request->taskName;
         $task->description=$request->description;
         $task->startDate=new \Datetime($request->startDate);
@@ -135,15 +138,30 @@ class TaskController extends Controller
         $task->dependent_task_id=$request->dependent_task_id;
         
         $sprint=Sprint::find($request->sprint_id);
-        $total = Tasks::where('sprint_id','=',$request->sprint_id)->first([
-            \DB::raw('SUM(estimatedHours) as total')
-        ]);  
+        $total = Tasks::where('sprint_id','=',$request->sprint_id)->selectRaw('SUM(estimatedHours) as total')->first();  
         $total = $total->total + (float)$request->estimatedHours;          
-        if($total > $sprint->estimatedHours){
+        if($total - $oldTask->estimatedHours > $sprint->estimatedHours){
             return Response::json(['error'=>['estimatedHours'=>'Estimated limit crossed']], 401);
         }
         $task->save();
+
+        if($oldTask->status != $task->status){
+            $this->updateProjectProgress($task);
+        }
         return $task;
+    }
+
+    public function updateProjectProgress($task){
+        $mileStone = Milestones::leftJoin('sprints','milestones.id', '=', 'sprints.milestone_id')->where('sprints.id','=',$task->sprint_id)->select('milestones.*')->first();
+        $taskLogs = Tasks::leftJoin('sprints', 'sprints.id', '=', 'tasks.sprint_id')->where('sprints.milestone_id','=',$mileStone->id)->selectRaw('SUM(IF(tasks.status = "created", 1, 0)) as Created , SUM(IF(tasks.status = "assigned", 1, 0)) as Assigned, SUM(IF(tasks.status = "onhold", 1, 0)) as OnHold, SUM(IF(tasks.status = "inprogress", 1, 0)) as InProgress, SUM(IF(tasks.status = "completed", 1, 0)) as Completed, SUM(IF(tasks.status = "cancelled", 1, 0)) as Cancelled, SUM(IF(tasks.status = "failed", 1, 0)) as Failed, count(tasks.id) as Total')->first();
+        $pending = (int) $taskLogs->Created + (int) $taskLogs->Assigned + (int)$taskLogs->OnHold + $taskLogs->InProgress + (int)$taskLogs->Failed;
+        $completed = (int) $taskLogs->Completed + (int) $taskLogs->Cancelled ;
+        $total = (int) $taskLogs->Total;
+        $progress = 100 * $completed / $total;
+        $mileStone=Milestones::find($mileStone->id);
+        $mileStone->progress = $progress;
+        $mileStone->save();
+        return $mileStone;
     }
 
    /**
