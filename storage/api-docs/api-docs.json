@@ -12,6 +12,101 @@
         "https"
     ],
     "paths": {
+        "/v1/access-previlege": {
+            "get": {
+                "tags": [
+                    "Access-previlege"
+                ],
+                "summary": "Get all access previlleges",
+                "description": "Get all access previlleges",
+                "operationId": "Access-previlege-get",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Access-previlege"
+                ],
+                "summary": "Update access previleges",
+                "description": "Update access previleges",
+                "operationId": "Access-previlege-post",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "access_previlages",
+                        "in": "formData",
+                        "description": "array of previleges",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/access-previlege/user": {
+            "get": {
+                "tags": [
+                    "Access-previlege"
+                ],
+                "summary": "Get user access previlleges",
+                "description": "Get user access previlleges",
+                "operationId": "Access-previlege-user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/user": {
             "get": {
                 "tags": [
@@ -2622,6 +2717,43 @@
                 }
             }
         },
+        "/v1/sprint/total-sprints/{id}": {
+            "get": {
+                "tags": [
+                    "Sprints"
+                ],
+                "summary": "Total Number of Sprints created",
+                "description": "Returns Total Number of Sprints created",
+                "operationId": "total-sprints",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/task": {
             "post": {
                 "tags": [
@@ -2828,6 +2960,43 @@
                         "name": "id",
                         "in": "path",
                         "description": "Sprint Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/task/total-tasks/{id}": {
+            "get": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Total Number of Tasks created",
+                "description": "Returns Total Number of Tasks created",
+                "operationId": "total-tasks",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project Id",
                         "required": true,
                         "type": "number"
                     }

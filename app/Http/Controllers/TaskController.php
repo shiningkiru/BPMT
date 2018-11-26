@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Tasks;
 use App\Sprint;
+use App\Milestones;
 use Illuminate\Http\Request;
 use App\Http\Requests\TaskFormRequest;
 
@@ -123,6 +124,8 @@ class TaskController extends Controller
             $task=new Tasks();
         else
             $task=Tasks::find($id);
+        $oldTask = $task;
+        return $this->updateProjectProgress($task);
         $task->taskName=$request->taskName;
         $task->description=$request->description;
         $task->startDate=new \Datetime($request->startDate);
@@ -143,7 +146,16 @@ class TaskController extends Controller
             return Response::json(['error'=>['estimatedHours'=>'Estimated limit crossed']], 401);
         }
         $task->save();
+        if($oldTaskStatus->status != $task->status){
+            $this->updateProjectProgress($task);
+        }
         return $task;
+    }
+
+    public function updateProjectProgress($task){
+        $mileStone = Milestones::leftJoin('sprints','milestones.id', '=', 'sprints.milestone_id')->where('sprints.id','=',$task->sprint_id)->first();
+        $taskLogs = Tasks::leftJoin('sprints', 'sprints.id', '=', 'tasks.sprint_id')->where('sprints.milestone_id','=',$mileStone->id)->get();
+        return $taskLogs;
     }
 
    /**

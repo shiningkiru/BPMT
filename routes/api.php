@@ -166,6 +166,14 @@ Route::prefix('v1')->group(function () {
 
     //Document Manager routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('access-previlege', 'AccessPrevilegesController@updatePrevilages');
+        Route::get('access-previlege/roles', 'AccessPrevilegesController@getRoles');
+        Route::get('access-previlege', 'AccessPrevilegesController@getAllAccessPrevileges');
+        Route::get('access-previlege/user', 'AccessPrevilegesController@getAccessForUser');
+    });
+
+    //Document Manager routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('document-manager/{id}', 'DocumentManagerController@show');
         Route::get('document-manager', 'DocumentManagerController@index');
         Route::post('document-manager', 'DocumentManagerController@create');
