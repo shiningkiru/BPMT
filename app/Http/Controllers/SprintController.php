@@ -103,6 +103,7 @@ class SprintController extends Controller
             $sprint=new Sprint();
         else
             $sprint=Sprint::find($id); 
+        $oldSprint = clone $sprint;
         $sprint->sprintTitle=$request->sprintTitle;
         $sprint->startDate=new \Datetime($request->startDate);
         $sprint->endDate=new \Datetime($request->endDate);
@@ -117,9 +118,9 @@ class SprintController extends Controller
         $total = Sprint::where('milestone_id','=',$request->milestone_id)->first([
             \DB::raw('SUM(estimatedHours) as total')
         ]);  
-        $total = $total->total + (float)$request->estimatedHours;          
+        $total = ($total->total - $oldSprint->estimatedHours) + (float)$request->estimatedHours;          
         if($total > $milestone->estimatedHours){
-            return Response::json(['error'=>['estimatedHours'=>'Estimated limit crossed']], 401);
+            return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 400);
         }
 
         $sprint->save();

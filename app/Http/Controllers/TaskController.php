@@ -141,7 +141,7 @@ class TaskController extends Controller
         $total = Tasks::where('sprint_id','=',$request->sprint_id)->selectRaw('SUM(estimatedHours) as total')->first();  
         $total = $total->total + (float)$request->estimatedHours;          
         if($total - $oldTask->estimatedHours > $sprint->estimatedHours){
-            return Response::json(['error'=>['estimatedHours'=>'Estimated limit crossed']], 401);
+            return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 400);
         }
         $task->save();
 
