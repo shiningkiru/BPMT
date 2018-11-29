@@ -118,7 +118,7 @@ class AccessPrevilegesController extends Controller
      */
     public function getAccessForUser(Request $request){
         $user=\Auth::user();
-        $accs = AccessPrevileges::where('roles', '=', $user->roles);
+        $accs = AccessPrevileges::where('roles', '=', $user->roles)->select('module_name', 'access_previlage')->orderBy('module_name','DESC')->get();
         return $accs;
     }
 
@@ -143,7 +143,23 @@ class AccessPrevilegesController extends Controller
         }
     }
 
-
+    /**
+     * @SWG\Get(
+     *      path="/v1/access-previlege/roles",
+     *      operationId="Access-previlege-roles",
+     *      tags={"Access-previlege"},
+     *      summary="Get user roles",
+     *      description="Get user roles",
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Get user roles
+     */
     public function getRoles(){
         $helper = new HelperFunctions();
         return $helper->getRoles();

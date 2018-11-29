@@ -8,6 +8,7 @@ use App\Project;
 use App\TaskMember;
 use App\WorkTimeTrack;
 use Illuminate\Http\Request;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\WorkTrackRequest;
 
 class WorkTrackController extends Controller
@@ -215,20 +216,13 @@ class WorkTrackController extends Controller
      */
     public function getLogsByWeekAccordingUser(Request $request){
         $ddate = $request->dateFromWeek;
+        $helper = new HelperFunctions();
         $taskId = $request->task_id;
         $date = new \DateTime($ddate);
-        $year=$date->format("Y");
-        $week = $date->format("W")-1;
-        $dateGap=$this->getStartAndEndDate($week,$year);
+        $dateGap=$helper->getStartAndEndDate($date);
         $members = User::leftJoin('task_members','task_members.member_identification','=','users.id')->select('users.id as userId', 'users.employeeId','firstName','lastName','email','mobileNumber','profilePic','roles')->where('task_members.task_identification','=',$taskId)->get();
         $memberLogs['data']=[];
-        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
-        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
-        $dates=[];
-        while($fromTime <= $toTime){
-            $dates[]=date("m-d-Y",$fromTime);
-            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
-        }
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
         $memberLogs['dates']=$dates;
         foreach($members as $member){
             $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$taskId)->where('member_identification','=',$member->userId)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
@@ -279,36 +273,17 @@ class WorkTrackController extends Controller
      */
     public function getLogsByWeekAccordingLoggedInUser(Request $request){
         $taskId = $request->task_id;
+        $helper = new HelperFunctions();
         $user = \Auth::user();
         $ddate = $request->dateFromWeek;
         $date = new \DateTime($ddate);
-        $year=$date->format("Y");
-        $week = $date->format("W")-1;
-        $dateGap=$this->getStartAndEndDate($week,$year);
-        
-        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
-        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
-        $dates=[];
-        while($fromTime <= $toTime){
-            $dates[]=date("m-d-Y",$fromTime);
-            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
-        }
+        $dateGap=$helper->getStartAndEndDate($date);
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
 
         $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
         $user['trackRecords']=$logs;
         $user['dates']=$dates;
         return $user;
-    }
-
-    public function getStartAndEndDate($week, $year)
-    {
-        $time = strtotime("1 January ".$year, time());
-        $day = date('w', $time);
-        $time += ((7*$week)+1-$day)*24*3600;
-        $timeGaps[0] = new \Datetime(date('Y-n-j', $time));
-        $time += 6*24*3600;
-        $timeGaps[1] = new \Datetime(date('Y-n-j', $time));
-        return $timeGaps;
     }
 
 
@@ -355,21 +330,13 @@ class WorkTrackController extends Controller
      */
     public function getCurrentAssignedTasksOnProject(Request $request){
         $user = \Auth::user();
+        $helper = new HelperFunctions();
         $id=$user->id;
         $projectId = $request->projectId;
         $ddate = $request->dateFromWeek;
         $date = new \DateTime($ddate);
-        $year=$date->format("Y");
-        $week = $date->format("W")-1;
-        $dateGap=$this->getStartAndEndDate($week,$year);
-        
-        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
-        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
-        $dates=[];
-        while($fromTime <= $toTime){
-            $dates[]=date("m-d-Y",$fromTime);
-            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
-        }
+        $dateGap=$helper->getStartAndEndDate($date);
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
 
         $project = Project::find($projectId);
 
@@ -392,7 +359,8 @@ class WorkTrackController extends Controller
             $task['timeTrack']=$logs;
         }  
         $project['tasks']=$tasks;
-        $project['dates']=$dates;             
+        $project['dates']=$dates;    
+        $project['weekNumber']=$dateGap;          
         return $project;
     }
 
@@ -439,20 +407,12 @@ class WorkTrackController extends Controller
     public function getAllAssignedTasksOnProject(Request $request){
         $user = \Auth::user();
         $id=$user->id;
+        $helper = new HelperFunctions();
         $projectId = $request->projectId;
         $ddate = $request->dateFromWeek;
         $date = new \DateTime($ddate);
-        $year=$date->format("Y");
-        $week = $date->format("W")-1;
-        $dateGap=$this->getStartAndEndDate($week,$year);
-        
-        $fromTime=strtotime($dateGap[0]->format('d-m-Y'));
-        $toTime=strtotime($dateGap[1]->format('d-m-Y'));
-        $dates=[];
-        while($fromTime <= $toTime){
-            $dates[]=date("m-d-Y",$fromTime);
-            $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
-        }
+        $dateGap=$helper->getStartAndEndDate($date);
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
 
         $project = Project::find($projectId);
 
@@ -469,8 +429,55 @@ class WorkTrackController extends Controller
             $task['timeTrack']=$logs;
         }  
         $project['tasks']=$tasks;
-        $project['dates']=$dates;             
+        $project['dates']=$dates;          
         return $project;
     }
 
+    public function getMyWeeklyBow(Request $request){
+        $user= \Auth::user();
+        $helper = new HelperFunctions();
+        $user_id = $request->user_id;
+        if(empty($user_id))$user_id=$user->id;
+        $dateOfWeek = $request->get('dateOfWeek');
+        $date = new \DateTime($dateOfWeek);
+        $dateGap=$helper->getStartAndEndDate($date);
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
+
+        //find the projects
+        $projects = Project::leftJoin('milestones','milestones.project_milestone_id', '=', 'projects.id')
+                            ->leftJoin('sprints','sprints.milestone_id','=','milestones.id')
+                            ->leftJoin('tasks','tasks.sprint_id','=','sprints.id')
+                            ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                            ->leftJoin('work_time_tracks','work_time_tracks.task_member_identification','=','task_members.id')
+                            ->where('task_members.member_identification','=',$user_id)
+                            ->whereBetween('work_time_tracks.dateOfEntry', [$dateGap[0], $dateGap[1]])
+                            ->select('projects.id','projects.projectName', 'projects.projectCode')
+                            ->get();
+        //find the tasks on projects on which user worked
+        foreach($projects as $project):
+            $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                            ->leftJoin('work_time_tracks','work_time_tracks.task_member_identification','=','task_members.id')
+                            ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
+                            ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                            ->where('milestones.project_milestone_id','=',$project->id)
+                            ->whereBetween('work_time_tracks.dateOfEntry', [$dateGap[0], $dateGap[1]])
+                            ->select('tasks.id', 'tasks.taskName')
+                            ->get();
+            foreach($tasks as $task): 
+                $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->selectRaw('work_time_tracks.id, work_time_tracks.description, work_time_tracks.takenHours, DATE_FORMAT(work_time_tracks.dateOfEntry,"%m-%d-%Y") as dateOfEntry, work_time_tracks.isUpdated')->where('task_identification','=',$task->id)->where('member_identification','=',$user_id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+                $data=[];
+                foreach($logs as $log){
+                    $data[$log->dateOfEntry]=$log;
+                }
+                $task['logs']=$data;
+            endforeach;
+            $project['tasks'] = $tasks;
+
+        endforeach;
+        $res['projects']=$projects;
+        $res['dates']=$dates;
+        //show the logs of week selected
+        return $res;
+
+    }
 }

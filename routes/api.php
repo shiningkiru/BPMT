@@ -162,12 +162,13 @@ Route::prefix('v1')->group(function () {
         Route::post('time-track/get-logs-by-week/single-user', 'WorkTrackController@getLogsByWeekAccordingLoggedInUser');
         Route::post('task-member/current-assigned-tasks/project', 'WorkTrackController@getCurrentAssignedTasksOnProject');
         Route::post('task-member/all-assigned-tasks/project', 'WorkTrackController@getAllAssignedTasksOnProject');
+        Route::post('task-member/user-bow', 'WorkTrackController@getMyWeeklyBow');
     });
 
-    //Document Manager routes
+    //Access previlege routes
+    Route::get('access-previlege/roles', 'AccessPrevilegesController@getRoles');
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('access-previlege', 'AccessPrevilegesController@updatePrevilages');
-        Route::get('access-previlege/roles', 'AccessPrevilegesController@getRoles');
         Route::get('access-previlege', 'AccessPrevilegesController@getAllAccessPrevileges');
         Route::get('access-previlege/user', 'AccessPrevilegesController@getAccessForUser');
     });

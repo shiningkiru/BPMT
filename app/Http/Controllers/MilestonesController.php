@@ -190,8 +190,8 @@ class MilestonesController extends Controller
         $sprint = Milestones::leftjoin('sprints','milestone_id','=','milestones.id')
         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
         ->where('projects.id','=',$id)
-        ->selectRaw('milestones.id,milestones.title,milestones.description,milestones.startDate,milestones.endDate,milestones.estimatedHours,milestones.status,milestones.progress,ifnull(count(sprints.id),0) as total_sprints')
-        ->groupBy('milestones.id','milestones.title','milestones.description','milestones.startDate','milestones.endDate','milestones.estimatedHours','milestones.status','milestones.progress')
+        ->selectRaw('milestones.id,milestones.title,milestones.description,milestones.startDate,milestones.endDate,milestones.estimatedHours,milestones.status,milestones.progress,milestones.project_milestone_id as project_id,ifnull(count(sprints.id),0) as total_sprints')
+        ->groupBy('milestones.id','milestones.title','milestones.description','milestones.startDate','milestones.endDate','milestones.estimatedHours','milestones.status','milestones.progress','milestones.project_milestone_id')
         ->get();
         return  $sprint; 
     }

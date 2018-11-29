@@ -107,6 +107,27 @@
                 }
             }
         },
+        "/v1/access-previlege/roles": {
+            "get": {
+                "tags": [
+                    "Access-previlege"
+                ],
+                "summary": "Get user roles",
+                "description": "Get user roles",
+                "operationId": "Access-previlege-roles",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/v1/user": {
             "get": {
                 "tags": [
