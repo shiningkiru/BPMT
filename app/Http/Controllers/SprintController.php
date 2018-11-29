@@ -102,7 +102,7 @@ class SprintController extends Controller
         if(empty($id))
             $sprint=new Sprint();
         else
-            $sprint=Sprint::find($id);
+            $sprint=Sprint::find($id); 
         $sprint->sprintTitle=$request->sprintTitle;
         $sprint->startDate=new \Datetime($request->startDate);
         $sprint->endDate=new \Datetime($request->endDate);
@@ -203,8 +203,8 @@ class SprintController extends Controller
         ->leftJoin('milestones','milestones.id','=','milestone_id')
         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
         ->where('milestone_id','=',$id)
-        ->selectRaw('sprints.id,sprints.sprintTitle,sprints.startDate,sprints.endDate,sprints.status,sprints.priority,ifnull(count(tasks.id),0) as total_tasks')
-        ->groupBy('sprints.id','sprints.sprintTitle','sprints.startDate','sprints.endDate','sprints.status','sprints.priority')
+        ->selectRaw('sprints.id,sprints.sprintTitle,sprints.startDate,sprints.endDate,sprints.status,sprints.priority,sprints.estimatedHours,ifnull(count(tasks.id),0) as total_tasks')
+        ->groupBy('sprints.id','sprints.sprintTitle','sprints.startDate','sprints.endDate','sprints.status','sprints.priority','sprints.estimatedHours')
         ->get();
         return  $sprint; 
     } 
