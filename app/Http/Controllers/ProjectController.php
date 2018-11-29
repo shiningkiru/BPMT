@@ -296,7 +296,7 @@ class ProjectController extends Controller
         if (!empty($request->get('startDate')) && !empty($request->get('endDate')))
             $projects->WhereBetween('projects.startDate', [$projectstart,$projectend]);
         if (!empty($request->get('startDate')) && empty($request->get('endDate')))
-            $projects->where('projects.startDate',$projectstart);
+            $projects->where('projects.startDate','=',$projectstart);
         return  $projects->get();
     } 
 
