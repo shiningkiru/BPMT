@@ -363,6 +363,80 @@ class WorkTrackController extends Controller
         $project['weekNumber']=$dateGap;          
         return $project;
     }
+    
+
+
+    /**
+     * @SWG\Post(
+     *      path="/v1/task-member/current-assigned-tasks",
+     *      operationId="task current assigned ",
+     *      tags={"Task"},
+     *      summary="Assigned task list",
+     *      description="Returns all current Assigned task list",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="projectId",
+     *          description="projectId",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="dateFromWeek",
+     *          description="date in dd-mm-yyyy format",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns current Assigned task list
+     */
+    public function getCurrentAssignedTasks(Request $request){
+        $user = \Auth::user();
+        $helper = new HelperFunctions();
+        $id=$user->id;
+        $ddate = $request->dateFromWeek;
+        $date = new \DateTime($ddate);
+        $dateGap=$helper->getStartAndEndDate($date);
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
+
+
+        $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                        ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
+                        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+                        ->select('projects.id as projectId', 'projects.projectName', 'tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
+                        ->where('task_members.member_identification','=',$id)
+                        ->where(function($q){
+                            $q->where('tasks.status', '=', "created")
+                                ->orWhere('tasks.status', '=', "assigned")
+                                ->orWhere('tasks.status', '=', "onhold")
+                                ->orWhere('tasks.status', '=', "inprogress");
+                        })
+                        ->orderBy('task_members.created_at', 'DESC')
+                        ->get();
+        foreach($tasks as $task){
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $task['timeTrack']=$logs;
+        }  
+        $project['tasks']=$tasks;
+        $project['dates']=$dates;    
+        $project['weekNumber']=$dateGap;          
+        return $project;
+    }
 
 
 
@@ -422,6 +496,73 @@ class WorkTrackController extends Controller
                         ->select('tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
                         ->where('task_members.member_identification','=',$id)
                         ->where('milestones.project_milestone_id','=',$projectId)
+                        ->orderBy('task_members.created_at', 'DESC')
+                        ->get();
+        foreach($tasks as $task){
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $task['timeTrack']=$logs;
+        }  
+        $project['tasks']=$tasks;
+        $project['dates']=$dates;          
+        return $project;
+    }
+
+
+
+    /**
+     * @SWG\Post(
+     *      path="/v1/task-member/all-assigned-tasks",
+     *      operationId="task All assigned tasks",
+     *      tags={"Task"},
+     *      summary="Assigned tasks all",
+     *      description="Returns All Assigned task lists",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="projectId",
+     *          description="projectId",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="dateFromWeek",
+     *          description="date in dd-mm-yyyy format",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns All Assigned task list
+     */
+    public function getAllAssignedTasks(Request $request){
+        $user = \Auth::user();
+        $id=$user->id;
+        $helper = new HelperFunctions();
+        $ddate = $request->dateFromWeek;
+        $date = new \DateTime($ddate);
+        $dateGap=$helper->getStartAndEndDate($date);
+        $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
+
+
+        $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
+                        ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
+                        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+                        ->select('projects.id as projectId', 'projects.projectName', 'tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
+                        ->where('task_members.member_identification','=',$id)
                         ->orderBy('task_members.created_at', 'DESC')
                         ->get();
         foreach($tasks as $task){

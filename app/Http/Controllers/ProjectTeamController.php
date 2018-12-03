@@ -6,6 +6,7 @@ use App\Project;
 use App\ProjectTeam;
 use App\MassParameter;
 use Illuminate\Http\Request;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\ProjectTeamFormRequest;
 
 class ProjectTeamController extends Controller
@@ -64,16 +65,10 @@ class ProjectTeamController extends Controller
      */
     public function create(ProjectTeamFormRequest $request)
     {
+        $helper = new HelperFunctions();
         $id=$request->id;
-        if(empty($id))
-            $team=new ProjectTeam();
-        else
-            $team=ProjectTeam::find($id);
-        $team->team_user_id=$request->team_user_id;
-        $team->team_project_id=$request->team_project_id;
-        $team->status=$request->status;
-        $team->save();
-        return $team;
+        $result = $helper->updateProjectTeam($request->team_user_id, $request->team_project_id, $request->status, $id);
+        return $result;
     }
 
 

@@ -161,7 +161,9 @@ Route::prefix('v1')->group(function () {
         Route::post('time-track/get-logs-by-week', 'WorkTrackController@getLogsByWeekAccordingUser');
         Route::post('time-track/get-logs-by-week/single-user', 'WorkTrackController@getLogsByWeekAccordingLoggedInUser');
         Route::post('task-member/current-assigned-tasks/project', 'WorkTrackController@getCurrentAssignedTasksOnProject');
+        Route::post('task-member/current-assigned-tasks', 'WorkTrackController@getCurrentAssignedTasks');
         Route::post('task-member/all-assigned-tasks/project', 'WorkTrackController@getAllAssignedTasksOnProject');
+        Route::post('task-member/all-assigned-tasks', 'WorkTrackController@getAllAssignedTasks');
         Route::post('task-member/user-bow', 'WorkTrackController@getMyWeeklyBow');
     });
 

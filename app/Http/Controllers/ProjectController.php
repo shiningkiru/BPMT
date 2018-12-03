@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Project;
 use Illuminate\Http\Request;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\ProjectFormRequest;
 
 class ProjectController extends Controller
@@ -110,26 +111,32 @@ class ProjectController extends Controller
      */
     public function create(ProjectFormRequest $request)
     {
+        $helper = new HelperFunctions();
         $id=$request->id;
-        if(empty($id))
-            $project=new Project();
-        else
-            $project=Project::find($id);
-        $project->projectName=$request->projectName;
-        $project->description=$request->description;
-        $project->projectCode=$request->projectCode;
-        $startdate=new \Datetime($request->startDate);
-        $project->startDate=$startdate->format('Y/m/d');
-        $enddate=new \Datetime($request->endDate);
-        $project->endDate=$enddate->format('Y/m/d');
-        $project->estimatedHours=$request->estimatedHours;
-        $project->budget=$request->budget;
-        $project->status=$request->status;
-        $project->client_project_id=$request->client_project_id;
-        $project->project_lead_id=$request->project_lead_id;
-        $project->project_company_id=$request->company_id;
-        $project->save();
-        return $project;
+    try{
+            if(empty($id))
+                $project=new Project();
+            else
+                $project=Project::find($id);
+            $project->projectName=$request->projectName;
+            $project->description=$request->description;
+            $project->projectCode=$request->projectCode;
+            $startdate=new \Datetime($request->startDate);
+            $project->startDate=$startdate->format('Y/m/d');
+            $enddate=new \Datetime($request->endDate);
+            $project->endDate=$enddate->format('Y/m/d');
+            $project->budget=$request->budget;
+            $project->estimatedHours=$request->estimatedHours;
+            $project->status=$request->status;
+            $project->client_project_id=$request->client_project_id;
+            $project->project_lead_id=$request->project_lead_id;
+            $project->project_company_id=$request->company_id;
+            $project->save();
+            $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
+            return $project;
+        }catch(\Exception $e){
+            return Response::json(['errors'=>['server'=>[$e->getMessage()]]], 400);
+        }
     }
 
 
