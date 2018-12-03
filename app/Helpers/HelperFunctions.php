@@ -37,7 +37,21 @@ class HelperFunctions{
         return $modules;
     }
 
-    
+    public function updateProjectTeam($user, $project, $status, $id=null){
+        try{
+            if(empty($id))
+                $team=new ProjectTeam();
+            else
+                $team=ProjectTeam::find($id);
+            $team->team_user_id=$user;
+            $team->team_project_id=$project;
+            $team->status=$status;
+            $team->save();
+            return $team;
+        }catch(\Exception $e){
+            return $e->getErrorMessage();
+        }
+    }
 
 
     public function getStartAndEndDate($date)
