@@ -122,6 +122,7 @@ class ProjectController extends Controller
         $project->startDate=$startdate->format('Y/m/d');
         $enddate=new \Datetime($request->endDate);
         $project->endDate=$enddate->format('Y/m/d');
+        $project->estimatedHours=$request->estimatedHours;
         $project->budget=$request->budget;
         $project->status=$request->status;
         $project->client_project_id=$request->client_project_id;

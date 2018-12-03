@@ -24,7 +24,7 @@ class ProjectFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'exists:projects,id',
+            // 'id' => 'exists:projects,id',
             'projectName' => 'string|unique:projects,projectName,'.$this->request->get('id'),
             'projectCode' => 'unique:projects,projectCode,'.$this->request->get('id'),
             'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled',
@@ -33,6 +33,7 @@ class ProjectFormRequest extends FormRequest
             'project_lead_id' => 'required|exists:users,id',
             'startDate' =>'required',
             'endDate' =>  'required',
+            'estimatedHours' =>  'required'
         ];
     }
 }

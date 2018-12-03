@@ -25,6 +25,13 @@ class TaskMemberController extends Controller
    *          type="string",
    *          in="header"
    *      ),
+     *      @SWG\Parameter(
+     *          name="id",
+     *          description="id of the task at the time of update",
+     *          required=false,
+     *          type="number",
+     *          in="formData"
+     *      ),
    *      @SWG\Parameter(
    *          name="estimatedHour",
    *          description="estimatedHour",
@@ -57,10 +64,17 @@ class TaskMemberController extends Controller
    * Returns Updated  Task member
    */
     public function addMember(TaskMemberRequest $request){
-        $taskMember=new TaskMember();
+        $id=$request->id;
+        if(empty($id)){
+            $taskMember=new TaskMember();
+            $taskMember->task_identification=$request->task_id;
+            $taskMember->member_identification=$request->member_id;
+        }else{
+            $taskMember=TaskMember::find($id);
+        } 
+            
+
         $taskMember->estimatedHours=$request->estimatedHour;
-        $taskMember->task_identification=$request->task_id;
-        $taskMember->member_identification=$request->member_id;
         $taskMember->save();
         return $taskMember;
     }
@@ -97,7 +111,7 @@ class TaskMemberController extends Controller
      * Returns member list of Task
      */
     public function getAssignedMembers($id){
-        $members = User::leftJoin('task_members','task_members.member_identification','=','users.id')->select('users.id as userId', 'users.employeeId','firstName','lastName','email','mobileNumber','profilePic','roles','task_members.id as taskMemberId')->where('task_members.task_identification','=',$id)->get();
+        $members = User::leftJoin('task_members','task_members.member_identification','=','users.id')->select('users.id as userId', 'users.employeeId','firstName','lastName','email','mobileNumber','profilePic','roles','task_members.id as taskMemberId','task_members.estimatedHours','task_members.takenHours', 'task_members.task_identification as taskId')->where('task_members.task_identification','=',$id)->get();
         return $members;
     }
 

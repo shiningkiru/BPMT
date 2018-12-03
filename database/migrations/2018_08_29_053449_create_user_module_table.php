@@ -138,6 +138,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->string('budget')->nullable(true);
+                $table->float('estimatedHours')->default(0.0);
                 $table->enum('status', ['received', 'pending', 'started', 'in-progress', 'in-hold', 'completed', 'cancelled']);
                 $table->unsignedInteger('project_company_id');
                 $table->foreign('project_company_id')
@@ -198,7 +199,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->float('estimatedHours')->default(0.0);
                 $table->float('progress')->default(0.0);
-                $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
+                $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
                 $table->unsignedInteger('dependent_milestone_id')->nullable(true);
                 $table->foreign('dependent_milestone_id')
                         ->references('id')
