@@ -119,7 +119,11 @@ class AccessPrevilegesController extends Controller
     public function getAccessForUser(Request $request){
         $user=\Auth::user();
         $accs = AccessPrevileges::where('roles', '=', $user->roles)->select('module_name', 'access_previlage')->orderBy('module_name','DESC')->get();
-        return $accs;
+        $prev=[];
+        foreach($accs as $acc){
+            $prev[$acc['module_name']] = $acc['access_previlage'];
+        }
+        return $prev;
     }
 
     public function managePrevileges(){
