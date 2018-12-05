@@ -7,6 +7,7 @@ use App\Tasks;
 use App\Project;
 use App\TaskMember;
 use App\WorkTimeTrack;
+use App\WeekValidation;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use App\Http\Requests\WorkTrackRequest;
@@ -74,13 +75,26 @@ class WorkTrackController extends Controller
     */
     public function addMyTime(WorkTrackRequest $request){
         $task=Tasks::find($request->task_id); 
+        $helper=new HelperFunctions();
         $date=new \Datetime($request->entryDate);
+        $weekDetails=$helper->getYearWeekNumber($date);
         $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
         $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('task_member_identification','=',$taskMember->id)->first();
          if(!($workTrack instanceof WorkTimeTrack)){
             $workTrack=new WorkTimeTrack();
             $workTrack->dateOfEntry=$date;
             $workTrack->task_member_identification=$taskMember->id;
+
+            
+            $weekValidation= WeekValidation::where('user_id','=',$request->user_id)->where('weekNumber','=',$weekDetails['week'])->where('entryYear','=',$weekDetails['year'])->first();
+            if(!($weekValidation instanceof WeekValidation)){
+                $weekValidation= new WeekValidation();
+                $weekValidation->weekNumber=$weekDetails['week'];
+                $weekValidation->entryYear=$weekDetails['year'];
+                $weekValidation->user_id=$request->user_id;
+                $weekValidation->save();
+            }
+            $workTrack->week_number=$weekValidation->id;
         }else{
             $task->takenHours=$task->takenHours - (float)$workTrack->takenHours;
             $taskMember->takenHours=$taskMember->takenHours - (float)$workTrack->takenHours;
@@ -617,8 +631,8 @@ class WorkTrackController extends Controller
         endforeach;
         $res['projects']=$projects;
         $res['dates']=$dates;
+        $res['week']=$helper->getYearWeekNumber(new \Datetime($dateOfWeek));
         //show the logs of week selected
         return $res;
-
     }
 }

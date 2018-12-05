@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\WeekValidation;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkTimeTrack extends Model
@@ -15,13 +16,15 @@ class WorkTimeTrack extends Model
         'description','takenHours','dateOfEntry','isUpdated'
     ];
 
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    
     public function taskMember()
     {
       return $this->belongsTo(TaskMember::class, 'task_member_identification');
+    }
+    
+    
+    public function weekNumber()
+    {
+        return $this->hasMany(WeekValidation::class, 'weekNumber');
     }
 }

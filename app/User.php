@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\WeekValidation;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -66,6 +67,22 @@ class User extends Authenticatable
     public function project_team()
     {
         return $this->hasMany(ProjectTeam::class, 'team_user_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function weekValidation()
+    {
+        return $this->hasMany(WeekValidation::class, 'user_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function weekValidationAccepted()
+    {
+        return $this->hasMany(WeekValidation::class, 'accepted_user_id');
     }
 
 

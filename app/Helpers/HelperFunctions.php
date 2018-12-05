@@ -2,6 +2,7 @@
 namespace App\Helpers;
 
 use App\User;
+use App\ProjectTeam;
 
 class HelperFunctions{
     public function getLastEmployeeId(){

@@ -120,7 +120,7 @@ class SprintController extends Controller
         ]);  
         $total = ($total->total - $oldSprint->estimatedHours) + (float)$request->estimatedHours;          
         if($total > $milestone->estimatedHours){
-            return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 400);
+            return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
         }
 
         $sprint->save();

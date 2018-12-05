@@ -278,6 +278,28 @@ class CreateUserModuleTable extends Migration
                 $table->timestamps();
         });
 
+        
+        Schema::create('week_validations', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('weekNumber');
+                $table->integer('entryYear');
+                $table->enum('status', ['entried', 'requested', 'accepted', 'reassigned'])->default('entried');
+                $table->dateTimeTz('request_time')->nullable(true);
+                $table->dateTimeTz('accept_time')->nullable(true);
+                $table->unsignedInteger('user_id');
+                $table->foreign('user_id')
+                        ->references('id')
+                        ->on('users')
+                        ->onDelete('cascade');
+                $table->unsignedInteger('accepted_user_id')->nullable(true);
+                $table->foreign('accepted_user_id')
+                        ->references('id')
+                        ->on('users')
+                        ->onDelete('cascade');
+                $table->unique(['weekNumber', 'entryYear','user_id']);
+                $table->timestamps();
+        });
+
         Schema::create('work_time_tracks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('description');
@@ -288,6 +310,11 @@ class CreateUserModuleTable extends Migration
                 $table->foreign('task_member_identification')
                         ->references('id')
                         ->on('task_members')
+                        ->onDelete('cascade');
+                $table->unsignedInteger('week_number');
+                $table->foreign('week_number')
+                        ->references('id')
+                        ->on('week_validations')
                         ->onDelete('cascade');
                 $table->unique(['task_member_identification', 'dateOfEntry']);
                 $table->timestamps();
@@ -370,6 +397,7 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('activity_logs');
         Schema::dropIfExists('document_managers');
         Schema::dropIfExists('work_time_tracks');
+        Schema::dropIfExists('week_validations');
         Schema::dropIfExists('task_members');
         Schema::dropIfExists('mass_parameters');
         Schema::dropIfExists('branches');
