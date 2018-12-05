@@ -1,6 +1,6 @@
 <?php
 namespace App\Helpers;
-
+use App\Project;
 use App\User;
 use App\ProjectTeam;
 
@@ -88,6 +88,14 @@ class HelperFunctions{
             $fromTime=strtotime(date('d-m-Y', strtotime('+1 day', $fromTime)));
         }
         return $dates;
+    }
+
+    public function getInternalProjectId($type = "internal"){
+        $digits = ($type == "internal")?3:4;
+        $prefix = ($type == "internal")?"IPR-":"PR-";
+        $lastRecord=Project::where("projectType",'=',$type)->orderby('id', 'desc')->first();
+        $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
+        return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
     }
 }
 ?>

@@ -236,8 +236,8 @@ class ProjectTeamController extends Controller
             ->leftjoin('task_members','member_identification','=','users.id')
             ->where('project_teams.team_project_id','=',$id)
             ->where('branch_departments.dept_id','=',$dept->id)
-            ->selectRaw('ifnull(count(task_members.task_identification),0) as total_tasks,users.id,users.firstName,users.lastName,users.email,users.mobileNumber,users.profilePic,designation.title as designation')
-            ->groupBy('users.id', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.profilePic','designation.title')
+            ->selectRaw('ifnull(count(task_members.task_identification),0) as total_tasks,users.id,users.firstName,users.lastName,users.email,users.mobileNumber,users.profilePic,users.roles,designation.title as designation')
+            ->groupBy('users.id', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.profilePic','designation.title','users.roles')
             ->get();
             $dept['teamMembers']=$users;
             $teamData[$i]=$dept;
@@ -255,4 +255,6 @@ class ProjectTeamController extends Controller
         ->get();
         return $tasks[0];
     }
+
+    
 }

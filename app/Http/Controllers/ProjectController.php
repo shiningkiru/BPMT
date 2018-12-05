@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Project;
+use Response;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use App\Http\Requests\ProjectFormRequest;
@@ -113,20 +114,23 @@ class ProjectController extends Controller
     {
         $helper = new HelperFunctions();
         $id=$request->id;
-        try{
-            if(empty($id))
+    try{
+            if(empty($id)):
                 $project=new Project();
-            else
+                $project->projectCode=$helper->getInternalProjectId($request->projectType);
+            else:
                 $project=Project::find($id);
+            endif;
             $project->projectName=$request->projectName;
             $project->description=$request->description;
-            $project->projectCode=$request->projectCode;
             $startdate=new \Datetime($request->startDate);
             $project->startDate=$startdate->format('Y/m/d');
             $enddate=new \Datetime($request->endDate);
             $project->endDate=$enddate->format('Y/m/d');
             $project->budget=$request->budget;
+            $project->estimatedHours=$request->estimatedHours;
             $project->status=$request->status;
+            $project->projectType=$request->projectType;
             $project->client_project_id=$request->client_project_id;
             $project->project_lead_id=$request->project_lead_id;
             $project->project_company_id=$request->company_id;
