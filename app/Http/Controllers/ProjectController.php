@@ -52,6 +52,13 @@ class ProjectController extends Controller
      *          in="formData"
      *      ),
      *      @SWG\Parameter(
+     *          name="projectCategory",
+     *          description="project category internal/external",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
      *          name="startDate",
      *          description="start date",
      *          required=true,
@@ -117,7 +124,7 @@ class ProjectController extends Controller
     try{
             if(empty($id)):
                 $project=new Project();
-                $project->projectCode=$helper->getInternalProjectId($request->projectType);
+                $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
             else:
                 $project=Project::find($id);
             endif;
@@ -130,7 +137,7 @@ class ProjectController extends Controller
             $project->budget=$request->budget;
             $project->estimatedHours=$request->estimatedHours;
             $project->status=$request->status;
-            $project->projectType=$request->projectType;
+            $project->projectCategory=$request->projectCategory;
             $project->client_project_id=$request->client_project_id;
             $project->project_lead_id=$request->project_lead_id;
             $project->project_company_id=$request->company_id;
