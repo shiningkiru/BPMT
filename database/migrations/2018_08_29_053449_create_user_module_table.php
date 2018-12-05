@@ -134,11 +134,12 @@ class CreateUserModuleTable extends Migration
                 $table->increments('id');
                 $table->string('projectName')->unique();
                 $table->string('description')->nullable(true);
-                $table->string('projectCode')->unique();;
+                $table->string('projectCode')->start_from(140000)->unique();
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->string('budget')->nullable(true);
                 $table->float('estimatedHours')->default(0.0);
+                $table->enum('projectType', ['internal', 'external']);
                 $table->enum('status', ['received', 'pending', 'started', 'in-progress', 'in-hold', 'completed', 'cancelled']);
                 $table->unsignedInteger('project_company_id');
                 $table->foreign('project_company_id')
