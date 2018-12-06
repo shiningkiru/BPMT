@@ -184,4 +184,10 @@ Route::prefix('v1')->group(function () {
         Route::get('document-manager/download-file/{id}', 'DocumentManagerController@downloadFile');
     });
 
+    
+    Route::post('notification', 'NotificationController@create');
+    Route::put('notification/{id}', 'NotificationController@update');
+    Route::get('notification', 'NotificationController@index');
+    Route::get('notification/{id}', 'NotificationController@get');
+
 });

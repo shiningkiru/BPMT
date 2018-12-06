@@ -110,4 +110,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(TaskMember::class, 'member_identification');
     }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function notificationSent()
+    {
+        return $this->hasMany(User::class, 'from_user_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function notificationReceived()
+    {
+        return $this->hasMany(User::class, 'to_user_id');
+    }
 }
