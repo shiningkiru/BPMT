@@ -31,7 +31,7 @@ class ProjectFormRequest extends FormRequest
             'company_id' => 'required|exists:companies,id',
             'client_project_id' => 'required|exists:clients,id',
             'project_lead_id' => 'required|exists:users,id',
-            'projectType' =>'required',
+            'projectCategory' =>'required',
             'startDate' =>'required',
             'endDate' =>  'required',
             'estimatedHours' =>  'required'

@@ -93,7 +93,7 @@ class HelperFunctions{
     public function getInternalProjectId($type = "internal"){
         $digits = ($type == "internal")?3:4;
         $prefix = ($type == "internal")?"IPR-":"PR-";
-        $lastRecord=Project::where("projectType",'=',$type)->orderby('id', 'desc')->first();
+        $lastRecord=Project::where("projectCategory",'=',$type)->orderby('id', 'desc')->first();
         $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
         return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
     }
