@@ -358,4 +358,10 @@ class ProjectController extends Controller
                             ->get();
         return $projects;
     }
+
+    public function projectCode($type){
+        $helper = new HelperFunctions();
+        $projectCode=$helper->getInternalProjectId($type);
+        return ['projectCode'=>$projectCode];
+    }
 }
