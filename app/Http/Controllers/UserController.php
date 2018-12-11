@@ -6,13 +6,22 @@ use App\BranchDepartment;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\RegisterFormRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Controllers\Master\MasterController;
 
 
-class UserController extends Controller
+class UserController extends MasterController
 {
+    
+   public function __construct()
+   {
+        parent::__construct(new UserRepository());
+   }
+
+
      /**
      * @SWG\Get(
      *      path="/v1/user",
@@ -169,8 +178,7 @@ class UserController extends Controller
      */
     public function adminShow()
     {
-        $users=User::where('roles','=','admin')->get();
-        return $users;
+        return $this->model->findByRole('admin');
     }
 
     
@@ -200,8 +208,7 @@ class UserController extends Controller
      */
     public function hrShow()
     {
-        $users=User::where('roles','=','hr')->get();
-        return $users;
+        return $this->model->findByRole('hr');
     }
 
     
@@ -231,8 +238,7 @@ class UserController extends Controller
     */
    public function managementShow()
    {
-       $users=User::where('roles','=','management')->get();
-       return $users;
+       return $this->model->findByRole('management');
    }
 
     
@@ -262,8 +268,7 @@ class UserController extends Controller
    */
   public function teamleadShow()
   {
-      $users=User::where('roles','=','team-lead')->get();
-      return $users;
+      return $this->model->findByRole('team-lead');
   }
 
     
@@ -293,8 +298,7 @@ class UserController extends Controller
   */
  public function projectleadShow()
  {
-     $users=User::where('roles','=','project-lead')->get();
-     return $users;
+     return $this->model->findByRole('project-lead');
  }
 
     
@@ -324,8 +328,7 @@ class UserController extends Controller
  */
 public function employeeShow()
 {
-    $users=User::where('roles','=','employee')->get();
-    return $users;
+    return $this->model->findByRole('employee');
 }
    //rolewise user list end
 

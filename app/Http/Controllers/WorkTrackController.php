@@ -10,10 +10,14 @@ use App\WorkTimeTrack;
 use App\WeekValidation;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use App\Repositories\TasksRepository;
 use App\Http\Requests\WorkTrackRequest;
+use App\Repositories\ProjectRepository;
+use App\Repositories\WeekValidationRepository;
 
 class WorkTrackController extends Controller
 {
+
     /**
     * @SWG\Post(
     *      path="/v1/time-track/add-time",
@@ -86,12 +90,16 @@ class WorkTrackController extends Controller
             $workTrack->task_member_identification=$taskMember->id;
 
             
-            $weekValidation= WeekValidation::where('user_id','=',$request->user_id)->where('weekNumber','=',$weekDetails['week'])->where('entryYear','=',$weekDetails['year'])->first();
+            $weekValidationRepository = new WeekValidationRepository();
+            $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year']);
             if(!($weekValidation instanceof WeekValidation)){
                 $weekValidation= new WeekValidation();
+                $dateGap=$helper->getStartAndEndDate($date);
                 $weekValidation->weekNumber=$weekDetails['week'];
                 $weekValidation->entryYear=$weekDetails['year'];
                 $weekValidation->user_id=$request->user_id;
+                $weekValidation->startDate = $dateGap[0];
+                $weekValidation->endDate = $dateGap[1];
                 $weekValidation->save();
             }
             $workTrack->week_number=$weekValidation->id;
@@ -588,7 +596,7 @@ class WorkTrackController extends Controller
         return $project;
     }
 
-    public function getMyWeeklyBow(Request $request){
+    public function getMyWeeklyPtt(Request $request){
         $user= \Auth::user();
         $helper = new HelperFunctions();
         $user_id = $request->user_id;
@@ -599,25 +607,13 @@ class WorkTrackController extends Controller
         $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
 
         //find the projects
-        $projects = Project::leftJoin('milestones','milestones.project_milestone_id', '=', 'projects.id')
-                            ->leftJoin('sprints','sprints.milestone_id','=','milestones.id')
-                            ->leftJoin('tasks','tasks.sprint_id','=','sprints.id')
-                            ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
-                            ->leftJoin('work_time_tracks','work_time_tracks.task_member_identification','=','task_members.id')
-                            ->where('task_members.member_identification','=',$user_id)
-                            ->whereBetween('work_time_tracks.dateOfEntry', [$dateGap[0], $dateGap[1]])
-                            ->select('projects.id','projects.projectName', 'projects.projectCode')
-                            ->get();
+        $projectRepository = new ProjectRepository();
+        $projects=$projectRepository->findWeeklyWorkingProjects($dateGap[0], $dateGap[1], $user_id);
+
         //find the tasks on projects on which user worked
         foreach($projects as $project):
-            $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
-                            ->leftJoin('work_time_tracks','work_time_tracks.task_member_identification','=','task_members.id')
-                            ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
-                            ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-                            ->where('milestones.project_milestone_id','=',$project->id)
-                            ->whereBetween('work_time_tracks.dateOfEntry', [$dateGap[0], $dateGap[1]])
-                            ->select('tasks.id', 'tasks.taskName')
-                            ->get();
+            $taskRepository = new TasksRepository();
+            $tasks= $taskRepository->findWeeklyWorkingTasks($dateGap[0], $dateGap[1], $project->id, $user_id);
             foreach($tasks as $task): 
                 $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->selectRaw('work_time_tracks.id, work_time_tracks.description, work_time_tracks.takenHours, DATE_FORMAT(work_time_tracks.dateOfEntry,"%m-%d-%Y") as dateOfEntry, work_time_tracks.isUpdated')->where('task_identification','=',$task->id)->where('member_identification','=',$user_id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
                 $data=[];
@@ -629,9 +625,14 @@ class WorkTrackController extends Controller
             $project['tasks'] = $tasks;
 
         endforeach;
+        $weekDetails=$helper->getYearWeekNumber(new \Datetime($dateOfWeek));
+        $weekValidationRepository = new WeekValidationRepository();
+        $weekValidation= $weekValidationRepository->getWeekValidation($user_id, $weekDetails['week'], $weekDetails['year']);
+
         $res['projects']=$projects;
         $res['dates']=$dates;
-        $res['week']=$helper->getYearWeekNumber(new \Datetime($dateOfWeek));
+        $res['week']=$weekDetails;
+        $res['weekValidation']=$weekValidation;
         //show the logs of week selected
         return $res;
     }

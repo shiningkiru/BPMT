@@ -287,6 +287,8 @@ class CreateUserModuleTable extends Migration
                 $table->integer('weekNumber');
                 $table->integer('entryYear');
                 $table->enum('status', ['entried', 'requested', 'accepted', 'reassigned'])->default('entried');
+                $table->date('startDate');
+                $table->date('endDate');
                 $table->dateTimeTz('request_time')->nullable(true);
                 $table->dateTimeTz('accept_time')->nullable(true);
                 $table->unsignedInteger('user_id');
@@ -388,29 +390,6 @@ class CreateUserModuleTable extends Migration
                 $table->unique(['module_name', 'roles']);
                 $table->timestamps();
         });
-
-        
-        Schema::create('notifications', function (Blueprint $table) {
-                $table->increments('id');
-                $table->string('title');
-                $table->text('description')->nullable(true);
-                $table->string('linkId')->nullable(true);
-                $table->text('urlLink')->nullable(true);
-                $table->boolean('isRead')->default(false);
-                $table->string('notificationType');
-                $table->integer('firstDeletedUser')->nullbale(true);
-                $table->unsignedInteger('from_user_id');
-                $table->foreign('from_user_id')
-                        ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
-                $table->unsignedInteger('to_user_id');
-                $table->foreign('to_user_id')
-                        ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
-                $table->timestamps();
-            });
     }
 
     /**
@@ -421,7 +400,6 @@ class CreateUserModuleTable extends Migration
     public function down()
     {
         Schema::dropIfExists('activity_logs');
-        Schema::dropIfExists('notifications');
         Schema::dropIfExists('document_managers');
         Schema::dropIfExists('work_time_tracks');
         Schema::dropIfExists('week_validations');
