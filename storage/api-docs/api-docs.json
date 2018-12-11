@@ -2124,6 +2124,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "projectCategory",
+                        "in": "formData",
+                        "description": "project category internal/external",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "name": "startDate",
                         "in": "formData",
                         "description": "start date",
@@ -3052,6 +3059,13 @@
                         "type": "string"
                     },
                     {
+                        "name": "id",
+                        "in": "formData",
+                        "description": "id of the task at the time of update",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
                         "name": "estimatedHour",
                         "in": "formData",
                         "description": "estimatedHour",
@@ -3186,6 +3200,48 @@
                         "description": "Bad request"
                     }
                 }
+            },
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Assigned task list",
+                "description": "Returns all current Assigned task list",
+                "operationId": "task current assigned ",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "projectId",
+                        "in": "formData",
+                        "description": "projectId",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
             }
         },
         "/v1/task-member/all-assigned-tasks": {
@@ -3201,6 +3257,48 @@
                         "name": "Authorization",
                         "in": "header",
                         "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Assigned tasks all",
+                "description": "Returns All Assigned task lists",
+                "operationId": "task All assigned tasks",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "projectId",
+                        "in": "formData",
+                        "description": "projectId",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dateFromWeek",
+                        "in": "formData",
+                        "description": "date in dd-mm-yyyy format",
                         "required": true,
                         "type": "string"
                     }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories\Master;
 
+use Validator;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Master\RepositoryInterface;
 
@@ -63,4 +64,10 @@ class Repository implements RepositoryInterface {
     {
         return $this->model->with($relations);
     }
+
+    
+
+   public function validateRules($data, $rules){
+    return Validator::make($data, $rules);
+   }
 }

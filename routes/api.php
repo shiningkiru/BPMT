@@ -165,7 +165,8 @@ Route::prefix('v1')->group(function () {
         Route::post('task-member/current-assigned-tasks', 'WorkTrackController@getCurrentAssignedTasks');
         Route::post('task-member/all-assigned-tasks/project', 'WorkTrackController@getAllAssignedTasksOnProject');
         Route::post('task-member/all-assigned-tasks', 'WorkTrackController@getAllAssignedTasks');
-        Route::post('task-member/user-bow', 'WorkTrackController@getMyWeeklyBow');
+        Route::post('task-member/user-ptt', 'WorkTrackController@getMyWeeklyPtt');
+        Route::post('task-member/user-ptt/request-submit', 'WeekValidationController@submitWeeklyPtt');
     });
 
     //Access previlege routes
@@ -186,9 +187,12 @@ Route::prefix('v1')->group(function () {
     });
 
     
-    Route::post('notification', 'NotificationController@create');
-    Route::put('notification/{id}', 'NotificationController@update');
-    Route::get('notification', 'NotificationController@index');
-    Route::get('notification/{id}', 'NotificationController@get');
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('notification', 'NotificationController@create');
+        Route::put('notification/{id}', 'NotificationController@update');
+        Route::get('notification', 'NotificationController@index');
+        Route::get('notification/received', 'NotificationController@getMyNotification');
+        Route::get('notification/{id}', 'NotificationController@get');
+    });
 
 });
