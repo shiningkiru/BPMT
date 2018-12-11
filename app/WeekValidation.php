@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class WeekValidation extends Model
 {
     protected $fillable = [
-        'weekNumber', 'entryYear', 'status', 'request_time', 'accept_time'
+        'weekNumber', 'entryYear', 'status', 'startDate', 'endDate', 'request_time', 'accept_time'
     ];
 
     
