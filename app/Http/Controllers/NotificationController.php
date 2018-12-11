@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Notification;
 use Illuminate\Http\Request;
+use App\Events\NotificationFired;
 use App\Repositories\NotificationRepository;
 use App\Http\Controllers\Master\MasterController;
 

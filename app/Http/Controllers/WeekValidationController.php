@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Event;
 use App\User;
 use App\Notification;
 use App\WeekValidation;
 use Illuminate\Http\Request;
+use App\Events\NotificationFired;
 use App\Repositories\UserRepository;
 use App\Repositories\ProjectRepository;
 use App\Repositories\WeekValidationRepository;
@@ -53,7 +55,9 @@ class WeekValidationController extends MasterController
                         $notification->from_user_id = $user->id;
                         $notification->to_user_id=$manager['id'];
                         $notification->save();
+                        Event::fire(new NotificationFired($manager['id']));
                     }
+
                 endif;
             });
             return $weekValidation;
