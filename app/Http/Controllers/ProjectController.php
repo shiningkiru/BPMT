@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Project;
 use Response;
+use App\Project;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use App\Repositories\ProjectRepository;
 use App\Http\Requests\ProjectFormRequest;
 
 class ProjectController extends Controller
@@ -121,7 +122,7 @@ class ProjectController extends Controller
     {
         $helper = new HelperFunctions();
         $id=$request->id;
-    try{
+        try{
             if(empty($id)):
                 $project=new Project();
                 $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
@@ -318,11 +319,21 @@ class ProjectController extends Controller
         return  $projects->get();
     } 
 
+    public function setProjectStatus(Request $request)
+    {
+        $projectRepository=new ProjectRepository();
+        $valid = $projectRepository->validateRules($request->all(), [
+            'project_id' => 'required|exists:projects,id',
+            'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled'
+        ]);
 
-    
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        
+        return $projectRepository->updateProjectStatus($request->project_id,$request->status);
+        
+    }
 
-
-  /**
+    /**
      * @SWG\Get(
      *      path="/v1/project/assigned",
      *      operationId="project-assigned",
@@ -359,6 +370,30 @@ class ProjectController extends Controller
         return $projects;
     }
 
+      /**
+     * @SWG\Get(
+     *      path="/v1/project/project-code/{type}",
+     *      operationId="project-code",
+     *      tags={"Project"},
+     *      summary="Project code for the Employee (type=internal/external)",
+     *      description="Returns Project code for the Employee",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns Project code for the Employee
+     */
     public function projectCode($type){
         $helper = new HelperFunctions();
         $projectCode=$helper->getInternalProjectId($type);

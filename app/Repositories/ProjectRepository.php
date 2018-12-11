@@ -27,4 +27,16 @@ class ProjectRepository extends Repository {
                         ->get();
         return $projects;
     }
+
+    public function updateProjectStatus($projectId, $status){
+        try{
+            $project=$this->model->find($projectId);
+            $project->status=$status;
+            $project->save();
+            return $project;
+        }catch(\Exception $e){
+            return Response::json(['errors'=>['server'=>[$e->getMessage()]]], 422);
+        }
+       
+    }
 }

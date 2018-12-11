@@ -23,7 +23,6 @@ class NotificationController extends MasterController
 
    public function getMyNotification(Request $request){
        $user=\Auth::user();
-    //    Event::fire(new NotificationFired($user->id));
        return $this->model->getReceivedNotification($user->id, $request->limitType);
    }
 
