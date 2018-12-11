@@ -129,29 +129,6 @@ class CreateUserModuleTable extends Migration
                 $table->timestamps();
         });
 
-        
-        Schema::create('notifications', function (Blueprint $table) {
-                $table->increments('id');
-                $table->string('title');
-                $table->text('description')->nullable(true);
-                $table->string('linkId')->nullable(true);
-                $table->text('urlLink')->nullable(true);
-                $table->boolean('isRead')->default(false);
-                $table->string('notificationType');
-                $table->integer('firstDeletedUser')->nullbale(true);
-                $table->unsignedInteger('from_user_id');
-                $table->foreign('from_user_id')
-                        ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
-                $table->unsignedInteger('to_user_id');
-                $table->foreign('to_user_id')
-                        ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
-                $table->timestamps();
-            });
-
 
         Schema::create('projects', function (Blueprint $table) {
                 $table->increments('id');
@@ -161,7 +138,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->string('budget')->nullable(true);
-                $table->float('estimatedHours')->default(0.0);
+                $table->time('estimatedHours')->nullable(true);
                 $table->enum('projectCategory', ['internal', 'external'])->default('internal');
                 $table->enum('status', ['received', 'pending', 'started', 'in-progress', 'in-hold', 'completed', 'cancelled']);
                 $table->unsignedInteger('project_company_id');
@@ -211,6 +188,7 @@ class CreateUserModuleTable extends Migration
                         ->references('id')
                         ->on('users')
                         ->onDelete('cascade');
+                $table->unique(['team_project_id', 'team_user_id']);
                 $table->timestamps();
         });
 
@@ -221,7 +199,7 @@ class CreateUserModuleTable extends Migration
                 $table->text('description')->nullable(true);
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
-                $table->float('estimatedHours')->default(0.0);
+                $table->time('estimatedHours')->nullable(true);
                 $table->float('progress')->default(0.0);
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
                 $table->unsignedInteger('dependent_milestone_id')->nullable(true);
@@ -421,7 +399,6 @@ class CreateUserModuleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notifications');
         Schema::dropIfExists('activity_logs');
         Schema::dropIfExists('document_managers');
         Schema::dropIfExists('work_time_tracks');

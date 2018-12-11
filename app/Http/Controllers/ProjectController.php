@@ -319,9 +319,6 @@ class ProjectController extends Controller
     } 
 
 
-    
-
-
   /**
      * @SWG\Get(
      *      path="/v1/project/assigned",
@@ -359,6 +356,30 @@ class ProjectController extends Controller
         return $projects;
     }
 
+      /**
+     * @SWG\Get(
+     *      path="/v1/project/project-code/{type}",
+     *      operationId="project-code",
+     *      tags={"Project"},
+     *      summary="Project code for the Employee (type=internal/external)",
+     *      description="Returns Project code for the Employee",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns Project code for the Employee
+     */
     public function projectCode($type){
         $helper = new HelperFunctions();
         $projectCode=$helper->getInternalProjectId($type);

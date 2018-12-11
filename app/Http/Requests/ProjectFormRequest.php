@@ -34,7 +34,7 @@ class ProjectFormRequest extends FormRequest
             'projectCategory' =>'required',
             'startDate' =>'required',
             'endDate' =>  'required',
-            'estimatedHours' =>  'required'
+            'estimatedHours' =>  'required|regex:/^\d+:\d{2}(:\d{2})?$/'
         ];
     }
 }

@@ -50,7 +50,7 @@ class HelperFunctions{
             $team->save();
             return $team;
         }catch(\Exception $e){
-            return $e->getErrorMessage();
+            return $e;
         }
     }
 
@@ -97,5 +97,5 @@ class HelperFunctions{
         $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
         return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
     }
-}
+ }
 ?>
