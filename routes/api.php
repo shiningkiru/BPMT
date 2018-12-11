@@ -93,6 +93,7 @@ Route::prefix('v1')->group(function () {
         Route::get('project/project-code/{type}', 'ProjectController@projectCode');
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
         Route::post('project', 'ProjectController@create');
+        Route::post('project/set-status', 'ProjectController@setProjectStatus');
         Route::get('project', 'ProjectController@index');
         Route::get('project/assigned', 'ProjectController@assignedPrjects');
         Route::get('project/{id}', 'ProjectController@show');
