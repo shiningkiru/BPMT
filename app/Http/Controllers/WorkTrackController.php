@@ -84,6 +84,11 @@ class WorkTrackController extends Controller
         $weekDetails=$helper->getYearWeekNumber($date);
         $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
         $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('task_member_identification','=',$taskMember->id)->first();
+        
+        $takenHour = $helper->timeToSec($helper->timeConversion($request->takenHours) ?? 00);
+        $taskTaken = $helper->timeToSec($helper->timeConversion($task->takenHours));
+        $taskMemberTaken = $helper->timeToSec($helper->timeConversion($taskMember->takenHours));
+
          if(!($workTrack instanceof WorkTimeTrack)){
             $workTrack=new WorkTimeTrack();
             $workTrack->dateOfEntry=$date;
@@ -103,20 +108,17 @@ class WorkTrackController extends Controller
             }
             $workTrack->week_number=$weekValidation->id;
         }else{
-            $task->takenHours=$task->takenHours - (float)$workTrack->takenHours;
-            $taskMember->takenHours=$taskMember->takenHours - (float)$workTrack->takenHours;
+            $workTrackTaken = $helper->timeToSec($helper->timeConversion($workTrack->takenHours));
+            $taskTaken-= $workTrackTaken;
+            $taskMemberTaken-= $workTrackTaken;
+            $task->takenHours=$helper->secToTime($taskTaken);
+            $taskMember->takenHours=$helper->secToTime($taskMemberTaken );
         }
-       // $workTrack->takenHours=$request->takenHours;
-        $workTrack->takenHours=$helper->timeConversion($request->takenHours ?? 00);
-        
+        $workTrack->takenHours=$helper->timeConversion($request->takenHours);
         $workTrack->description=$request->description;
-
-        // $task->takenHours=$task->takenHours + (float)$request->takenHours;
-        dd($helper->timeConversion($request->takenHours ?? 00));
-        $task->takenHours=$task->takenHours + $helper->timeConversion($request->takenHours ?? 00);
         
-
-        $taskMember->takenHours=$taskMember->takenHours + (float)$request->takenHours;
+        $task->takenHours=$helper->secToTime($taskTaken + $takenHour);
+        $taskMember->takenHours=$helper->secToTime($taskMemberTaken + $takenHour);
         $workTrack->save();
         $taskMember->save();
         $task->save();
@@ -457,7 +459,13 @@ class WorkTrackController extends Controller
                         ->orderBy('task_members.created_at', 'DESC')
                         ->get();
         foreach($tasks as $task){
-            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')
+                                ->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')
+                                ->where('task_identification','=',$task->taskId)
+                                ->where('member_identification','=',$user->id)
+                                ->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])
+                                ->distinct('work_time_tracks.id')
+                                ->get();
             $task['timeTrack']=$logs;
         }  
         $project['tasks']=$tasks;
@@ -614,7 +622,7 @@ class WorkTrackController extends Controller
                                 ->get();
             $task['timeTrack']=$logs;
         }  
-        $project['tasks']=[$tasks];
+        $project['tasks']=$tasks;
         $project['dates']=$dates;          
         return $project;
     }

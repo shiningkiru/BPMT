@@ -111,8 +111,13 @@ class HelperFunctions{
       
     }
 
-    function timeConversion($time){
+    public function timeConversion($time){
         return (sizeof(explode(":",$time)) == 1)?$time.":00":$time;
+    }
+
+    public function secToTime($seconds){
+        $t = round($seconds);
+        return sprintf('%d:%02d:%02d', ($t/3600),($t/60%60), $t%60);
     }
  }
 ?>
