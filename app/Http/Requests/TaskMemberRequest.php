@@ -24,7 +24,7 @@ class TaskMemberRequest extends FormRequest
     public function rules()
     {
         return [
-            'estimatedHour' => 'required|numeric|between:0,999.99',
+            'estimatedHour' => 'required|time_format',
             'task_id' => 'required|exists:tasks,id|unique:task_members,task_identification,'.$this->request->get('id').',id,member_identification,'.$this->request->get('member_id'),
             'member_id' => 'required|exists:users,id|unique:task_members,member_identification,'.$this->request->get('id').',id,task_identification,'.$this->request->get('task_id'),
             // 'task_id' => 'required|exists:tasks,id',

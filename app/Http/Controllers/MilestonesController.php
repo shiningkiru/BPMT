@@ -120,6 +120,7 @@ class MilestonesController extends Controller
         $milestone->project_milestone_id=$request->project_id;
         $milestone->dependent_milestone_id=$request->dependent_milestone_id;
 
+        //estimated hour calculation
         $project=Project::find($request->project_id);
         $milestoneList = Milestones::where('project_milestone_id','=',$project->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('milestones.project_milestone_id')->first();
 
@@ -132,6 +133,8 @@ class MilestonesController extends Controller
         if($total > $projectEstimatedHour){
             return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
         }
+        //estimated hour calculation end
+
         $milestone->save();
         return $milestone;
     }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Response;
 use App\User;
 use App\Tasks;
 use App\TaskMember;
 use Illuminate\Http\Request;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\TaskMemberRequest;
 
 class TaskMemberController extends Controller
@@ -64,6 +66,7 @@ class TaskMemberController extends Controller
    * Returns Updated  Task member
    */
     public function addMember(TaskMemberRequest $request){
+        $helper = new HelperFunctions();
         $id=$request->id;
         if(empty($id)){
             $taskMember=new TaskMember();
@@ -72,9 +75,27 @@ class TaskMemberController extends Controller
         }else{
             $taskMember=TaskMember::find($id);
         } 
+        $oldTaskMember = clone $taskMember;
             
 
-        $taskMember->estimatedHours=$request->estimatedHour;
+        $taskMember->estimatedHours=$helper->timeConversion($request->estimatedHour);
+
+        
+        //estimated hour calculation
+        $task=Tasks::find($request->task_id);
+        $taskMemberTotal = TaskMember::where('task_identification','=',$task->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('task_members.task_identification')->first();
+        
+        $totalSeconds = $taskMemberTotal->total;
+        $estimatedHours=$helper->timeToSec($request->estimatedHour);
+        $oldEstimatedHours=$helper->timeToSec($oldTaskMember->estimatedHours ?? 00);
+        $taskEstimatedHour = $helper->timeToSec($task->estimatedHours);
+        $total = (int)$totalSeconds + (int)$estimatedHours - (int)$oldEstimatedHours; 
+        
+        if($total > $taskEstimatedHour){
+            return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
+        }
+        //estimated hour calculation end
+
         $taskMember->save();
         return $taskMember;
     }

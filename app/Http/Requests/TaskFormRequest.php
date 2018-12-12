@@ -28,6 +28,8 @@ class TaskFormRequest extends FormRequest
             'taskName' => 'required|string|unique:tasks,taskName,'.$this->request->get('id').',id,sprint_id,'.$this->request->get('sprint_id'),
             'status' => 'required|in:created,assigned,onhold,inprogress,completed,cancelled,failed',
             'priority' => 'required|in:critical,high,medium,low',
+            'estimatedHours' => 'required|time_format',
+            'takenHours' => 'time_format',
             'sprint_id' => 'required|exists:sprints,id',
             'startDate' =>'required|date|before_or_equal:endDate',
             'endDate' =>  'required|date|after_or_equal:startDate',
