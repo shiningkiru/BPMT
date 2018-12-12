@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+use Response;
 use App\Sprint;
 use App\Milestones;
 use Illuminate\Http\Request;
-use Response;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\SprintFormRequest;
 
 class SprintController extends Controller
@@ -104,6 +105,7 @@ class SprintController extends Controller
         else
             $sprint=Sprint::find($id); 
         $oldSprint = clone $sprint;
+        dd($oldSprint);
         $sprint->sprintTitle=$request->sprintTitle;
         $sprint->startDate=new \Datetime($request->startDate);
         $sprint->endDate=new \Datetime($request->endDate);

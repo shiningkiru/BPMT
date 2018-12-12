@@ -138,7 +138,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->string('budget')->nullable(true);
-                $table->time('estimatedHours')->nullable(true);
+                $table->time('estimatedHours')->default("00:00:00");
                 $table->enum('projectCategory', ['internal', 'external'])->default('internal');
                 $table->enum('status', ['new', 'received', 'pending', 'started', 'in-progress', 'on-hold', 'completed', 'cancelled']);
                 $table->unsignedInteger('project_company_id');
@@ -199,7 +199,7 @@ class CreateUserModuleTable extends Migration
                 $table->text('description')->nullable(true);
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
-                $table->time('estimatedHours')->nullable(true);
+                $table->time('estimatedHours')->default("00:00:00");
                 $table->float('progress')->default(0.0);
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
                 $table->unsignedInteger('dependent_milestone_id')->nullable(true);
@@ -221,7 +221,7 @@ class CreateUserModuleTable extends Migration
                 $table->string('sprintTitle');
                 $table->dateTimeTz('startDate');
                 $table->dateTimeTz('endDate');
-                $table->float('estimatedHours');
+                $table->time('estimatedHours')->default("00:00:00");
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_sprint_id')->nullable(true);
@@ -244,8 +244,8 @@ class CreateUserModuleTable extends Migration
                 $table->text('description')->nullable(true);
                 $table->dateTimeTz('startDate');
                 $table->dateTimeTz('endDate');
-                $table->float('estimatedHours');
-                $table->float('takenHours')->default(0.0);
+                $table->time('estimatedHours')->default("00:00:00");
+                $table->time('takenHours')->default("00:00:00");
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_task_id')->nullable(true);
@@ -265,8 +265,8 @@ class CreateUserModuleTable extends Migration
         
         Schema::create('task_members', function (Blueprint $table) {
                 $table->increments('id');
-                $table->float('estimatedHours');
-                $table->float('takenHours')->default(0.0);
+                $table->time('estimatedHours')->default("00:00:00");
+                $table->time('takenHours')->default("00:00:00");
                 $table->unsignedInteger('task_identification');
                 $table->foreign('task_identification')
                         ->references('id')
@@ -308,7 +308,7 @@ class CreateUserModuleTable extends Migration
         Schema::create('work_time_tracks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('description');
-                $table->float('takenHours');
+                $table->time('takenHours')->default("00:00:00");
                 $table->date('dateOfEntry');
                 $table->boolean('isUpdated')->default(false);
                 $table->unsignedInteger('task_member_identification');

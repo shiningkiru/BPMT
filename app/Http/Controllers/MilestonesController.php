@@ -1,11 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Milestones;
 use App\Sprint;
+use App\Project;
+use Response;
 use Illuminate\Http\Request;
 use App\Http\Requests\MilestonesFormRequest;
 use App\Http\Controllers\DB;
+use App\Helpers\HelperFunctions;
 
 class MilestonesController extends Controller
 {
@@ -99,19 +103,35 @@ class MilestonesController extends Controller
      */
     public function create(MilestonesFormRequest $request)
     {
+        $helper = new HelperFunctions();
         $id=$request->id;
         if(empty($id))
             $milestone=new Milestones();
         else
             $milestone=Milestones::find($id);
+        $oldMilestone = clone $milestone;
+
         $milestone->title=$request->title;
         $milestone->description=$request->description;
         $milestone->startDate=new \Datetime($request->startDate);
         $milestone->endDate=new \Datetime($request->endDate);
-        $milestone->estimatedHours=$request->estimatedHours;
+        $milestone->estimatedHours=$helper->timeConversion($request->estimatedHours);
         $milestone->status=$request->status;
         $milestone->project_milestone_id=$request->project_id;
         $milestone->dependent_milestone_id=$request->dependent_milestone_id;
+
+        $project=Project::find($request->project_id);
+        $milestoneList = Milestones::where('project_milestone_id','=',$project->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('milestones.project_milestone_id')->first();
+
+        $totalSeconds = $milestoneList->total;
+        $estimatedHours=$helper->timeToSec($request->estimatedHours);
+        $oldEstimatedHours=$helper->timeToSec($oldMilestone->estimatedHours ?? 00);
+        $projectEstimatedHour = $helper->timeToSec($project->estimatedHours);
+        $total = (int)$totalSeconds + (int)$estimatedHours - (int)$oldEstimatedHours; 
+        
+        if($total > $projectEstimatedHour){
+            return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
+        }
         $milestone->save();
         return $milestone;
     }

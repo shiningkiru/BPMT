@@ -29,7 +29,7 @@ class MilestonesFormRequest extends FormRequest
             'status' => 'required|in:created,assigned,onhold,inprogress,completed,cancelled,failed',
             'startDate' =>'required|before_or_equal:endDate',
             'endDate' =>  'required|after_or_equal:startDate',
-            'estimatedHours' =>  'required|regex:/^\d+:\d{2}(:\d{2})?$/',
+            'estimatedHours' =>  'required|time_format',
             'project_id' => 'required|exists:projects,id',
         ];
     }
