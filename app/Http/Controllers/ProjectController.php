@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Cfun;
 use Response;
 use App\Project;
 use Illuminate\Http\Request;
@@ -136,7 +138,7 @@ class ProjectController extends Controller
             $enddate=new \Datetime($request->endDate);
             $project->endDate=$enddate->format('Y/m/d');
             $project->budget=$request->budget;
-            $project->estimatedHours=$request->estimatedHours;
+            $project->estimatedHours=$helper->timeConversion($request->estimatedHours);
             $project->status=$request->status;
             $project->projectCategory=$request->projectCategory;
             $project->client_project_id=$request->client_project_id;

@@ -97,5 +97,22 @@ class HelperFunctions{
         $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
         return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
     }
+
+    public function timeToSec($time){
+        $timeArray=explode(":", $time);
+        
+        $totalTime = $timeArray[0] * 3600;
+
+        if(array_key_exists(1, $timeArray))
+            $totalTime+= $timeArray[1]*60;
+        if(array_key_exists(2, $timeArray))
+            $totalTime+= $timeArray[2];
+        return $totalTime;
+      
+    }
+
+    function timeConversion($time){
+        return (sizeof(explode(":",$time)) == 1)?$time.":00":$time;
+    }
  }
 ?>
