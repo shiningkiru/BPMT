@@ -168,6 +168,8 @@ Route::prefix('v1')->group(function () {
         Route::post('task-member/all-assigned-tasks', 'WorkTrackController@getAllAssignedTasks');
         Route::post('task-member/user-ptt', 'WorkTrackController@getMyWeeklyPtt');
         Route::post('task-member/user-ptt/request-submit', 'WeekValidationController@submitWeeklyPtt');
+        Route::post('task-member/user-ptt/request-approve', 'WeekValidationController@approveWeeklyPtt');
+        Route::post('task-member/user-ptt/request-reject', 'WeekValidationController@resendWeeklyPtt');
     });
 
     //Access previlege routes
@@ -187,13 +189,21 @@ Route::prefix('v1')->group(function () {
         Route::get('document-manager/download-file/{id}', 'DocumentManagerController@downloadFile');
     });
 
-    
+    //notification
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('notification', 'NotificationController@create');
         Route::put('notification/{id}', 'NotificationController@update');
         Route::get('notification', 'NotificationController@index');
         Route::get('notification/received', 'NotificationController@getMyNotification');
         Route::get('notification/{id}', 'NotificationController@get');
+    });
+
+    //week validation
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('week-validation', 'WeekValidationController@create');
+        Route::put('week-validation/{id}', 'WeekValidationController@update');
+        Route::get('week-validation', 'WeekValidationController@index');
+        Route::get('week-validation/{id}', 'WeekValidationController@get');
     });
 
 });
