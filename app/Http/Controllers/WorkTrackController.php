@@ -89,7 +89,6 @@ class WorkTrackController extends Controller
             $workTrack->dateOfEntry=$date;
             $workTrack->task_member_identification=$taskMember->id;
 
-            
             $weekValidationRepository = new WeekValidationRepository();
             $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year']);
             if(!($weekValidation instanceof WeekValidation)){
@@ -107,9 +106,16 @@ class WorkTrackController extends Controller
             $task->takenHours=$task->takenHours - (float)$workTrack->takenHours;
             $taskMember->takenHours=$taskMember->takenHours - (float)$workTrack->takenHours;
         }
-        $workTrack->takenHours=$request->takenHours;
+       // $workTrack->takenHours=$request->takenHours;
+        $workTrack->takenHours=$helper->timeConversion($request->takenHours ?? 00);
+        
         $workTrack->description=$request->description;
-        $task->takenHours=$task->takenHours + (float)$request->takenHours;
+
+        // $task->takenHours=$task->takenHours + (float)$request->takenHours;
+        dd($helper->timeConversion($request->takenHours ?? 00));
+        $task->takenHours=$task->takenHours + $helper->timeConversion($request->takenHours ?? 00);
+        
+
         $taskMember->takenHours=$taskMember->takenHours + (float)$request->takenHours;
         $workTrack->save();
         $taskMember->save();

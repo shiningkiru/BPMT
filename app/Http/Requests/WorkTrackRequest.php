@@ -27,7 +27,7 @@ class WorkTrackRequest extends FormRequest
             'task_id' => 'required|exists:tasks,id',
             'user_id' => 'required|exists:users,id',
             'entryDate' => 'required|date',
-            'takenHours' => 'required|numeric'
+            'takenHours' => 'required|time_format'
         ];
     }
 }
