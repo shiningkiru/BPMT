@@ -522,7 +522,13 @@ class WorkTrackController extends Controller
                         ->orderBy('task_members.created_at', 'DESC')
                         ->get();
         foreach($tasks as $task){
-            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')
+                                ->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')
+                                ->where('task_identification','=',$task->taskId)
+                                ->where('member_identification','=',$user->id)
+                                ->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])
+                                ->distinct('work_time_tracks.id')
+                                ->get();
             $task['timeTrack']=$logs;
         }  
 
@@ -593,7 +599,13 @@ class WorkTrackController extends Controller
                         ->orderBy('task_members.created_at', 'DESC')
                         ->get();
         foreach($tasks as $task){
-            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')->where('task_identification','=',$task->taskId)->where('member_identification','=',$user->id)->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])->get();
+            $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')
+                                ->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')
+                                ->where('task_identification','=',$task->taskId)
+                                ->where('member_identification','=',$user->id)
+                                ->whereBetween('dateOfEntry', [$dateGap[0], $dateGap[1]])
+                                ->distinct('work_time_tracks.id')
+                                ->get();
             $task['timeTrack']=$logs;
         }  
         $project['tasks']=[$tasks];

@@ -28,6 +28,7 @@ class ProjectRepository extends Repository {
             $projects=$projects->where('projects.project_lead_id','=',$project_lead_id);
         $projects=$projects->whereBetween('work_time_tracks.dateOfEntry', [$fromDate, $toDate])
                         ->select('projects.id','projects.projectName', 'projects.projectCode', 'projects.project_lead_id')
+                        ->distinct('projects.id')
                         ->get();
         return $projects;
     }

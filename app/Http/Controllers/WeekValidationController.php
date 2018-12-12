@@ -40,6 +40,7 @@ class WeekValidationController extends MasterController
                 $oldStatus=$weekValidation->status;
                 if($oldStatus=='entried' || $oldStatus=='reassigned'):
                     $weekValidation->status='requested';
+                    $weekValidation->request_time=new \Datetime();
                     $weekValidation->save();
                     
                     $projectRepository = new ProjectRepository();
@@ -84,6 +85,7 @@ class WeekValidationController extends MasterController
             \DB::transaction(function () use ($weekValidation, $user) {
                 if($weekValidation->status=='requested'):
                     $weekValidation->status='accepted';
+                    $weekValidation->accept_time=new \Datetime();
                     $weekValidation->save();
                     
                     // $projectRepository = new ProjectRepository();

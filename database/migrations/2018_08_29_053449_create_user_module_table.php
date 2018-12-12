@@ -140,7 +140,7 @@ class CreateUserModuleTable extends Migration
                 $table->string('budget')->nullable(true);
                 $table->time('estimatedHours')->nullable(true);
                 $table->enum('projectCategory', ['internal', 'external'])->default('internal');
-                $table->enum('status', ['received', 'pending', 'started', 'in-progress', 'in-hold', 'completed', 'cancelled', 'new']);
+                $table->enum('status', ['new', 'received', 'pending', 'started', 'in-progress', 'on-hold', 'completed', 'cancelled']);
                 $table->unsignedInteger('project_company_id');
                 $table->foreign('project_company_id')
                         ->references('id')
