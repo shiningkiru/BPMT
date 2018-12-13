@@ -124,7 +124,7 @@ class MilestonesController extends Controller
         $project=Project::find($request->project_id);
         $milestoneList = Milestones::where('project_milestone_id','=',$project->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('milestones.project_milestone_id')->first();
 
-        $totalSeconds = $milestoneList->total;
+        $totalSeconds =($milestoneList == null)?0: $milestoneList->total;
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldMilestone->estimatedHours ?? 00);
         $projectEstimatedHour = $helper->timeToSec($project->estimatedHours);

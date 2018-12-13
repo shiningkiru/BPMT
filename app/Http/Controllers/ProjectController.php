@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Cfun;
 use Response;
 use App\Project;
+use App\Milestones;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use App\Repositories\ProjectRepository;
@@ -123,32 +124,56 @@ class ProjectController extends Controller
     public function create(ProjectFormRequest $request)
     {
         $helper = new HelperFunctions();
-        $id=$request->id;
         try{
-            if(empty($id)):
-                $project=new Project();
-                $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
-            else:
-                $project=Project::find($id);
-            endif;
-            $project->projectName=$request->projectName;
-            $project->description=$request->description;
-            $startdate=new \Datetime($request->startDate);
-            $project->startDate=$startdate->format('Y/m/d');
-            $enddate=new \Datetime($request->endDate);
-            $project->endDate=$enddate->format('Y/m/d');
-            $project->budget=$request->budget;
-            $project->estimatedHours=$helper->timeConversion($request->estimatedHours);
-            $project->status=$request->status;
-            $project->projectCategory=$request->projectCategory;
-            $project->client_project_id=$request->client_project_id;
-            $project->project_lead_id=$request->project_lead_id;
-            $project->project_company_id=$request->company_id;
-            $project->save();
-            $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
-            return $project;
+            \DB::transaction(function() use ($helper, $request){
+                $id=$request->id;
+                $processType="edit";
+                if(empty($id)):
+                    $project=new Project();
+                else:
+                    $project=Project::find($id);
+                endif;
+                
+                $projectType = $request->projectType;
+                if($projectType == 'support'):
+                    $processType="new";
+                endif;
+                $project->projectName=$request->projectName;
+                $project->description=$request->description;
+                $startdate=new \Datetime($request->startDate);
+                $project->startDate=$startdate->format('Y/m/d');
+                $enddate=new \Datetime($request->endDate);
+                $project->endDate=$enddate->format('Y/m/d');
+                $project->budget=$request->budget;
+                $project->estimatedHours=$helper->timeConversion($request->estimatedHours);
+                $project->status=$request->status;
+                if($project->projectCategory!=$request->projectCategory)
+                    $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
+                $project->projectCategory=$request->projectCategory;
+                $project->client_project_id=$request->client_project_id;
+                $project->project_lead_id=$request->project_lead_id;
+                $project->project_company_id=$request->company_id;
+                $project->save();
+                $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
+
+                if($processType == 'new'):dd("hjdhs");
+                    $milestone = $project->milestones->first();
+                    if(!($milestone instanceof Milestones))
+                        $milestone = new Milestones();
+                    $milestone->title=$project->projectName;
+                    $milestone->startDate=$project->startDate;
+                    $milestone->endDate=$project->endDate;
+                    $milestone->estimatedHours=$helper->timeConversion($project->estimatedHours);
+                    $milestone->status=($project->status == 'completed')?'complted':'inprogress';
+                    $milestone->project_milestone_id=$project->id;
+                    $milestone->save();
+                endif;
+
+                return $project;
+            });
+            
         }catch(\Exception $e){
-            return Response::json(['errors'=>['server'=>[$e->getMessage()]]], 400);
+            return Response::json(['errors'=>['server'=>[$e]]], 400);
         }
     }
 
