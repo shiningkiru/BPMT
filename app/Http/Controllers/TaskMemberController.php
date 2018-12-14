@@ -85,7 +85,7 @@ class TaskMemberController extends Controller
         $task=Tasks::find($request->task_id);
         $taskMemberTotal = TaskMember::where('task_identification','=',$task->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('task_members.task_identification')->first();
         
-        $totalSeconds = $taskMemberTotal->total;
+        $totalSeconds = ($taskMemberTotal->total ?? 00);
         $estimatedHours=$helper->timeToSec($request->estimatedHour);
         $oldEstimatedHours=$helper->timeToSec($oldTaskMember->estimatedHours ?? 00);
         $taskEstimatedHour = $helper->timeToSec($task->estimatedHours);

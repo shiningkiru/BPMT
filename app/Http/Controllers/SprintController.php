@@ -120,7 +120,7 @@ class SprintController extends Controller
         $milestone=Milestones::find($request->milestone_id);
         $sprintTotal = Sprint::where('milestone_id','=',$milestone->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('sprints.milestone_id')->first();
 
-        $totalSeconds = $sprintTotal->total;
+        $totalSeconds = ($sprintTotal->total ?? 00);
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldSprint->estimatedHours ?? 00);
         $milestoneEstimatedHour = $helper->timeToSec($milestone->estimatedHours);
