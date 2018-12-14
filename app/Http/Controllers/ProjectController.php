@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Cfun;
 use Response;
+use App\Tasks;
+use App\Sprint;
 use App\Project;
 use App\Milestones;
 use Illuminate\Http\Request;
@@ -130,6 +132,7 @@ class ProjectController extends Controller
                 $processType="edit";
                 if(empty($id)):
                     $project=new Project();
+                    $project->projectType=$request->projectType;
                 else:
                     $project=Project::find($id);
                 endif;
@@ -154,10 +157,9 @@ class ProjectController extends Controller
                 $project->project_lead_id=$request->project_lead_id;
                 $project->project_company_id=$request->company_id;
                 $project->save();
-                $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
-
-                if($processType == 'new'):dd("hjdhs");
-                    $milestone = $project->milestones->first();
+                
+                if($processType == 'new'):
+                    $milestone = $project->milestones()->first();
                     if(!($milestone instanceof Milestones))
                         $milestone = new Milestones();
                     $milestone->title=$project->projectName;
@@ -167,8 +169,34 @@ class ProjectController extends Controller
                     $milestone->status=($project->status == 'completed')?'complted':'inprogress';
                     $milestone->project_milestone_id=$project->id;
                     $milestone->save();
+
+                    $sprint = $milestone->sprints()->first();
+                    if(!($sprint instanceof Sprint))
+                        $sprint = new Sprint();
+                    $sprint->sprintTitle = $project->projectName;
+                    $sprint->startDate = $project->startDate;
+                    $sprint->endDate = $project->endDate;
+                    $sprint->estimatedHours = $helper->timeConversion($project->estimatedHours);
+                    $sprint->status = ($project->status == 'completed')?'complted':'inprogress';
+                    $sprint->priority = "medium";
+                    $sprint->milestone_id=$milestone->id;
+                    $sprint->save();
+
+                    
+                    $task = $sprint->tasks()->first();
+                    if(!($task instanceof Tasks))
+                        $task = new Tasks();
+                    $task->taskName = $project->projectName;
+                    $task->startDate = $project->startDate;
+                    $task->endDate = $project->endDate;
+                    $task->estimatedHours = $helper->timeConversion($project->estimatedHours);
+                    $task->status = ($project->status == 'completed')?'complted':'inprogress';
+                    $task->priority = "medium";
+                    $task->sprint_id = $sprint->id;
+                    $task->save();
                 endif;
 
+                $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
                 return $project;
             });
             
@@ -204,7 +232,7 @@ class ProjectController extends Controller
      */
     public function index(){
         $user = \Auth::user();
-        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
+        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','projects.projectType','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
         return $projects;
     }
 
@@ -242,7 +270,7 @@ class ProjectController extends Controller
        */
       public function byClient(Request $request,$id){
           $user = \Auth::user();
-          $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id)->where('clients.id','=',$id)->orderBy('projects.startDate','ASC')->get();
+          $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','projects.projectType','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id)->where('clients.id','=',$id)->orderBy('projects.startDate','ASC')->get();
           return $projects;
       }
 
@@ -279,8 +307,10 @@ class ProjectController extends Controller
      * Returns list of Projects
      */
     public function show($id){
-        $projects = Project::find($id);
-        return $projects;
+        $project = Project::find($id);
+        if($project->projectType == 'support')
+            $project['task']=$project->milestones()->first()->sprints()->first()->tasks()->first();
+        return $project;
     }
 
     /**
@@ -332,7 +362,7 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $projectstart= date('Y-m-d',strtotime($request->get('startDate'))); 
         $projectend= date('Y-m-d',strtotime($request->get('endDate')));
-        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
+        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
         if (!empty($request->get('projectName')))
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
         if (!empty($request->get('status')))
@@ -392,7 +422,7 @@ class ProjectController extends Controller
                             ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
                             ->where('task_members.member_identification','=',$user->id)
                             ->groupBy('projects.id','projects.projectName','projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.status')
-                            ->selectRaw('projects.id, projects.projectName,projects.description,projects.projectCode,projects.startDate,projects.endDate,projects.status, sum(IF(task_members.member_identification = 1,1,0)) as countTasks')
+                            ->selectRaw('projects.id, projects.projectName,projects.description,projects.projectCode,projects.projectType,projects.startDate,projects.endDate,projects.status, sum(IF(task_members.member_identification = 1,1,0)) as countTasks')
                             ->get();
         return $projects;
     }
