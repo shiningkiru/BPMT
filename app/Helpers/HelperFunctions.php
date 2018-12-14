@@ -1,8 +1,11 @@
 <?php
 namespace App\Helpers;
-use App\Project;
 use App\User;
+use App\Project;
+use App\TaskMember;
 use App\ProjectTeam;
+use App\Repositories\ProjectRepository;
+use App\Repositories\TaskMemberRepository;
 
 class HelperFunctions{
     public function getLastEmployeeId(){
@@ -38,17 +41,32 @@ class HelperFunctions{
         return $modules;
     }
 
-    public function updateProjectTeam($user, $project, $status, $id=null){
+    public function updateProjectTeam($user, $project_id, $status, $id=null){
         try{
-            if(empty($id))
-                $team=new ProjectTeam();
-            else
-                $team=ProjectTeam::find($id);
-            $team->team_user_id=$user;
-            $team->team_project_id=$project;
-            $team->status=$status;
-            $team->save();
-            return $team;
+            \DB::transaction(function() use ($user, $project_id, $status, $id){
+                $projectRepository = new ProjectRepository();
+                $taskMemberRepository = new TaskMemberRepository();
+                
+                if(empty($id)){
+                    $team=new ProjectTeam();
+                    $directProjectTask = $projectRepository->getDirectProjectTask($project_id);
+                    if($directProjectTask != null){
+                        $taskMember =$taskMemberRepository->findByUserAndTask($user, $directProjectTask->id);
+                        if($taskMember == null)
+                            $taskMember = new TaskMember();
+                        $taskMember->task_identification = $directProjectTask->id;
+                        $taskMember->member_identification = $user;
+                        $taskMember->save();
+                    }
+                }else {
+                    $team=ProjectTeam::find($id);
+                }
+                $team->team_user_id=$user;
+                $team->team_project_id=$project_id;
+                $team->status=$status;
+                $team->save();
+                return $team;
+            });
         }catch(\Exception $e){
             return $e;
         }

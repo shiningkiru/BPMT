@@ -43,4 +43,10 @@ class ProjectRepository extends Repository {
             return Response::json(['errors'=>['server'=>[$e->getMessage()]]], 422);
         }
     }
+
+    public function getDirectProjectTask($project_id){
+        $project=$this->model->find($project_id);
+        if((!($project instanceof Project)) || $project->projectType != 'support')return null;
+        return $project->milestones()->first()->sprints()->first()->tasks()->first();
+    }
 }
