@@ -129,17 +129,19 @@ class ProjectController extends Controller
         try{
             \DB::transaction(function() use ($helper, $request){
                 $id=$request->id;
-                $processType="edit";
+                $processType="new";
+                $process="new";
                 if(empty($id)):
                     $project=new Project();
                     $project->projectType=$request->projectType;
                 else:
+                    $process = 'edit';
                     $project=Project::find($id);
+                    $oldProject =clone $project;
                 endif;
-                
                 $projectType = $request->projectType;
                 if($projectType == 'support'):
-                    $processType="new";
+                    $processType="new-support";
                 endif;
                 $project->projectName=$request->projectName;
                 $project->description=$request->description;
@@ -158,7 +160,7 @@ class ProjectController extends Controller
                 $project->project_company_id=$request->company_id;
                 $project->save();
                 
-                if($processType == 'new'):
+                if($processType == 'new-support'):
                     $milestone = $project->milestones()->first();
                     if(!($milestone instanceof Milestones))
                         $milestone = new Milestones();

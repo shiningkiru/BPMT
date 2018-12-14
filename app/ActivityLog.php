@@ -12,41 +12,8 @@ class ActivityLog extends Model
      * @var array
      */
     protected $fillable = [
-        'entryTime', 'task'
+        'entryTime', 'message', 'targetObjects', 'module', 'linkId', 'objBefore', 'objAfter'
     ];
-
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function project()
-    {
-      return $this->belongsTo(Project::class, 'activity_project_id');
-    }
-
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function milestones()
-    {
-      return $this->belongsTo(Milestones::class, 'activity_milestone_id');
-    }
-
-
-    /**
-     * A message belong to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function tasks()
-    {
-      return $this->belongsTo(Tasks::class, 'activity_tasks_id');
-    }
 
 
     /**

@@ -82,13 +82,4 @@ class Project extends Model
     {
         return $this->hasMany(DocumentManager::class, 'doc_project_id');
     }
-
-
-    /**
-     * Get the comments for the blog post.
-     */
-    public function activity_log()
-    {
-        return $this->hasMany(ActivityLog::class, 'activity_project_id');
-    }
 }
