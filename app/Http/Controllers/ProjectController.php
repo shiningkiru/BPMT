@@ -8,10 +8,14 @@ use App\Tasks;
 use App\Sprint;
 use App\Project;
 use App\Milestones;
+use App\Notification;
+use App\User;
+use App\Events\NotificationFired;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use App\Repositories\ProjectRepository;
 use App\Http\Requests\ProjectFormRequest;
+use App\Repositories\NotificationRepository;
 
 class ProjectController extends Controller
 {
@@ -125,9 +129,10 @@ class ProjectController extends Controller
      */
     public function create(ProjectFormRequest $request)
     {
+        $user = \Auth::user();
         $helper = new HelperFunctions();
         try{
-            \DB::transaction(function() use ($helper, $request){
+            \DB::transaction(function() use ($helper, $request, $user){
                 $id=$request->id;
                 $processType="new";
                 $process="new";
@@ -199,9 +204,14 @@ class ProjectController extends Controller
                 endif;
 
                 $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
+                
+                $notificationRepository = new NotificationRepository();
+                $message = "You are assigned for a new project ".$project->projectName. " as a lead";
+                $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, "project", $project->id);
                 return $project;
             });
             
+          
         }catch(\Exception $e){
             return Response::json(['errors'=>['server'=>[$e]]], 400);
         }

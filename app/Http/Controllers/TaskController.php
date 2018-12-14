@@ -143,7 +143,7 @@ class TaskController extends Controller
         $sprint=Sprint::find($request->sprint_id);
         $taskTotal = Tasks::where('sprint_id','=',$sprint->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('tasks.sprint_id')->first();
 
-        $totalSeconds = $taskTotal->total;
+        $totalSeconds = ($taskTotal->total ?? 00);
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldTask->estimatedHours ?? 00);
         $sprintEstimatedHour = $helper->timeToSec($sprint->estimatedHours);
