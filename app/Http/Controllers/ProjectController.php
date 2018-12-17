@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use Cfun;
+use App\User;
 use Response;
 use App\Tasks;
 use App\Sprint;
 use App\Project;
 use App\Milestones;
 use App\Notification;
-use App\User;
-use App\Events\NotificationFired;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use App\Events\NotificationFired;
 use App\Repositories\ProjectRepository;
 use App\Http\Requests\ProjectFormRequest;
+use App\Repositories\ActivityLogRepository;
 use App\Repositories\NotificationRepository;
 
 class ProjectController extends Controller
@@ -136,14 +137,16 @@ class ProjectController extends Controller
                 $id=$request->id;
                 $processType="new";
                 $process="new";
+                $notificationRepository = new NotificationRepository();
+                $logRepository = new ActivityLogRepository();
                 if(empty($id)):
                     $project=new Project();
                     $project->projectType=$request->projectType;
                 else:
                     $process = 'edit';
                     $project=Project::find($id);
-                    $oldProject =clone $project;
                 endif;
+                $oldProject =clone $project;
                 $projectType = $request->projectType;
                 if($projectType == 'support'):
                     $processType="new-support";
@@ -151,9 +154,9 @@ class ProjectController extends Controller
                 $project->projectName=$request->projectName;
                 $project->description=$request->description;
                 $startdate=new \Datetime($request->startDate);
-                $project->startDate=$startdate->format('Y/m/d');
+                $project->startDate=$startdate->format('Y-m-d 00:00:00');
                 $enddate=new \Datetime($request->endDate);
-                $project->endDate=$enddate->format('Y/m/d');
+                $project->endDate=$enddate->format('Y-m-d 00:00:00');
                 $project->budget=$request->budget;
                 $project->estimatedHours=$helper->timeConversion($request->estimatedHours);
                 $project->status=$request->status;
@@ -164,7 +167,15 @@ class ProjectController extends Controller
                 $project->project_lead_id=$request->project_lead_id;
                 $project->project_company_id=$request->company_id;
                 $project->save();
-                
+                // Project::updating(function($project){
+                //     dump($project->getOriginal('budget'));
+                // });
+
+                if($oldProject->project_lead_id != $project->project_lead_id){
+                    $message = "You are assigned for a new project ".$project->projectName. " as a lead";
+                    $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, "project", $project->id);
+                }
+
                 if($processType == 'new-support'):
                     $milestone = $project->milestones()->first();
                     if(!($milestone instanceof Milestones))
@@ -205,14 +216,17 @@ class ProjectController extends Controller
 
                 $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
                 
-                $notificationRepository = new NotificationRepository();
-                $message = "You are assigned for a new project ".$project->projectName. " as a lead";
-                $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, "project", $project->id);
+                if($process == 'new'){
+                    
+                }else{
+                    $logRepository->logger($user->firstName." updated project ".$project->projectName, 2, 'project', $project, $oldProject);
+                }
                 return $project;
             });
             
           
         }catch(\Exception $e){
+            dd($e);
             return Response::json(['errors'=>['server'=>[$e]]], 400);
         }
     }

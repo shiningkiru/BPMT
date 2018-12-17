@@ -15,6 +15,13 @@ class Project extends Model
         'projectName', 'description', 'projectCode', 'projectCategory', 'startDate', 'endDate', 'budget', 'status'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::updating(function ($project) {
+            $project->projectName = $project->getOriginal('projectName');
+        });
+    }
 
     /**
      * Get the comments for the blog post.

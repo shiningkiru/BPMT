@@ -362,8 +362,8 @@ class CreateUserModuleTable extends Migration
                 $table->enum('targetObjects', [0, 1, 2]);
                 $table->string('module');
                 $table->string('linkId')->nullable(true);
-                $table->text('objBefore')->nullable(true);
-                $table->text('objAfter')->nullable(true);
+                $table->text('original')->nullable(true);
+                $table->text('changes')->nullable(true);
                 $table->dateTimeTz('entryTime');
                 $table->unsignedInteger('entry_by');
                 $table->foreign('entry_by')

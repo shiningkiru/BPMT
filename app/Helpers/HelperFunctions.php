@@ -6,6 +6,7 @@ use App\TaskMember;
 use App\ProjectTeam;
 use App\Repositories\ProjectRepository;
 use App\Repositories\TaskMemberRepository;
+use App\Repositories\ProjectTeamRepository;
 
 class HelperFunctions{
     public function getLastEmployeeId(){
@@ -41,27 +42,31 @@ class HelperFunctions{
         return $modules;
     }
 
-    public function updateProjectTeam($user, $project_id, $status, $id=null){
+    public function updateProjectTeam($user_id, $project_id, $status, $id=null){
         try{
-            \DB::transaction(function() use ($user, $project_id, $status, $id){
+            \DB::transaction(function() use ($user_id, $project_id, $status, $id){
                 $projectRepository = new ProjectRepository();
                 $taskMemberRepository = new TaskMemberRepository();
+                $teamRepository = new ProjectTeamRepository();
                 
                 if(empty($id)){
-                    $team=new ProjectTeam();
-                    $directProjectTask = $projectRepository->getDirectProjectTask($project_id);
-                    if($directProjectTask != null){
-                        $taskMember =$taskMemberRepository->findByUserAndTask($user, $directProjectTask->id);
-                        if($taskMember == null)
-                            $taskMember = new TaskMember();
-                        $taskMember->task_identification = $directProjectTask->id;
-                        $taskMember->member_identification = $user;
-                        $taskMember->save();
+                    $team = $teamRepository->findByUserAndProject($user_id, $project_id);
+                    if($team == null){
+                        $team=new ProjectTeam();
+                        $directProjectTask = $projectRepository->getDirectProjectTask($project_id);
+                        if($directProjectTask != null){
+                            $taskMember =$taskMemberRepository->findByUserAndTask($user_id, $directProjectTask->id);
+                            if($taskMember == null)
+                                $taskMember = new TaskMember();
+                            $taskMember->task_identification = $directProjectTask->id;
+                            $taskMember->member_identification = $user_id;
+                            $taskMember->save();
+                        }
                     }
                 }else {
                     $team=ProjectTeam::find($id);
                 }
-                $team->team_user_id=$user;
+                $team->team_user_id=$user_id;
                 $team->team_project_id=$project_id;
                 $team->status=$status;
                 $team->save();
