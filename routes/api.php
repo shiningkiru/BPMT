@@ -138,7 +138,7 @@ Route::prefix('v1')->group(function () {
 
     //Task routes
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::get('task/with-users/{id}', 'TaskController@showUsers');
+         Route::get('task/with-users/{id}', 'TaskController@showUsers'); 
         Route::get('task/project-chart/{id}', 'TaskController@directProjectChart');
         Route::get('task/{id}', 'TaskController@show');
         Route::get('task/by-sprints/{id}', 'TaskController@index');
