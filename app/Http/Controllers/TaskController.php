@@ -252,7 +252,7 @@ class TaskController extends Controller
 
     public function showUsers($id)
     {
-        $tasks = Tasks::where('sprint_id','=',$id)->select('tasks.id','tasks.taskName', 'tasks.description', 'tasks.startDate', 'tasks.endDate', 'tasks.priority')->get();
+        $tasks = Tasks::where('sprint_id','=',$id)->select('tasks.id','tasks.taskName', 'tasks.description', 'tasks.startDate', 'tasks.endDate', 'tasks.priority', 'tasks.status')->get();
         foreach($tasks as $task){
             $users = User::leftJoin('task_members', 'task_members.member_identification','=', 'users.id')->where('task_members.task_identification', '=', $task->id)->select( 'users.id', 'users.profilePic', 'users.firstName')->get();
             $task['users']=$users;
