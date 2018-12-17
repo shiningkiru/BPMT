@@ -1,8 +1,12 @@
 <?php
 namespace App\Helpers;
-use App\Project;
 use App\User;
+use App\Project;
+use App\TaskMember;
 use App\ProjectTeam;
+use App\Repositories\ProjectRepository;
+use App\Repositories\TaskMemberRepository;
+use App\Repositories\ProjectTeamRepository;
 
 class HelperFunctions{
     public function getLastEmployeeId(){
@@ -38,17 +42,36 @@ class HelperFunctions{
         return $modules;
     }
 
-    public function updateProjectTeam($user, $project, $status, $id=null){
+    public function updateProjectTeam($user_id, $project_id, $status, $id=null){
         try{
-            if(empty($id))
-                $team=new ProjectTeam();
-            else
-                $team=ProjectTeam::find($id);
-            $team->team_user_id=$user;
-            $team->team_project_id=$project;
-            $team->status=$status;
-            $team->save();
-            return $team;
+            \DB::transaction(function() use ($user_id, $project_id, $status, $id){
+                $projectRepository = new ProjectRepository();
+                $taskMemberRepository = new TaskMemberRepository();
+                $teamRepository = new ProjectTeamRepository();
+                
+                if(empty($id)){
+                    $team = $teamRepository->findByUserAndProject($user_id, $project_id);
+                    if($team == null){
+                        $team=new ProjectTeam();
+                        $directProjectTask = $projectRepository->getDirectProjectTask($project_id);
+                        if($directProjectTask != null){
+                            $taskMember =$taskMemberRepository->findByUserAndTask($user_id, $directProjectTask->id);
+                            if($taskMember == null)
+                                $taskMember = new TaskMember();
+                            $taskMember->task_identification = $directProjectTask->id;
+                            $taskMember->member_identification = $user_id;
+                            $taskMember->save();
+                        }
+                    }
+                }else {
+                    $team=ProjectTeam::find($id);
+                }
+                $team->team_user_id=$user_id;
+                $team->team_project_id=$project_id;
+                $team->status=$status;
+                $team->save();
+                return $team;
+            });
         }catch(\Exception $e){
             return $e;
         }
@@ -96,6 +119,28 @@ class HelperFunctions{
         $lastRecord=Project::where("projectCategory",'=',$type)->orderby('id', 'desc')->first();
         $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
         return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
+    }
+
+    public function timeToSec($time){
+        $timeArray=explode(":", $time);
+        
+        $totalTime = $timeArray[0] * 3600;
+
+        if(array_key_exists(1, $timeArray))
+            $totalTime+= $timeArray[1]*60;
+        if(array_key_exists(2, $timeArray))
+            $totalTime+= $timeArray[2];
+        return $totalTime;
+      
+    }
+
+    public function timeConversion($time){
+        return (sizeof(explode(":",$time)) == 1)?$time.":00":$time;
+    }
+
+    public function secToTime($seconds){
+        $t = round($seconds);
+        return sprintf('%d:%02d:%02d', ($t/3600),($t/60%60), $t%60);
     }
  }
 ?>

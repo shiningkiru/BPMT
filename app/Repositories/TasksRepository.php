@@ -27,6 +27,7 @@ class TasksRepository extends Repository {
 
         $tasks = $tasks->whereBetween('work_time_tracks.dateOfEntry', [$fromDate, $toDate])
                         ->select('tasks.id', 'tasks.taskName')
+                        ->distinct('tasks.id')
                         ->get();
         
         return $tasks;

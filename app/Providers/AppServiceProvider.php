@@ -28,6 +28,16 @@ class AppServiceProvider extends ServiceProvider
             return str_replace(':phone_number', ucfirst(preg_replace('/([A-Z])/', ' $1', $attribute)), $message);
         });
 
+
+        Validator::extend('time_format', function($attribute, $value, $parameters)
+        {
+            return preg_match('/^\d+(:\d{2})?(:\d{2})?$/', $value);
+        }, 'Provide valid :time_format');
+
+        Validator::replacer('time_format', function($message, $attribute, $rule, $parameters){
+            return str_replace(':time_format', ucfirst(preg_replace('/([A-Z])/', ' $1', $attribute)), $message);
+        });
+
         Validator::extend('department', function($attribute, $value, $parameters)
         {
             $mass=MassParameter::where('id','=',$value)->where('type','=','department')->get();

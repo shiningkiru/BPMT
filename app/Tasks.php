@@ -55,15 +55,6 @@ class Tasks extends Model
         return $this->hasMany(DocumentManager::class, 'doc_task_id');
     }
 
-
-    /**
-     * Get the comments for the blog post.
-     */
-    public function activity_log()
-    {
-        return $this->hasMany(ActivityLog::class, 'activity_tasks_id');
-    }
-
     /**
      * Get the comments for the blog post.
      */

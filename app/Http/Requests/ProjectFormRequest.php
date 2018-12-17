@@ -27,14 +27,15 @@ class ProjectFormRequest extends FormRequest
             // 'id' => 'exists:projects,id',
             'projectName' => 'string|unique:projects,projectName,'.$this->request->get('id'),
             'projectCode' => 'unique:projects,projectCode,'.$this->request->get('id'),
-            'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled,new',
+            'status' => 'required|in:received,pending,started,in-progress,on-hold,completed,cancelled,new',
             'company_id' => 'required|exists:companies,id',
             'client_project_id' => 'required|exists:clients,id',
             'project_lead_id' => 'required|exists:users,id',
-            'projectCategory' =>'required',
+            'projectCategory' =>'required|in:internal,external',
+            'projectType' =>'required|in:service,support',
             'startDate' =>'required',
             'endDate' =>  'required',
-            'estimatedHours' =>  'required|regex:/^\d+:\d{2}(:\d{2})?$/'
+            'estimatedHours' =>  'required|time_format'
         ];
     }
 }

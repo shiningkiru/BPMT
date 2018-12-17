@@ -1,12 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Cfun;
+use App\User;
 use Response;
+use App\Tasks;
+use App\Sprint;
 use App\Project;
+use App\Milestones;
+use App\Notification;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use App\Events\NotificationFired;
 use App\Repositories\ProjectRepository;
 use App\Http\Requests\ProjectFormRequest;
+use App\Repositories\ActivityLogRepository;
+use App\Repositories\NotificationRepository;
 
 class ProjectController extends Controller
 {
@@ -120,33 +130,104 @@ class ProjectController extends Controller
      */
     public function create(ProjectFormRequest $request)
     {
+        $user = \Auth::user();
         $helper = new HelperFunctions();
-        $id=$request->id;
         try{
-            if(empty($id)):
-                $project=new Project();
-                $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
-            else:
-                $project=Project::find($id);
-            endif;
-            $project->projectName=$request->projectName;
-            $project->description=$request->description;
-            $startdate=new \Datetime($request->startDate);
-            $project->startDate=$startdate->format('Y/m/d');
-            $enddate=new \Datetime($request->endDate);
-            $project->endDate=$enddate->format('Y/m/d');
-            $project->budget=$request->budget;
-            $project->estimatedHours=$request->estimatedHours;
-            $project->status=$request->status;
-            $project->projectCategory=$request->projectCategory;
-            $project->client_project_id=$request->client_project_id;
-            $project->project_lead_id=$request->project_lead_id;
-            $project->project_company_id=$request->company_id;
-            $project->save();
-            $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
-            return $project;
+            \DB::transaction(function() use ($helper, $request, $user){
+                $id=$request->id;
+                $processType="new";
+                $process="new";
+                $notificationRepository = new NotificationRepository();
+                $logRepository = new ActivityLogRepository();
+                if(empty($id)):
+                    $project=new Project();
+                    $project->projectType=$request->projectType;
+                else:
+                    $process = 'edit';
+                    $project=Project::find($id);
+                endif;
+                $oldProject =clone $project;
+                $projectType = $request->projectType;
+                if($projectType == 'support'):
+                    $processType="new-support";
+                endif;
+                $project->projectName=$request->projectName;
+                $project->description=$request->description;
+                $startdate=new \Datetime($request->startDate);
+                $project->startDate=$startdate->format('Y-m-d 00:00:00');
+                $enddate=new \Datetime($request->endDate);
+                $project->endDate=$enddate->format('Y-m-d 00:00:00');
+                $project->budget=$request->budget;
+                $project->estimatedHours=$helper->timeConversion($request->estimatedHours);
+                $project->status=$request->status;
+                if($project->projectCategory!=$request->projectCategory)
+                    $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
+                $project->projectCategory=$request->projectCategory;
+                $project->client_project_id=$request->client_project_id;
+                $project->project_lead_id=$request->project_lead_id;
+                $project->project_company_id=$request->company_id;
+                $project->save();
+                // Project::updating(function($project){
+                //     dump($project->getOriginal('budget'));
+                // });
+
+                if($oldProject->project_lead_id != $project->project_lead_id){
+                    $message = "You are assigned for a new project ".$project->projectName. " as a lead";
+                    $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, "project", $project->id);
+                }
+
+                if($processType == 'new-support'):
+                    $milestone = $project->milestones()->first();
+                    if(!($milestone instanceof Milestones))
+                        $milestone = new Milestones();
+                    $milestone->title=$project->projectName;
+                    $milestone->startDate=$project->startDate;
+                    $milestone->endDate=$project->endDate;
+                    $milestone->estimatedHours=$helper->timeConversion($project->estimatedHours);
+                    $milestone->status=($project->status == 'completed')?'complted':'inprogress';
+                    $milestone->project_milestone_id=$project->id;
+                    $milestone->save();
+
+                    $sprint = $milestone->sprints()->first();
+                    if(!($sprint instanceof Sprint))
+                        $sprint = new Sprint();
+                    $sprint->sprintTitle = $project->projectName;
+                    $sprint->startDate = $project->startDate;
+                    $sprint->endDate = $project->endDate;
+                    $sprint->estimatedHours = $helper->timeConversion($project->estimatedHours);
+                    $sprint->status = ($project->status == 'completed')?'complted':'inprogress';
+                    $sprint->priority = "medium";
+                    $sprint->milestone_id=$milestone->id;
+                    $sprint->save();
+
+                    
+                    $task = $sprint->tasks()->first();
+                    if(!($task instanceof Tasks))
+                        $task = new Tasks();
+                    $task->taskName = $project->projectName;
+                    $task->startDate = $project->startDate;
+                    $task->endDate = $project->endDate;
+                    $task->estimatedHours = $helper->timeConversion($project->estimatedHours);
+                    $task->status = ($project->status == 'completed')?'complted':'inprogress';
+                    $task->priority = "medium";
+                    $task->sprint_id = $sprint->id;
+                    $task->save();
+                endif;
+
+                $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
+                
+                if($process == 'new'){
+                    
+                }else{
+                    $logRepository->logger($user->firstName." updated project ".$project->projectName, 2, 'project', $project, $oldProject);
+                }
+                return $project;
+            });
+            
+          
         }catch(\Exception $e){
-            return Response::json(['errors'=>['server'=>[$e->getMessage()]]], 400);
+            dd($e);
+            return Response::json(['errors'=>['server'=>[$e]]], 400);
         }
     }
 
@@ -177,7 +258,7 @@ class ProjectController extends Controller
      */
     public function index(){
         $user = \Auth::user();
-        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
+        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','projects.projectType','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
         return $projects;
     }
 
@@ -215,7 +296,7 @@ class ProjectController extends Controller
        */
       public function byClient(Request $request,$id){
           $user = \Auth::user();
-          $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id)->where('clients.id','=',$id)->orderBy('projects.startDate','ASC')->get();
+          $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','projects.projectType','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id)->where('clients.id','=',$id)->orderBy('projects.startDate','ASC')->get();
           return $projects;
       }
 
@@ -252,8 +333,10 @@ class ProjectController extends Controller
      * Returns list of Projects
      */
     public function show($id){
-        $projects = Project::find($id);
-        return $projects;
+        $project = Project::find($id);
+        if($project->projectType == 'support')
+            $project['task']=$project->milestones()->first()->sprints()->first()->tasks()->first();
+        return $project;
     }
 
     /**
@@ -305,7 +388,7 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $projectstart= date('Y-m-d',strtotime($request->get('startDate'))); 
         $projectend= date('Y-m-d',strtotime($request->get('endDate')));
-        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
+        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
         if (!empty($request->get('projectName')))
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
         if (!empty($request->get('status')))
@@ -365,7 +448,7 @@ class ProjectController extends Controller
                             ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
                             ->where('task_members.member_identification','=',$user->id)
                             ->groupBy('projects.id','projects.projectName','projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.status')
-                            ->selectRaw('projects.id, projects.projectName,projects.description,projects.projectCode,projects.startDate,projects.endDate,projects.status, sum(IF(task_members.member_identification = 1,1,0)) as countTasks')
+                            ->selectRaw('projects.id, projects.projectName,projects.description,projects.projectCode,projects.projectType,projects.startDate,projects.endDate,projects.status, sum(IF(task_members.member_identification = 1,1,0)) as countTasks')
                             ->get();
         return $projects;
     }

@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+use Response;
+use App\User;
 use App\Tasks;
 use App\Sprint;
 use App\Milestones;
 use Illuminate\Http\Request;
-use Response;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\TaskFormRequest;
 
 class TaskController extends Controller
@@ -120,6 +122,7 @@ class TaskController extends Controller
      */
     public function create(TaskFormRequest $request)
     {
+        $helper = new HelperFunctions();
         $id=$request->id;
         if(empty($id))
             $task=new Tasks();
@@ -130,19 +133,28 @@ class TaskController extends Controller
         $task->description=$request->description;
         $task->startDate=new \Datetime($request->startDate);
         $task->endDate=new \Datetime($request->endDate);
-        $task->estimatedHours=$request->estimatedHours;
-        $task->takenHours=$request->takenHours;
+        $task->estimatedHours=$helper->timeConversion($request->estimatedHours);
+        $task->takenHours=$helper->timeConversion($request->takenHours ?? 00);
         $task->status=$request->status;
         $task->priority=$request->priority;
         $task->sprint_id=$request->sprint_id;
-        $task->dependent_task_id=$request->dependent_task_id;
+        $task->dependent_task_id=$request->dependent_task_id;        
         
+        //estimated hour calculation
         $sprint=Sprint::find($request->sprint_id);
-        $total = Tasks::where('sprint_id','=',$request->sprint_id)->selectRaw('SUM(estimatedHours) as total')->first();  
-        $total = $total->total + (float)$request->estimatedHours;          
-        if($total - $oldTask->estimatedHours > $sprint->estimatedHours){
+        $taskTotal = Tasks::where('sprint_id','=',$sprint->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('tasks.sprint_id')->first();
+
+        $totalSeconds = ($taskTotal->total ?? 00);
+        $estimatedHours=$helper->timeToSec($request->estimatedHours);
+        $oldEstimatedHours=$helper->timeToSec($oldTask->estimatedHours ?? 00);
+        $sprintEstimatedHour = $helper->timeToSec($sprint->estimatedHours);
+        $total = (int)$totalSeconds + (int)$estimatedHours - (int)$oldEstimatedHours; 
+        
+        if($total > $sprintEstimatedHour){
             return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
         }
+        //estimated hour calculation end
+
         $task->save();
 
         if($oldTask->status != $task->status){
@@ -236,6 +248,16 @@ class TaskController extends Controller
     {
         $task = Tasks::where('sprint_id','=',$id)->get();
         return $task;
+    }
+
+    public function showUsers($id)
+    {
+        $tasks = Tasks::where('sprint_id','=',$id)->select('tasks.id','tasks.taskName', 'tasks.description', 'tasks.startDate', 'tasks.endDate', 'tasks.priority')->get();
+        foreach($tasks as $task){
+            $users = User::leftJoin('task_members', 'task_members.member_identification','=', 'users.id')->where('task_members.task_identification', '=', $task->id)->select( 'users.id', 'users.profilePic', 'users.firstName')->get();
+            $task['users']=$users;
+        }
+        return $tasks;
     }
 
     /**
@@ -341,4 +363,20 @@ class TaskController extends Controller
        return $chartData;
     }
 }
+
+public function directProjectChart($id)
+{
+    $projectData=[];
+    $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+    ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+    ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+    ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
+    ->leftJoin('users','task_members.member_identification','=','users.id')
+    ->select('tasks.id', 'tasks.takenHours','tasks.taskName','tasks.sprint_id','users.firstName')
+    ->where('projects.id','=',$id)->get();
+    $projectData['projectList']=$chart;
+   return $projectData;
+}
+
+
 }

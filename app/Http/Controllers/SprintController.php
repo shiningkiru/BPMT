@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+use Response;
 use App\Sprint;
 use App\Milestones;
 use Illuminate\Http\Request;
-use Response;
+use App\Helpers\HelperFunctions;
 use App\Http\Requests\SprintFormRequest;
 
 class SprintController extends Controller
@@ -98,6 +99,7 @@ class SprintController extends Controller
      */
     public function create(SprintFormRequest $request)
     {
+        $helper = new HelperFunctions();
         $id=$request->id;
         if(empty($id))
             $sprint=new Sprint();
@@ -111,17 +113,23 @@ class SprintController extends Controller
         $sprint->priority=$request->priority;
         $sprint->dependent_sprint_id=$request->dependent_sprint_id;
         $sprint->milestone_id=$request->milestone_id;
-        $sprint->estimatedHours=$request->estimatedHours;
+        $sprint->estimatedHours=$helper->timeConversion($request->estimatedHours);
 
         
+        //estimated hour calculation
         $milestone=Milestones::find($request->milestone_id);
-        $total = Sprint::where('milestone_id','=',$request->milestone_id)->first([
-            \DB::raw('SUM(estimatedHours) as total')
-        ]);  
-        $total = ($total->total - $oldSprint->estimatedHours) + (float)$request->estimatedHours;          
-        if($total > $milestone->estimatedHours){
+        $sprintTotal = Sprint::where('milestone_id','=',$milestone->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('sprints.milestone_id')->first();
+
+        $totalSeconds = ($sprintTotal->total ?? 00);
+        $estimatedHours=$helper->timeToSec($request->estimatedHours);
+        $oldEstimatedHours=$helper->timeToSec($oldSprint->estimatedHours ?? 00);
+        $milestoneEstimatedHour = $helper->timeToSec($milestone->estimatedHours);
+        $total = (int)$totalSeconds + (int)$estimatedHours - (int)$oldEstimatedHours; 
+        
+        if($total > $milestoneEstimatedHour){
             return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
         }
+        //estimated hour calculation end
 
         $sprint->save();
         return $sprint;

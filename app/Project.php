@@ -15,6 +15,13 @@ class Project extends Model
         'projectName', 'description', 'projectCode', 'projectCategory', 'startDate', 'endDate', 'budget', 'status'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::updating(function ($project) {
+            $project->projectName = $project->getOriginal('projectName');
+        });
+    }
 
     /**
      * Get the comments for the blog post.
@@ -81,14 +88,5 @@ class Project extends Model
     public function documents()
     {
         return $this->hasMany(DocumentManager::class, 'doc_project_id');
-    }
-
-
-    /**
-     * Get the comments for the blog post.
-     */
-    public function activity_log()
-    {
-        return $this->hasMany(ActivityLog::class, 'activity_project_id');
     }
 }
