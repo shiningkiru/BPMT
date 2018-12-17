@@ -358,23 +358,13 @@ class CreateUserModuleTable extends Migration
 
         Schema::create('activity_logs', function (Blueprint $table) {
                 $table->increments('id');
-                $table->text('task');
+                $table->text('message');
+                $table->enum('targetObjects', [0, 1, 2]);
+                $table->string('module');
+                $table->string('linkId')->nullable(true);
+                $table->text('original')->nullable(true);
+                $table->text('changes')->nullable(true);
                 $table->dateTimeTz('entryTime');
-                $table->unsignedInteger('activity_project_id');
-                $table->foreign('activity_project_id')
-                        ->references('id')
-                        ->on('projects')
-                        ->onDelete('cascade');
-                $table->unsignedInteger('activity_milestone_id');
-                $table->foreign('activity_milestone_id')
-                        ->references('id')
-                        ->on('milestones')
-                        ->onDelete('cascade');
-                $table->unsignedInteger('activity_tasks_id');
-                $table->foreign('activity_tasks_id')
-                        ->references('id')
-                        ->on('tasks')
-                        ->onDelete('cascade');
                 $table->unsignedInteger('entry_by');
                 $table->foreign('entry_by')
                         ->references('id')
