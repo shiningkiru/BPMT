@@ -138,6 +138,8 @@ Route::prefix('v1')->group(function () {
 
     //Task routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        
+        Route::get('task/project-chart/{id}', 'TaskController@directProjectChart');
         Route::get('task/{id}', 'TaskController@show');
         Route::get('task/by-sprints/{id}', 'TaskController@index');
         Route::post('task', 'TaskController@create');
@@ -145,7 +147,7 @@ Route::prefix('v1')->group(function () {
         Route::get('task/chart/{id}/{status}', 'TaskController@showChart');
         Route::get('task/total-tasks/{id}', 'TaskController@totalTasks');
     });
-
+    Route::get('task/by-users/{id}', 'TaskController@showUsers');
     //Task member routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('task-member/current-assigned-tasks', 'TaskMemberController@getCurrentAssignedTasks');
