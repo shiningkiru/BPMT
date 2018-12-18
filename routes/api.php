@@ -128,21 +128,23 @@ Route::prefix('v1')->group(function () {
     });
     //Sprint routes
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::get('sprint/{id}', 'SprintController@show');
         Route::get('sprint/by-milestone/{id}', 'SprintController@index');
         Route::post('sprint', 'SprintController@create');
         Route::delete('sprint/{id}', 'SprintController@delete');
+        Route::get('sprint/{id}', 'SprintController@show');
         Route::get('sprint/total-sprints/{id}', 'SprintController@totalSprints');
+        Route::get('sprint/by-task/{task_id}', 'SprintController@getSprintsRelatedToMilestoneByTask');
      });
 
     //Task routes
     Route::group(['middleware' => 'jwt.auth'], function(){
          Route::get('task/with-users/{id}', 'TaskController@showUsers'); 
         Route::get('task/project-chart/{id}', 'TaskController@directProjectChart');
-        Route::get('task/{id}', 'TaskController@show');
         Route::get('task/by-sprints/{id}', 'TaskController@index');
         Route::post('task', 'TaskController@create');
+        Route::post('task/change-sprint', 'TaskController@changeSprint');
         Route::delete('task/{id}', 'TaskController@delete');
+        Route::get('task/{id}', 'TaskController@show');
         Route::get('task/chart/{id}/{status}', 'TaskController@showChart');
         Route::get('task/total-tasks/{id}', 'TaskController@totalTasks');
     });
