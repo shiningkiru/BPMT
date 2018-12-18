@@ -370,7 +370,6 @@ class CreateUserModuleTable extends Migration
                         ->references('id')
                         ->on('users')
                         ->onDelete('cascade');
-                $table->timestamps();
         });
 
         Schema::create('access_previleges', function (Blueprint $table) {
@@ -426,7 +425,6 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('branch_departments');
         Schema::dropIfExists('clients');
         Schema::dropIfExists('locations');
-        Schema::dropIfExists('sprint_work_logs');
         Schema::dropIfExists('sprints');
         Schema::dropIfExists('tasks');
         Schema::dropIfExists('milestones');

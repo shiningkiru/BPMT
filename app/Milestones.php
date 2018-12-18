@@ -3,10 +3,13 @@
 namespace App;
 
 use App\Sprint;
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Milestones extends Model
 {
+    use LogTrait;
+    
     /**
      * The attributes that are mass assignable.
      *

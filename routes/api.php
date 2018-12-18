@@ -122,11 +122,10 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('milestone/{id}', 'MilestonesController@show');
         Route::get('milestone/by-project/{id}', 'MilestonesController@index');
-        
+        Route::post('milestone', 'MilestonesController@create');
         Route::delete('milestone/{id}', 'MilestonesController@delete');
         Route::get('milestone/total-milestones/{id}', 'MilestonesController@totalMilestones');
     });
-    Route::post('milestone', 'MilestonesController@create');
     //Sprint routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('sprint/{id}', 'SprintController@show');
@@ -204,6 +203,11 @@ Route::prefix('v1')->group(function () {
         Route::put('week-validation/{id}', 'WeekValidationController@update');
         Route::get('week-validation', 'WeekValidationController@index');
         Route::get('week-validation/{id}', 'WeekValidationController@get');
+    });
+
+    //Activity Logs
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('access-logs', 'ActivityLogController@getLogs');
     });
 
 });

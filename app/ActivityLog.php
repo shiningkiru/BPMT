@@ -12,7 +12,7 @@ class ActivityLog extends Model
      * @var array
      */
     protected $fillable = [
-        'entryTime', 'message', 'targetObjects', 'module', 'linkId', 'objBefore', 'objAfter'
+        'entryTime', 'message', 'targetObjects', 'module', 'linkId', 'original', 'changes'
     ];
 
 

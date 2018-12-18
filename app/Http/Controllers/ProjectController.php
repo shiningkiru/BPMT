@@ -136,14 +136,12 @@ class ProjectController extends Controller
             \DB::transaction(function() use ($helper, $request, $user){
                 $id=$request->id;
                 $processType="new";
-                $process="new";
                 $notificationRepository = new NotificationRepository();
                 $logRepository = new ActivityLogRepository();
                 if(empty($id)):
                     $project=new Project();
                     $project->projectType=$request->projectType;
                 else:
-                    $process = 'edit';
                     $project=Project::find($id);
                 endif;
                 $oldProject =clone $project;
@@ -167,9 +165,6 @@ class ProjectController extends Controller
                 $project->project_lead_id=$request->project_lead_id;
                 $project->project_company_id=$request->company_id;
                 $project->save();
-                // Project::updating(function($project){
-                //     dump($project->getOriginal('budget'));
-                // });
 
                 if($oldProject->project_lead_id != $project->project_lead_id){
                     $message = "You are assigned for a new project ".$project->projectName. " as a lead";
@@ -216,17 +211,11 @@ class ProjectController extends Controller
 
                 $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
                 
-                if($process == 'new'){
-                    
-                }else{
-                    $logRepository->logger($user->firstName." updated project ".$project->projectName, 2, 'project', $project, $oldProject);
-                }
                 return $project;
             });
             
           
         }catch(\Exception $e){
-            dd($e);
             return Response::json(['errors'=>['server'=>[$e]]], 400);
         }
     }

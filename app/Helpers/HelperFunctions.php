@@ -37,7 +37,8 @@ class HelperFunctions{
             'user', 
             'task_work_log', 
             'settings', 
-            'access_previlages'
+            'access_previlages',
+            'activity_logs'
         ];
         return $modules;
     }

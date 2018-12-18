@@ -2,10 +2,13 @@
 
 namespace App;
 
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
+    use LogTrait;
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -14,14 +17,6 @@ class Project extends Model
     protected $fillable = [
         'projectName', 'description', 'projectCode', 'projectCategory', 'startDate', 'endDate', 'budget', 'status'
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-        static::updating(function ($project) {
-            $project->projectName = $project->getOriginal('projectName');
-        });
-    }
 
     /**
      * Get the comments for the blog post.
