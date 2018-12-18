@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Response;
+use App\User;
 use App\Tasks;
 use App\Sprint;
 use App\Milestones;
@@ -249,6 +250,16 @@ class TaskController extends Controller
         return $task;
     }
 
+    public function showUsers($id)
+    {
+        $tasks = Tasks::where('sprint_id','=',$id)->select('tasks.id','tasks.taskName', 'tasks.description', 'tasks.startDate', 'tasks.endDate', 'tasks.priority', 'tasks.status')->get();
+        foreach($tasks as $task){
+            $users = User::leftJoin('task_members', 'task_members.member_identification','=', 'users.id')->where('task_members.task_identification', '=', $task->id)->select( 'users.id', 'users.profilePic', 'users.firstName')->get();
+            $task['users']=$users;
+        }
+        return $tasks;
+    }
+
     /**
     * @SWG\Delete(
     *      path="/v1/task/{id}",
@@ -352,4 +363,20 @@ class TaskController extends Controller
        return $chartData;
     }
 }
+
+public function directProjectChart($id)
+{
+    $projectData=[];
+    $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+    ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+    ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+    ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
+    ->leftJoin('users','task_members.member_identification','=','users.id')
+    ->select('tasks.id', 'tasks.takenHours','tasks.taskName','tasks.sprint_id','users.firstName')
+    ->where('projects.id','=',$id)->get();
+    $projectData['projectList']=$chart;
+   return $projectData;
+}
+
+
 }
