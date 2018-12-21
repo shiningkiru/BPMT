@@ -3,11 +3,13 @@
 namespace App;
 
 use App\WeekValidation;
+use App\Traits\LogTrait;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    use LogTrait;
     use Notifiable;
 
     /**

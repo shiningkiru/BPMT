@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-use Response;
 use App\User;
+use Response;
 use App\Tasks;
 use App\Sprint;
 use App\Milestones;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use App\Repositories\TasksRepository;
 use App\Http\Requests\TaskFormRequest;
 
 class TaskController extends Controller
@@ -161,6 +162,21 @@ class TaskController extends Controller
             $this->updateProjectProgress($task);
         }
         return $task;
+    }
+
+    public function changeSprint(Request $request) {
+        $taskRepository = new TasksRepository();
+        $valid = $taskRepository->validateRules($request->all(), [
+            'task_id' => 'required|exists:tasks,id',
+            'sprint_id' => 'required|exists:sprints,id'
+        ]);
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+
+        $task = $taskRepository->show($request->task_id);
+        $task->sprint_id = $request->sprint_id;
+        $task->save();
+        return $task;
+
     }
 
     public function updateProjectProgress($task){

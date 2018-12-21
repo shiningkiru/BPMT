@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Response;
+use App\Tasks;
 use App\Sprint;
 use App\Milestones;
 use Illuminate\Http\Request;
@@ -292,5 +293,10 @@ class SprintController extends Controller
         ->selectRaw('COUNT(sprints.id) as total_sprints, SUM(IF(sprints.status="completed",1,0)) as completed_sprints')
         ->where('projects.id','=',$id)->get();
         return $sprints[0];
+    }
+
+    public function getSprintsRelatedToMilestoneByTask(Request $request){
+        $task = Tasks::find($request->task_id);
+        return $task->sprint->milestone->sprints;
     }
 }

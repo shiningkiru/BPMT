@@ -113,8 +113,10 @@ class MilestonesController extends Controller
 
         $milestone->title=$request->title;
         $milestone->description=$request->description;
-        $milestone->startDate=new \Datetime($request->startDate);
-        $milestone->endDate=new \Datetime($request->endDate);
+        $startDate=new \Datetime($request->startDate);
+        $milestone->startDate=$startDate->format('Y-m-d 00:00:00');
+        $endDate=new \Datetime($request->endDate);
+        $milestone->endDate=$endDate->format('Y-m-d 00:00:00');
         $milestone->estimatedHours=$helper->timeConversion($request->estimatedHours);
         $milestone->status=$request->status;
         $milestone->project_milestone_id=$request->project_id;

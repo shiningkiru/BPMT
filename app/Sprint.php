@@ -3,10 +3,12 @@
 namespace App;
 
 use App\Milestones;
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Sprint extends Model
 {
+    use LogTrait;
     /**
      * The attributes that are mass assignable.
      *
