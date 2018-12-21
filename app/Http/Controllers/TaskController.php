@@ -377,6 +377,4 @@ public function directProjectChart($id)
     $projectData['projectList']=$chart;
    return $projectData;
 }
-
-
 }
