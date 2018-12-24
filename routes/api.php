@@ -150,8 +150,8 @@ Route::prefix('v1')->group(function () {
         Route::get('task/{id}', 'TaskController@show');
         Route::get('task/chart/{id}/{status}', 'TaskController@showChart');
         Route::get('task/total-tasks/{id}', 'TaskController@totalTasks');
+        Route::get('task/sprint-estimatedhours/{id}', 'TaskController@getSprintEstimatedHours');
     });
-    Route::get('task/sprint-estimatedhours/{id}', 'TaskController@getSprintEstimatedHours');
    
     //Task member routes
     Route::group(['middleware' => 'jwt.auth'], function(){
