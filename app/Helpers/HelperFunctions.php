@@ -7,6 +7,7 @@ use App\ProjectTeam;
 use App\Repositories\ProjectRepository;
 use App\Repositories\TaskMemberRepository;
 use App\Repositories\ProjectTeamRepository;
+use App\Repositories\NotificationRepository;
 
 class HelperFunctions{
     public function getLastEmployeeId(){
@@ -49,11 +50,13 @@ class HelperFunctions{
                 $projectRepository = new ProjectRepository();
                 $taskMemberRepository = new TaskMemberRepository();
                 $teamRepository = new ProjectTeamRepository();
-                
+                $notificationRepository = new NotificationRepository();
+                $status = "edit";
                 if(empty($id)){
                     $team = $teamRepository->findByUserAndProject($user_id, $project_id);
                     if($team == null){
                         $team=new ProjectTeam();
+                        $status = "new";
                         $directProjectTask = $projectRepository->getDirectProjectTask($project_id);
                         if($directProjectTask != null){
                             $taskMember =$taskMemberRepository->findByUserAndTask($user_id, $directProjectTask->id);
@@ -71,6 +74,16 @@ class HelperFunctions{
                 $team->team_project_id=$project_id;
                 $team->status=$status;
                 $team->save();
+                if($status == "new"){
+                    $project = $projectRepository->show($project_id);
+                    $projectType = 'project-team';
+                    if($project->projectType == 'support')
+                        $projectType = 'direct-project-team';
+                    if($project->project_lead_id != $user_id){
+                        $message = "You are assigned for a new project ".$project->projectName;
+                        $notificationRepository->sendNotification(\Auth::user(), User::find($user_id), $message, $projectType, $project->id);
+                    }
+                }
                 return $team;
             });
         }catch(\Exception $e){

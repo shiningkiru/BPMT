@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Notification;
 use Illuminate\Http\Request;
 use App\Events\NotificationFired;
+use Illuminate\Pagination\Paginator;
 use App\Repositories\NotificationRepository;
 use App\Http\Controllers\Master\MasterController;
 
@@ -23,7 +24,15 @@ class NotificationController extends MasterController
 
    public function getMyNotification(Request $request){
        $user=\Auth::user();
-       return $this->model->getReceivedNotification($user->id, $request->limitType);
+        if($request->limitType == 'limited')
+            return $this->model->getReceivedNotification($user->id, $request->limitType)->get(); 
+        else{
+            $currentPage = $request->pageNumber;
+            Paginator::currentPageResolver(function () use ($currentPage) {
+                return $currentPage;
+            });
+            return $this->model->getReceivedNotification($user->id, $request->limitType)->paginate(20); 
+        }
    }
 
 

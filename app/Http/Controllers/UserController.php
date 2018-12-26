@@ -48,7 +48,7 @@ class UserController extends MasterController
      */
     public function getAllUsers()
     {
-        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')->paginate(10);
+        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')->get();
         return $allusers;
     }
 
@@ -86,7 +86,6 @@ class UserController extends MasterController
     public function show($email)
     {
         $user=User::where('email','=',$email)->select('profilePic')->first();
-        //  $user->profileimg
         $status= response()->json($user, 200);
         if($user){
             return $status= response()->json($user, 200);

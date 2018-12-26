@@ -29,7 +29,7 @@ class SprintFormRequest extends FormRequest
             'status' => 'required|in:created,assigned,onhold,inprogress,completed,cancelled,failed',
             'priority' => 'required|in:critical,high,medium,low',
             'estimatedHours' =>  'required|time_format',
-            'milestone_id' => 'required|exists:milestones,id',
+            'milestone_id' => 'required|exists:milestones,id|sprint_number:'.$this->get("id"),
         ];
     }
 }

@@ -166,10 +166,6 @@ class ProjectController extends Controller
                 $project->project_company_id=$request->company_id;
                 $project->save();
 
-                if($oldProject->project_lead_id != $project->project_lead_id){
-                    $message = "You are assigned for a new project ".$project->projectName. " as a lead";
-                    $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, "project", $project->id);
-                }
 
                 if($processType == 'new-support'):
                     $milestone = $project->milestones()->first();
@@ -208,6 +204,15 @@ class ProjectController extends Controller
                     $task->sprint_id = $sprint->id;
                     $task->save();
                 endif;
+
+                
+                if($oldProject->project_lead_id != $project->project_lead_id){
+                    $message = "You are assigned for a new project ".$project->projectName. " as a lead";
+                    $processType = 'project-team';
+                    if($projectType == 'support')
+                        $projectType = 'direct-project-team';
+                    $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, $projectType, $project->id);
+                }
 
                 $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
                 
@@ -377,7 +382,10 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $projectstart= date('Y-m-d',strtotime($request->get('startDate'))); 
         $projectend= date('Y-m-d',strtotime($request->get('endDate')));
-        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id);
+        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')
+                        ->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')
+                        ->where('projects.project_company_id','=',$user->company_id);
+
         if (!empty($request->get('projectName')))
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
         if (!empty($request->get('status')))
@@ -388,6 +396,11 @@ class ProjectController extends Controller
             $projects->WhereBetween('projects.startDate', [$projectstart,$projectend]);
         if (!empty($request->get('startDate')) && empty($request->get('endDate')))
             $projects->where('projects.startDate','=',$projectstart);
+        if($user->roles != 'admin'){
+            $projects = $projects->leftJoin('project_teams','project_teams.team_project_id', '=', 'projects.id')
+                                ->where('project_teams.team_user_id','=',$user->id)
+                                ->distinct('projects.id');
+        }
         return  $projects->get();
     } 
 

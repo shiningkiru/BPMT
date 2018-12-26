@@ -143,7 +143,11 @@ class ProjectTeamController extends Controller
 
    public function delete($id){
        $team = ProjectTeam::find($id);
-       $team->delete();
+       if($team->project->project_lead_id != $team->team_user_id){
+        $team->delete();
+       }else {
+        return response()->json(['errors'=>['server'=>["You cannot remove lead from the team"]]], 400);
+       }
        return $team;
    }
 
@@ -188,7 +192,11 @@ class ProjectTeamController extends Controller
 
    public function deletebyUserAndProject($id, $prid){
        $team = ProjectTeam::where('team_user_id','=',$id)->where('team_project_id','=',$prid)->first();
-       $team->delete();
+       if($team->project->project_lead_id != $team->team_user_id){
+        $team->delete();
+       }else {
+        return response()->json(['errors'=>['server'=>["You cannot remove lead from the team"]]], 400);
+       }
        return $team;
    }
 

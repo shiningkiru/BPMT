@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Response;
 use App\User;
+use Response;
 use App\Tasks;
 use App\TaskMember;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use App\Http\Requests\TaskMemberRequest;
+use App\Repositories\NotificationRepository;
 
 class TaskMemberController extends Controller
 {
@@ -96,7 +97,17 @@ class TaskMemberController extends Controller
         }
         //estimated hour calculation end
 
-        $taskMember->save();
+        try{
+            
+            \DB::transaction(function() use ($helper, $request, $taskMember, $task){
+                $taskMember->save();
+                $notificationRepository = new NotificationRepository();
+                $message = $task->taskName." task is assigned to you";
+                $notificationRepository->sendNotification(\Auth::user(), User::find($taskMember->member_identification), $message, "task-assign", $taskMember->id);
+            });
+        }catch(\Exception $e){
+            return Response::json(['errors'=>['taskMember'=>['Member already assigned']]], 422);
+        }
         return $taskMember;
     }
 

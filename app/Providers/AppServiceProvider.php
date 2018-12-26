@@ -4,9 +4,13 @@ namespace App\Providers;
 
 use App\User;
 use Validator;
+use App\Sprint;
+use App\Milestones;
 use App\MassParameter;
+use App\Repositories\SprintRepository;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\MilestoneRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -66,14 +70,45 @@ class AppServiceProvider extends ServiceProvider
         }, 'Password field is required');
 
         Validator::extend('token', function($attribute, $value, $parameters)
-        {
-            
+        { 
             $user=User::where('email','=',$parameters[0])->where('reset_token','=',urldecode($value))->first();
             if(!($user instanceof User))
                 return false;
             else
                 return true;
         }, 'Invalide link');
+
+
+        Validator::extend('milestone_number', function($attribute, $value, $parameters)
+        { 
+            $milestoneRepository = new MilestoneRepository();
+            $activeMilestone = $milestoneRepository->findActiveMilestone($value)->first();
+            if($activeMilestone instanceof Milestones){
+                if(!empty($parameters[0]) ){
+                    if($activeMilestone->id != $parameters[0])
+                        return false;
+                }else{
+                    return false;
+                }
+            }
+            return true;
+        }, 'Can not add another milestone before completing previous one.');
+
+
+        Validator::extend('sprint_number', function($attribute, $value, $parameters)
+        { 
+            $sprintRepository = new SprintRepository();
+            $activeSprint = $sprintRepository->findActiveSprint($value)->first();
+            if($activeSprint instanceof Sprint){
+                if(!empty($parameters[0]) ){
+                    if($activeSprint->id != $parameters[0])
+                        return false;
+                }else{
+                    return false;
+                }
+            }
+            return true;
+        }, 'Can not add another sprint before completing previous one.');
     }
 
     /**

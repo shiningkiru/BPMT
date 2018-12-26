@@ -14,7 +14,25 @@ class WeekValidationRepository extends Repository {
         parent::__construct(new WeekValidation());
     }
 
-    public function getWeekValidation($user_id, $week, $year){
-        return WeekValidation::where('user_id','=',$user_id)->where('weekNumber','=',$week)->where('entryYear','=',$year)->first();        
+    public function getWeekValidation($user_id=null, $week=null, $year=null, $id=null){
+        $query =  $this->model;
+        if($user_id!=null)
+            $query =  $query->where('user_id','=',$user_id);
+        if($week!=null)
+            $query =  $query->where('weekNumber','=',$week);
+          
+        if($year != null)
+            $query =  $query->where('entryYear','=',$year);      
+          
+        if($id != null)
+            $query =  $query->where('id','=',$id);    
+        
+        return $query;
+    }
+
+    public function getWeekValidationWithProductiveHours($user_id=null, $week=null, $year=null){
+        $week = $this->getWeekValidation($user_id, $week, $year)
+                    ->leftJoin('work_time_tracks', 'work_time_tracks.week_number','=','week_validations.id');
+                    // ->selectRaw('SUM(work_time_tracks.)')
     }
 }

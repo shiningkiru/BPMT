@@ -40,10 +40,14 @@ class MasterController extends Controller {
         $validator = $this->model->validateRules($request->all(),$this->validationUpdateRules ?? $this->validationRules);
         
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json($validator->errors(), 422);
         }
         
         return $this->model->update($request->all(), $id);
    }
 
+   public function delete(Request $request, $id){
+       $this->model->delete($id);
+       return response()->json("Successfully deleted", 200);
+   }
 }

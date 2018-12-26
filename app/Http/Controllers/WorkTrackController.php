@@ -95,7 +95,7 @@ class WorkTrackController extends Controller
             $workTrack->task_member_identification=$taskMember->id;
 
             $weekValidationRepository = new WeekValidationRepository();
-            $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year']);
+            $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year'])->first();
             if(!($weekValidation instanceof WeekValidation)){
                 $weekValidation= new WeekValidation();
                 $dateGap=$helper->getStartAndEndDate($date);
@@ -471,7 +471,7 @@ class WorkTrackController extends Controller
         $project['tasks']=$tasks;
         $project['dates']=$dates;    
         $project['weekNumber']=$dateGap;    
-        $project['weekValidation']=$weekValidationRepository->getWeekValidation($id, $dateGap[0]->format('W'), $dateGap[0]->format('Y'));         
+        $project['weekValidation']=$weekValidationRepository->getWeekValidation($id, $dateGap[0]->format('W'), $dateGap[0]->format('Y'))->first();         
         return $project;
     }
 
@@ -665,7 +665,7 @@ class WorkTrackController extends Controller
         endforeach;
         $weekDetails=$helper->getYearWeekNumber(new \Datetime($dateOfWeek));
         $weekValidationRepository = new WeekValidationRepository();
-        $weekValidation= $weekValidationRepository->getWeekValidation($user_id, $weekDetails['week'], $weekDetails['year']);
+        $weekValidation= $weekValidationRepository->getWeekValidation($user_id, $weekDetails['week'], $weekDetails['year'])->first();
 
         $res['projects']=$projects;
         $res['dates']=$dates;

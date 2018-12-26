@@ -32,19 +32,18 @@ Route::prefix('v1')->group(function () {
         Route::get('user/employee', 'UserController@employeeShow');
         Route::post('user/reset-password', 'UserController@resetPassword');
         Route::get('user/{id}', 'AuthController@singleUser');
-       
+        Route::post('user', 'AuthController@register');
               
     });
         Route::get('user/show-email/{email}', 'UserController@show');
         Route::get('user/filter/{id}', 'UserController@designationFilter');    
 
+        Route::post('login', 'AuthController@login');
+        Route::post('forgot-password', 'AuthController@forgotVerification');
+        Route::post('forgot-password/reset', 'AuthController@forgotPasswordReset');
 
     Route::middleware('jwt.refresh')->get('/token/refresh', 'AuthController@refresh');
     
-    Route::post('user', 'AuthController@register');
-    Route::post('login', 'AuthController@login');
-    Route::post('forgot-password', 'AuthController@forgotVerification');
-    Route::post('forgot-password/reset', 'AuthController@forgotPasswordReset');
 
 
     //company routes
@@ -199,6 +198,7 @@ Route::prefix('v1')->group(function () {
         Route::get('notification', 'NotificationController@index');
         Route::get('notification/received', 'NotificationController@getMyNotification');
         Route::get('notification/{id}', 'NotificationController@get');
+        Route::delete('notification/{id}', 'NotificationController@delete');
     });
 
     //week validation

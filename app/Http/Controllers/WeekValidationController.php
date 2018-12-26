@@ -7,6 +7,7 @@ use App\User;
 use App\Notification;
 use App\WeekValidation;
 use Illuminate\Http\Request;
+use App\Helpers\HelperFunctions;
 use App\Events\NotificationFired;
 use App\Repositories\UserRepository;
 use App\Repositories\ProjectRepository;
@@ -25,6 +26,7 @@ class WeekValidationController extends MasterController
     }
 
     public function submitWeeklyPtt(Request $request){
+        $helper = new HelperFunctions();
         $user = \Auth::user();
         $valid = $this->model->validateRules($request->all(), [
             'week_validation' => 'required:exists:week_validations,id'
@@ -32,6 +34,23 @@ class WeekValidationController extends MasterController
         if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
 
         $weekValidation = $this->model->show($request->week_validation);
+
+        //after friday validation
+        $currentWeekNumber = $helper->getYearWeekNumber(new \Datetime());
+        if($weekValidation->entryYear == (int)$currentWeekNumber['year'] && $weekValidation->weekNumber == (int)$currentWeekNumber['week']){
+            $dateGap=$helper->getStartAndEndDate(new \Datetime());
+            $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
+            $friday=explode("-",$dates[4]);
+            $friday = strtotime($friday[1]."-".$friday[0]."-".$friday[2]);
+            $thisDate = new \Datetime();
+            $thisDate = strtotime($thisDate->format('d-m-Y'));
+            if($thisDate < $friday){
+                return response()->json(['errors'=>['system'=>['You can assign PTT only after friday.']]], 422);
+            }
+        }
+        //end of after friday validation
+        
+
         $management = $this->userRepository->findByRole('management')->toArray();
         if(sizeof($management) == 0){
             return response()->json(['errors'=>['system'=>['Please assign management position']]], 422);
@@ -137,5 +156,9 @@ class WeekValidationController extends MasterController
         }catch(\Exception $e){
             return response()->json(['errors'=>['server'=>[$e->getMessage()]]], 422);
         }
+    }
+
+    public function getByUserYear(Request $request){
+        return $this->model->getWeekValidation($request->user_id, null, $request->year)->get();
     }
 }

@@ -31,6 +31,6 @@ class NotificationRepository extends Repository {
         $notifications = $this->model->where('to_user_id', '=', $user_id)->orderBy('created_at','DESC');
         if($limit == 'limited')
             $notifications=$notifications->limit(5);
-        return $notifications->get();
+        return $notifications;
     }
 }
