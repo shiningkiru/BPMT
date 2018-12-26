@@ -299,4 +299,17 @@ class SprintController extends Controller
         $task = Tasks::find($request->task_id);
         return $task->sprint->milestone->sprints;
     }
+
+
+    public function getMilestoneEstimatedHours($id)
+    {
+        $sprint = Sprint::leftjoin('tasks','sprint_id','=','sprints.id')
+        ->leftJoin('milestones','milestones.id','=','milestone_id')
+        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+        ->where('milestone_id','=',$id)
+        ->selectRaw('milestones.estimatedHours')
+        ->groupBy('milestones.estimatedHours')
+        ->get();
+        return  $sprint; 
+    } 
 }

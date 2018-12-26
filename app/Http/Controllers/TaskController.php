@@ -395,4 +395,14 @@ public function directProjectChart($id)
 }
 
 
+public function getSprintEstimatedHours($id){
+    $tasks = Tasks::leftjoin('sprints','sprints.id','=','sprint_id')
+    ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+    ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+    ->where('sprint_id','=',$id)
+    ->selectRaw('sprints.estimatedHours')
+    ->groupBy('sprints.estimatedHours')
+    ->get();
+    return $tasks;
+}
 }

@@ -296,4 +296,18 @@ class MilestonesController extends Controller
         ->get();
         return $milestone[0];
     }
+
+
+    public function getProjectEstimatedHours($id){
+        // $milestone = Milestones::where('project_milestone_id','=',$id)->get();
+        // return $milestone;
+
+        $milestone = Milestones::leftjoin('sprints','milestone_id','=','milestones.id')
+        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+        ->where('projects.id','=',$id)
+        ->selectRaw('projects.estimatedHours')
+        ->groupBy('projects.estimatedHours')
+        ->get();
+        return  $milestone; 
+    }
 }

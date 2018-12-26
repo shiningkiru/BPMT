@@ -64,9 +64,9 @@ Route::prefix('v1')->group(function () {
 
     //department routes
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::get('department/{id}/users', 'DepartmentController@departmentUser');
-        Route::get('department/{id}', 'DepartmentController@show');
-        Route::get('department', 'DepartmentController@index');
+    Route::get('department/{id}/users', 'DepartmentController@departmentUser');
+    Route::get('department/{id}', 'DepartmentController@show');
+      Route::get('department', 'DepartmentController@index');
         Route::post('department', 'DepartmentController@create');
         Route::delete('department/{id}', 'DepartmentController@delete');
     });
@@ -119,14 +119,17 @@ Route::prefix('v1')->group(function () {
 
     //Milestone routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('milestone/project-estimatedhours/{id}', 'MilestonesController@getProjectEstimatedHours');
         Route::get('milestone/{id}', 'MilestonesController@show');
         Route::get('milestone/by-project/{id}', 'MilestonesController@index');
         Route::post('milestone', 'MilestonesController@create');
         Route::delete('milestone/{id}', 'MilestonesController@delete');
         Route::get('milestone/total-milestones/{id}', 'MilestonesController@totalMilestones');
     });
+   
     //Sprint routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('sprint/milestone-estimatedhours/{id}', 'SprintController@getMilestoneEstimatedHours');
         Route::get('sprint/by-milestone/{id}', 'SprintController@index');
         Route::post('sprint', 'SprintController@create');
         Route::delete('sprint/{id}', 'SprintController@delete');
@@ -137,7 +140,7 @@ Route::prefix('v1')->group(function () {
 
     //Task routes
     Route::group(['middleware' => 'jwt.auth'], function(){
-         Route::get('task/with-users/{id}', 'TaskController@showUsers'); 
+        Route::get('task/with-users/{id}', 'TaskController@showUsers'); 
         Route::get('task/project-chart/{id}', 'TaskController@directProjectChart');
         Route::get('task/by-sprints/{id}', 'TaskController@index');
         Route::post('task', 'TaskController@create');
@@ -146,6 +149,7 @@ Route::prefix('v1')->group(function () {
         Route::get('task/{id}', 'TaskController@show');
         Route::get('task/chart/{id}/{status}', 'TaskController@showChart');
         Route::get('task/total-tasks/{id}', 'TaskController@totalTasks');
+        Route::get('task/sprint-estimatedhours/{id}', 'TaskController@getSprintEstimatedHours');
     });
    
     //Task member routes
