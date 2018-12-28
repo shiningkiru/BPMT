@@ -159,6 +159,6 @@ class WeekValidationController extends MasterController
     }
 
     public function getByUserYear(Request $request){
-        return $this->model->getWeekValidation($request->user_id, null, $request->year)->get();
+        return $this->model->getWeekValidation($request->user_id, null, $request->year)->orderBy('weekNumber','DESC')->get();
     }
 }

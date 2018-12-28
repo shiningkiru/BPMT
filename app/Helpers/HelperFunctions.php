@@ -34,12 +34,15 @@ class HelperFunctions{
             'milestone', 
             'sprint', 
             'task', 
+            'project_team', 
             'client', 
             'user', 
-            'task_work_log', 
+            'my_task', 
+            'time_sheet', 
             'settings', 
             'access_previlages',
-            'activity_logs'
+            'activity_logs',
+            'documents'
         ];
         return $modules;
     }
@@ -149,7 +152,12 @@ class HelperFunctions{
     }
 
     public function timeConversion($time){
-        return (sizeof(explode(":",$time)) == 1)?$time.":00":$time;
+        $size = sizeof(explode(":",$time));
+        if($size == 1)
+            return $time.":00:00";
+        if($size == 2)
+            return $time.":00";
+        return $time;
     }
 
     public function secToTime($seconds){
