@@ -34,12 +34,15 @@ class HelperFunctions{
             'milestone', 
             'sprint', 
             'task', 
+            'project_team', 
             'client', 
             'user', 
-            'task_work_log', 
+            'my_task', 
+            'time_sheet', 
             'settings', 
             'access_previlages',
-            'activity_logs'
+            'activity_logs',
+            'documents'
         ];
         return $modules;
     }
