@@ -267,7 +267,7 @@ class CreateUserModuleTable extends Migration
         Schema::create('task_members', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('estimatedHours');
-                $table->time('takenHours');
+                $table->text('takenHours');
                 $table->unsignedInteger('task_identification');
                 $table->foreign('task_identification')
                         ->references('id')
