@@ -208,6 +208,7 @@ Route::prefix('v1')->group(function () {
     //week validation
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('week-validation', 'WeekValidationController@create');
+        Route::post('week-validation/week-stat', 'WeekValidationController@getByUserYear');
         Route::put('week-validation/{id}', 'WeekValidationController@update');
         Route::get('week-validation', 'WeekValidationController@index');
         Route::get('week-validation/{id}', 'WeekValidationController@get');
