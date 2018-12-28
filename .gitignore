@@ -16,6 +16,7 @@ storage/*.key
 .env.*.php
 .env.php
 .env
+*.zip
 Homestead.yaml
 Homestead.json
 
