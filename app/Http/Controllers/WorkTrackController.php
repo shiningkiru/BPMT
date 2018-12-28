@@ -87,8 +87,8 @@ class WorkTrackController extends Controller
         
         $takenHour = $helper->timeToSec($helper->timeConversion($request->takenHours) ?? 00);
         $taskTaken = $helper->timeToSec($helper->timeConversion($task->takenHours));
-        $taskMemberTaken = $helper->timeToSec($helper->timeConversion($taskMember->takenHours));
-
+        $taskMemberTaken = $helper->timeToSec($helper->timeConversion((empty($taskMember->takenHours))?00:$taskMember->takenHours));
+        
          if(!($workTrack instanceof WorkTimeTrack)){
             $workTrack=new WorkTimeTrack();
             $workTrack->dateOfEntry=$date;

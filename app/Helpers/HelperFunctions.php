@@ -139,6 +139,7 @@ class HelperFunctions{
     }
 
     public function timeToSec($time){
+        
         $timeArray=explode(":", $time);
         
         $totalTime = $timeArray[0] * 3600;
@@ -152,12 +153,14 @@ class HelperFunctions{
     }
 
     public function timeConversion($time){
-        $size = sizeof(explode(":",$time));
-        if($size == 1)
-            return $time.":00:00";
-        if($size == 2)
-            return $time.":00";
-        return $time;
+        $timeHMS = explode(":",$time);
+        $size=sizeof($timeHMS);
+        if($size == 1){
+            return str_pad($time,2,"0",STR_PAD_LEFT).":00:00";
+        }else if($size == 2){
+            return str_pad($timeHMS[0],2,"0",STR_PAD_LEFT).":".str_pad($timeHMS[1],2,"0",STR_PAD_LEFT).":00";
+        }
+        return str_pad($timeHMS[0],2,"0",STR_PAD_LEFT).":".str_pad($timeHMS[1],2,"0",STR_PAD_LEFT).":".str_pad($timeHMS[2],2,"0",STR_PAD_LEFT);
     }
 
     public function secToTime($seconds){
