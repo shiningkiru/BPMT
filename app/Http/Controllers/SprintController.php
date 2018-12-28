@@ -119,9 +119,12 @@ class SprintController extends Controller
         
         //estimated hour calculation
         $milestone=Milestones::find($request->milestone_id);
-        $sprintTotal = Sprint::where('milestone_id','=',$milestone->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('sprints.milestone_id')->first();
-
-        $totalSeconds = ($sprintTotal->total ?? 00);
+        $sprintTotal = Sprint::where('milestone_id','=',$milestone->id)->selectRaw('estimatedHours')->get();
+        $total=0;
+        foreach($sprintTotal as $spr){
+            $total = $total + (int)$helper->timeToSec($spr['estimatedHours']);
+        }
+        $totalSeconds =$total;
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldSprint->estimatedHours ?? 00);
         $milestoneEstimatedHour = $helper->timeToSec($milestone->estimatedHours);
@@ -301,15 +304,19 @@ class SprintController extends Controller
     }
 
 
-    public function getMilestoneEstimatedHours($id)
+    public function getMilestoneEstimatedHoursTotal(Milestones $id)
     {
-        $sprint = Sprint::leftjoin('tasks','sprint_id','=','sprints.id')
-        ->leftJoin('milestones','milestones.id','=','milestone_id')
-        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-        ->where('milestone_id','=',$id)
-        ->selectRaw('milestones.estimatedHours')
-        ->groupBy('milestones.estimatedHours')
-        ->get();
-        return  $sprint; 
+        $helper = new HelperFunctions();
+        $sprintTotal = Sprint::where('milestone_id','=',$id->id)->selectRaw('estimatedHours')->get();
+        $total=0;
+        foreach($sprintTotal as $spr){
+            $total = $total + (int)$helper->timeToSec($spr['estimatedHours']);
+        }
+        $milestoneEstimatedHours = $helper->timeToSec($id->estimatedHours);
+        $result['remaining'] =$helper->secToTime($milestoneEstimatedHours -$total);
+        $result['totalUsed'] =$helper->secToTime($total);        
+        $result['milestoneHours'] =$id->estimatedHours;
+
+        return $result;
     } 
 }

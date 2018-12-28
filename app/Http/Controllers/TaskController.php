@@ -143,9 +143,12 @@ class TaskController extends Controller
         
         //estimated hour calculation
         $sprint=Sprint::find($request->sprint_id);
-        $taskTotal = Tasks::where('sprint_id','=',$sprint->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('tasks.sprint_id')->first();
-
-        $totalSeconds = ($taskTotal->total ?? 00);
+        $taskTotal = Tasks::where('sprint_id','=',$sprint->id)->selectRaw('estimatedHours')->get();
+        $total=0;
+        foreach($taskTotal as $tsk){
+            $total = $total + (int)$helper->timeToSec($tsk['estimatedHours']);
+        }
+        $totalSeconds =$total;
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldTask->estimatedHours ?? 00);
         $sprintEstimatedHour = $helper->timeToSec($sprint->estimatedHours);
@@ -395,14 +398,19 @@ public function directProjectChart($id)
 }
 
 
-public function getSprintEstimatedHours($id){
-    $tasks = Tasks::leftjoin('sprints','sprints.id','=','sprint_id')
-    ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-    ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-    ->where('sprint_id','=',$id)
-    ->selectRaw('sprints.estimatedHours')
-    ->groupBy('sprints.estimatedHours')
-    ->get();
-    return $tasks;
+public function getSprintEstimatedHoursTotal(Sprint $id){
+    $helper = new HelperFunctions();
+    $taskTotal = Tasks::where('sprint_id','=',$id->id)->selectRaw('estimatedHours')->get();
+    $total=0;
+    foreach($taskTotal as $tsk){
+        $total = $total + (int)$helper->timeToSec($tsk['estimatedHours']);
+    }
+    
+    $sprintEstimatedHours = $helper->timeToSec($id->estimatedHours);
+    $result['remaining'] =$helper->secToTime($sprintEstimatedHours - $total);
+    $result['totalUsed'] =$helper->secToTime($total);        
+    $result['sprintHours'] =$id->estimatedHours;
+
+    return $result;
 }
 }

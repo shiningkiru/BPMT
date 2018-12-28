@@ -124,9 +124,12 @@ class MilestonesController extends Controller
 
         //estimated hour calculation
         $project=Project::find($request->project_id);
-        $milestoneList = Milestones::where('project_milestone_id','=',$project->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('milestones.project_milestone_id')->first();
-
-        $totalSeconds =($milestoneList == null)?0: $milestoneList->total;
+        $milestoneList = Milestones::where('project_milestone_id','=',$project->id)->selectRaw('estimatedHours')->get();
+        $total=0;
+        foreach($milestoneList as $miles){
+            $total = $total + (int)$helper->timeToSec($miles['estimatedHours']);
+        }
+        $totalSeconds =$total;
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldMilestone->estimatedHours ?? 00);
         $projectEstimatedHour = $helper->timeToSec($project->estimatedHours);
@@ -298,16 +301,19 @@ class MilestonesController extends Controller
     }
 
 
-    public function getProjectEstimatedHours($id){
-        // $milestone = Milestones::where('project_milestone_id','=',$id)->get();
-        // return $milestone;
+    public function getProjectEstimatedHoursTotal(Project $id){
+        
+        $helper = new HelperFunctions();
+        $milestoneList = Milestones::where('project_milestone_id','=',$id->id)->selectRaw('estimatedHours')->get();
+        $total=0;
+        foreach($milestoneList as $miles){
+            $total = $total + (int)$helper->timeToSec($miles['estimatedHours']);
+        }
+        $projectEstimatedHours = $helper->timeToSec($id->estimatedHours);
+        $result['remaining'] =$helper->secToTime($projectEstimatedHours -$total);
+        $result['totalUsed'] =$helper->secToTime($total);        
+        $result['projectHours'] =$id->estimatedHours;
 
-        $milestone = Milestones::leftjoin('sprints','milestone_id','=','milestones.id')
-        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-        ->where('projects.id','=',$id)
-        ->selectRaw('projects.estimatedHours')
-        ->groupBy('projects.estimatedHours')
-        ->get();
-        return  $milestone; 
+        return  $result; 
     }
 }
