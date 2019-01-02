@@ -54,12 +54,12 @@ class HelperFunctions{
                 $taskMemberRepository = new TaskMemberRepository();
                 $teamRepository = new ProjectTeamRepository();
                 $notificationRepository = new NotificationRepository();
-                $status = "edit";
+                $localstatus = "edit";
                 if(empty($id)){
                     $team = $teamRepository->findByUserAndProject($user_id, $project_id);
                     if($team == null){
                         $team=new ProjectTeam();
-                        $status = "new";
+                        $localstatus = "new";
                         $directProjectTask = $projectRepository->getDirectProjectTask($project_id);
                         if($directProjectTask != null){
                             $taskMember =$taskMemberRepository->findByUserAndTask($user_id, $directProjectTask->id);
@@ -77,7 +77,7 @@ class HelperFunctions{
                 $team->team_project_id=$project_id;
                 $team->status=$status;
                 $team->save();
-                if($status == "new"){
+                if($localstatus == "new"){
                     $project = $projectRepository->show($project_id);
                     $projectType = 'project-team';
                     if($project->projectType == 'support')

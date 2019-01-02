@@ -385,7 +385,6 @@ class ProjectController extends Controller
         $projects = Project::leftJoin('clients','clients.id','=','client_project_id')
                         ->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')
                         ->where('projects.project_company_id','=',$user->company_id);
-
         if (!empty($request->get('projectName')))
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
         if (!empty($request->get('status')))

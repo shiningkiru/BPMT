@@ -390,7 +390,7 @@ class CreateUserModuleTable extends Migration
                 $table->text('urlLink')->nullable(true);
                 $table->boolean('isRead')->default(false);
                 $table->string('notificationType');
-                $table->integer('firstDeletedUser')->nullbale(true);
+                $table->integer('firstDeletedUser')->nullabale(true);
                 $table->unsignedInteger('from_user_id');
                 $table->foreign('from_user_id')
                         ->references('id')
