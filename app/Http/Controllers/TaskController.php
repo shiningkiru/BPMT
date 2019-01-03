@@ -132,8 +132,10 @@ class TaskController extends Controller
         $oldTask = clone $task;
         $task->taskName=$request->taskName;
         $task->description=$request->description;
-        $task->startDate=new \Datetime($request->startDate);
-        $task->endDate=new \Datetime($request->endDate);
+        $startDate=new \Datetime($request->startDate);
+        $task->startDate=$startDate->format('Y-m-d 00:00:00');
+        $endDate=new \Datetime($request->endDate);
+        $task->endDate=$endDate->format('Y-m-d 00:00:00');
         $task->estimatedHours=$helper->timeConversion($request->estimatedHours);
         $task->takenHours=$helper->timeConversion($request->takenHours ?? 00);
         $task->status=$request->status;

@@ -111,14 +111,14 @@ class WorkTrackController extends Controller
             $workTrackTaken = $helper->timeToSec($helper->timeConversion($workTrack->takenHours));
             $taskTaken-= $workTrackTaken;
             $taskMemberTaken-= $workTrackTaken;
-            $task->takenHours=$helper->secToTime($taskTaken);
-            $taskMember->takenHours=$helper->secToTime($taskMemberTaken );
+            $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken)); 
+            $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken ));
         }
         $workTrack->takenHours=$helper->timeConversion($request->takenHours);
         $workTrack->description=$request->description;
         
-        $task->takenHours=$helper->secToTime($taskTaken + $takenHour);
-        $taskMember->takenHours=$helper->secToTime($taskMemberTaken + $takenHour);
+        $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken + $takenHour));
+        $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken + $takenHour));
         $workTrack->save();
         $taskMember->save();
         $task->save();

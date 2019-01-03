@@ -108,8 +108,10 @@ class SprintController extends Controller
             $sprint=Sprint::find($id); 
         $oldSprint = clone $sprint;
         $sprint->sprintTitle=$request->sprintTitle;
-        $sprint->startDate=new \Datetime($request->startDate);
-        $sprint->endDate=new \Datetime($request->endDate);
+        $startDate=new \Datetime($request->startDate);
+        $sprint->startDate=$startDate->format('Y-m-d 00:00:00');
+        $endDate=new \Datetime($request->endDate);
+        $sprint->endDate=$endDate->format('Y-m-d 00:00:00');
         $sprint->status=$request->status;
         $sprint->priority=$request->priority;
         $sprint->dependent_sprint_id=$request->dependent_sprint_id;
