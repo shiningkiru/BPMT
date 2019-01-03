@@ -3,10 +3,12 @@
 namespace App;
 
 use App\WeekValidation;
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkTimeTrack extends Model
 {
+    use LogTrait;
     /**
      * The attributes that are mass assignable.
      *

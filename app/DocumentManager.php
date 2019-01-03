@@ -2,10 +2,12 @@
 
 namespace App;
 
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class DocumentManager extends Model
 {
+  use LogTrait;
     /**
      * The attributes that are mass assignable.
      *

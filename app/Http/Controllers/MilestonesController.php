@@ -104,6 +104,7 @@ class MilestonesController extends Controller
     public function create(MilestonesFormRequest $request)
     {
         $helper = new HelperFunctions();
+        try{
         $id=$request->id;
         if(empty($id))
             $milestone=new Milestones();
@@ -143,6 +144,10 @@ class MilestonesController extends Controller
 
         $milestone->save();
         return $milestone;
+    }
+    catch(\Exception $e){
+        return Response::json(['errors'=>['server'=>[$e]]], 400);
+    }
     }
 
      /**

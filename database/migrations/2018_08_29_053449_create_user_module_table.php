@@ -246,7 +246,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('startDate');
                 $table->dateTimeTz('endDate');
                 $table->text('estimatedHours');
-                $table->text('takenHours');
+                $table->text('takenHours')->nullable(true);
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_task_id')->nullable(true);
@@ -267,7 +267,7 @@ class CreateUserModuleTable extends Migration
         Schema::create('task_members', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('estimatedHours');
-                $table->text('takenHours');
+                $table->text('takenHours')->nullable(true);
                 $table->unsignedInteger('task_identification');
                 $table->foreign('task_identification')
                         ->references('id')
@@ -309,7 +309,7 @@ class CreateUserModuleTable extends Migration
         Schema::create('work_time_tracks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('description');
-                $table->text('takenHours');
+                $table->text('takenHours')->nullable(true);
                 $table->date('dateOfEntry');
                 $table->boolean('isUpdated')->default(false);
                 $table->unsignedInteger('task_member_identification');
@@ -390,7 +390,7 @@ class CreateUserModuleTable extends Migration
                 $table->text('urlLink')->nullable(true);
                 $table->boolean('isRead')->default(false);
                 $table->string('notificationType');
-                $table->integer('firstDeletedUser')->nullabale(true);
+                $table->integer('firstDeletedUser')->nullable(true);
                 $table->unsignedInteger('from_user_id');
                 $table->foreign('from_user_id')
                         ->references('id')

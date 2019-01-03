@@ -26,7 +26,6 @@ class ActivityLogRepository extends Repository {
         try{
             $log->save();
         }catch(\Exception $e){
-            
         }
     }
 

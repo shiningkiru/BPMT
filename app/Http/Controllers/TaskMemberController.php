@@ -77,8 +77,6 @@ class TaskMemberController extends Controller
             $taskMember=TaskMember::find($id);
         } 
         $oldTaskMember = clone $taskMember;
-            
-
         $taskMember->estimatedHours=$helper->timeConversion($request->estimatedHour);
 
         

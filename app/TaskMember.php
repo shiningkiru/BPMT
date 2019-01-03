@@ -5,10 +5,12 @@ namespace App;
 use App\User;
 use App\Tasks;
 use App\WorkTimeTrack;
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class TaskMember extends Model
 {
+    use LogTrait;
     /**
      * The attributes that are mass assignable.
      *

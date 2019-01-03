@@ -4,10 +4,12 @@ namespace App;
 
 use App\User;
 use App\WorkTimeTrack;
+use App\Traits\LogTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class WeekValidation extends Model
 {
+  use LogTrait;
     protected $fillable = [
         'weekNumber', 'entryYear', 'status', 'startDate', 'endDate', 'request_time', 'accept_time'
     ];
