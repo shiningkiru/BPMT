@@ -7,6 +7,8 @@ use App\Sprint;
 use App\Milestones;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use App\Repositories\TasksRepository;
+use App\Repositories\SprintRepository;
 use App\Http\Requests\SprintFormRequest;
 
 class SprintController extends Controller
@@ -102,11 +104,31 @@ class SprintController extends Controller
     {
         $helper = new HelperFunctions();
         $id=$request->id;
+        $result['status']=false;
+        $result['sprint']=null;
+        $result['tasks']=[];
+        $processType="new";
         if(empty($id))
             $sprint=new Sprint();
-        else
-            $sprint=Sprint::find($id); 
+        else{
+            $sprint=Sprint::find($id);
+            if(!($sprint instanceof Sprint)){
+                return Response::json(['errors'=>['sprint'=>['Sprint given is invalid']]], 422);
+            }
+            $processType="edit";
+        } 
         $oldSprint = clone $sprint;
+        if($processType == "edit"){
+            if($sprint->status != $request->status && $request->status == 'completed'){
+                $taskRepository= new TasksRepository();
+                $pendingTasks = $taskRepository->findPendingTasksBySprint($sprint)->get();
+                if(sizeof($pendingTasks) > 0){
+                    $result['tasks']=$pendingTasks;
+                    return $result;
+                }
+            }
+        }
+
         $sprint->sprintTitle=$request->sprintTitle;
         $startDate=new \Datetime($request->startDate);
         $sprint->startDate=$startDate->format('Y-m-d 00:00:00');
@@ -138,7 +160,104 @@ class SprintController extends Controller
         //estimated hour calculation end
 
         $sprint->save();
-        return $sprint;
+        $result['status']=true;
+        $result['sprint']=$sprint;
+        return $result;
+    }
+
+    public function completeSprintByTaskComplete(Request $request){
+        $result['status']=false;
+        $result['sprint']=null;
+        $result['tasks']=[];
+        $taskRepository= new TasksRepository();
+        $valid = $taskRepository->validateRules($request->all(), [
+            'sprint_id' => 'required|exists:sprints,id',
+            'status' => 'required|in:created,assigned,onhold,inprogress,completed,cancelled,failed',
+            'tasks' => 'required',
+            'tasks.*.taskId' => 'required|exists:tasks,id'
+        ]);
+        $sprint=Sprint::find($request->sprint_id);
+        foreach($request->tasks as $task){
+            $task = $taskRepository->show($task['taskId']);
+            $task->status="completed";
+            $task->save();
+        }
+        $pendingTasks = $taskRepository->findPendingTasksBySprint($sprint)->get();
+        $result['sprint']=$sprint;
+        $result['tasks']=$pendingTasks;
+        if(sizeof($pendingTasks) == 0){
+            $sprint->status="completed";
+            $sprint->save();
+            $result['status']=true;
+        }
+        return $result;
+    }
+
+
+     /**
+     * @SWG\Post(
+     *      path="/v1/sprint/uncomplete-tasks",
+     *      operationId="uncomplete-tasks",
+     *      tags={"Sprint"},
+     *      summary="Uncomplete task by, sprint_id is required for moving purposs",
+     *      description="Returns Uncomplete task by, sprint_id is required",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns uncomplete sprints
+     */
+    public function getUncompleteSprints(Request $request){
+        $sprintRepository= new SprintRepository();
+        $valid = $sprintRepository->validateRules($request->all(), [
+            'sprint_id' => 'required|exists:sprints,id'
+        ]);
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        $sprint=$sprintRepository->show($request->sprint_id);
+        $pendingSprints = $sprintRepository->findActiveSprint($sprint->milestone_id)->where('sprints.id','<>',$sprint->id)->get();
+        return $pendingSprints;
+    }
+
+    public function moveTaskAndComplete(Request $request) {
+        $result['status']=false;
+        $result['sprint']=null;
+        $result['tasks']=[];
+        $taskRepository = new TasksRepository();
+        $sprintRepository= new SprintRepository();
+        $valid = $taskRepository->validateRules($request->all(), [
+            'sprint_id' => 'required|exists:sprints,id',
+            'to_sprint_id' => 'required|exists:sprints,id',
+            'tasks' => 'required',
+            'tasks.*.taskId' => 'required|exists:tasks,id'
+        ]);
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+
+        $sprint=$sprintRepository->show($request->sprint_id);
+        foreach($request->tasks as $task){
+            $task = $taskRepository->show($task['taskId']);
+            $task->sprint_id = $request->to_sprint_id;
+            $task->save();
+        }
+        $pendingTasks = $taskRepository->findPendingTasksBySprint($sprint)->get();
+        $result['sprint']=$sprint;
+        $result['tasks']=$pendingTasks;
+        if(sizeof($pendingTasks) == 0){
+            $sprint->status="completed";
+            $sprint->save();
+            $result['status']=true;
+        }
+        return $result;
     }
 
      /**
@@ -301,8 +420,10 @@ class SprintController extends Controller
     }
 
     public function getSprintsRelatedToMilestoneByTask(Request $request){
-        $task = Tasks::find($request->task_id);
-        return $task->sprint->milestone->sprints;
+        $task = Tasks::find($request->task_id);//kiran
+        $sprintRepository= new SprintRepository();
+        $pendingSprints = $sprintRepository->findActiveSprint($task->sprint->milestone_id)->get();
+        return $pendingSprints;
     }
 
 

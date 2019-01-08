@@ -10,6 +10,7 @@ use App\WorkTimeTrack;
 use App\WeekValidation;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use Illuminate\Pagination\Paginator;
 use App\Repositories\TasksRepository;
 use App\Http\Requests\WorkTrackRequest;
 use App\Repositories\ProjectRepository;
@@ -444,6 +445,13 @@ class WorkTrackController extends Controller
         $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
         $weekValidationRepository=new WeekValidationRepository();
 
+        if($request->paginated == true){
+            $currentPage = $request->pageNumber;
+            Paginator::currentPageResolver(function () use ($currentPage) {
+                return $currentPage;
+            });
+        }
+        
         $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
                         ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
                         ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
@@ -456,8 +464,13 @@ class WorkTrackController extends Controller
                                 ->orWhere('tasks.status', '=', "onhold")
                                 ->orWhere('tasks.status', '=', "inprogress");
                         })
-                        ->orderBy('task_members.created_at', 'DESC')
-                        ->get();
+                        ->orderBy('task_members.created_at', 'DESC');
+        if($request->paginated == true){
+            $tasks = $tasks->paginate(25);
+        }else {
+            $tasks = $tasks->get();
+        }
+
         foreach($tasks as $task){
             $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')
                                 ->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')
@@ -515,7 +528,7 @@ class WorkTrackController extends Controller
      *
      * Returns All Assigned task list
      */
-    public function getAllAssignedTasksOnProject(Request $request){
+    public function getAllAssignedTasksOnProject(Request $request){dd(1);
         $user = \Auth::user();
         $id=$user->id;
         $helper = new HelperFunctions();
@@ -526,6 +539,7 @@ class WorkTrackController extends Controller
         $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
 
         $project = Project::find($projectId);
+
 
         $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
                         ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
@@ -604,14 +618,25 @@ class WorkTrackController extends Controller
         $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
 
 
+        if($request->paginated == true){
+            $currentPage = $request->pageNumber;
+            Paginator::currentPageResolver(function () use ($currentPage) {
+                return $currentPage;
+            });
+        }
+
         $tasks = Tasks::leftJoin('task_members','task_members.task_identification','=','tasks.id')
                         ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
                         ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
                         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
                         ->select('projects.id as projectId', 'projects.projectName', 'tasks.id as taskId', 'tasks.taskName', 'tasks.description', 'tasks.startDate as taskStartDate', 'tasks.endDate as taskEndDate', 'tasks.estimatedHours as taskEstimatedHours', 'tasks.takenHours as taskTakenHours', 'tasks.status as taskStatus', 'tasks.priority as taskPriority', 'task_members.estimatedHours as hoursAssigned', 'task_members.takenHours as hoursUsed')
                         ->where('task_members.member_identification','=',$id)
-                        ->orderBy('task_members.created_at', 'DESC')
-                        ->get();
+                        ->orderBy('task_members.created_at', 'DESC');
+        if($request->paginated == true){
+            $tasks = $tasks->paginate(25);
+        }else {
+            $tasks = $tasks->get();
+        }
         foreach($tasks as $task){
             $logs=WorkTimeTrack::leftJoin('task_members','task_members.id','=','task_member_identification')
                                 ->select('work_time_tracks.id', 'work_time_tracks.description', 'work_time_tracks.takenHours','work_time_tracks.dateOfEntry','work_time_tracks.isUpdated')

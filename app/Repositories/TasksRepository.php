@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\Tasks;
+use App\Sprint;
 use App\Repositories\Master\Repository;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,5 +32,15 @@ class TasksRepository extends Repository {
                         ->get();
         
         return $tasks;
+    }
+
+    public function findPendingTasksBySprint(Sprint $sprint){
+        return $this->model->where(function($q){
+                                $q->where('tasks.status', '=', "created")
+                                    ->orWhere('tasks.status', '=', "assigned")
+                                    ->orWhere('tasks.status', '=', "onhold")
+                                    ->orWhere('tasks.status', '=', "inprogress");
+                            })
+                            ->where('tasks.sprint_id','=',$sprint->id);
     }
 }

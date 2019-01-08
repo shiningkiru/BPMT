@@ -145,7 +145,7 @@ class TaskMemberController extends Controller
         return $members;
     }
 
-   /**
+   /*
      * @SWG\Get(
      *      path="/v1/task-member/current-assigned-tasks",
      *      operationId="task current assigned get",
@@ -168,7 +168,7 @@ class TaskMemberController extends Controller
      *     )
      *
      * Returns current Assigned task list
-     */
+     
     public function getCurrentAssignedTasks(){
         $user = \Auth::user();
         $id=$user->id;
@@ -184,7 +184,7 @@ class TaskMemberController extends Controller
                     ->orderBy('task_members.created_at', 'DESC')
                     ->get();
         return $tasks;
-    }
+    }*/
 
     /**
      * @SWG\Get(

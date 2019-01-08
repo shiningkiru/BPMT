@@ -5,7 +5,7 @@
         "description": "Project management operations",
         "version": "1.0.0"
     },
-    "host": "127.0.0.1:8000",
+    "host": "http://my-default-host.com",
     "basePath": "/api/",
     "schemes": [
         "http",
@@ -2310,6 +2310,36 @@
                 "summary": "Project list of assigned to logged in user",
                 "description": "Returns Project list of assigned to logged in user",
                 "operationId": "project-assigned",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "authorization header",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/v1/project/project-code/{type}": {
+            "get": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project code for the Employee (type=internal/external)",
+                "description": "Returns Project code for the Employee",
+                "operationId": "project-code",
                 "parameters": [
                     {
                         "name": "Authorization",

@@ -143,8 +143,13 @@ class TaskController extends Controller
         $task->sprint_id=$request->sprint_id;
         $task->dependent_task_id=$request->dependent_task_id;        
         
-        //estimated hour calculation
         $sprint=Sprint::find($request->sprint_id);
+
+        if($sprint->status == 'completed' || $sprint->status == 'cancelled' || $sprint->status == 'failed'){
+            return Response::json(['errors'=>['sprint'=>['You can not add new tasks. Sprint is closed.']]], 422);
+        }
+
+        //estimated hour calculation
         $taskTotal = Tasks::where('sprint_id','=',$sprint->id)->selectRaw('estimatedHours')->get();
         $total=0;
         foreach($taskTotal as $tsk){
@@ -273,7 +278,7 @@ class TaskController extends Controller
 
     public function showUsers($id)
     {
-        $tasks = Tasks::where('sprint_id','=',$id)->select('tasks.id','tasks.taskName', 'tasks.description', 'tasks.startDate', 'tasks.endDate', 'tasks.priority', 'tasks.status')->get();
+        $tasks = Tasks::where('sprint_id','=',$id)->select('tasks.id','tasks.taskName','tasks.estimatedHours', 'tasks.description', 'tasks.startDate', 'tasks.endDate', 'tasks.priority', 'tasks.status')->get();
         foreach($tasks as $task){
             $users = User::leftJoin('task_members', 'task_members.member_identification','=', 'users.id')->where('task_members.task_identification', '=', $task->id)->select( 'users.id', 'users.profilePic', 'users.firstName')->get();
             $task['users']=$users;
@@ -352,67 +357,67 @@ class TaskController extends Controller
      */
     public function totalTasks($id){
         $tasks = Tasks::leftjoin('sprints','sprints.id','=','sprint_id')
-        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-        ->where('projects.id','=',$id)
-        ->selectRaw('COUNT(tasks.id) as total_tasks, SUM(IF(tasks.status="completed",1,0)) as completed_tasks')
-        ->get();
+            ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+            ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+            ->where('projects.id','=',$id)
+            ->selectRaw('COUNT(tasks.id) as total_tasks, SUM(IF(tasks.status="completed",1,0)) as completed_tasks')
+            ->get();
         return $tasks[0];
     }
 
     public function showChart($id, $status)
     {
         if($status=='none')
-        {
-        $chartData=[];
-        $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
-        ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-        ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-        ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
-        ->where('projects.id','=',$id)->get();
-        $chartData['list']=$chart;
-       return $chartData;
+            {
+            $chartData=[];
+            $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+                ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+                ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
+                ->where('projects.id','=',$id)->get();
+            $chartData['list']=$chart;
+            return $chartData;
         }else {
-       $chartData=[];
-       $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
-       ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-       ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-       ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
-       ->where('projects.id','=',$id)
-       ->where('tasks.status','=', $status)->get();
-       $chartData['list']=$chart;
-       return $chartData;
+            $chartData=[];
+            $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+                ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+                ->select('tasks.id','tasks.estimatedHours', 'tasks.takenHours','tasks.taskName','tasks.sprint_id')
+                ->where('projects.id','=',$id)
+                ->where('tasks.status','=', $status)->get();
+            $chartData['list']=$chart;
+            return $chartData;
+        }
     }
-}
 
-public function directProjectChart($id)
-{
-    $projectData=[];
-    $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
-    ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
-    ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
-    ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
-    ->leftJoin('users','task_members.member_identification','=','users.id')
-    ->select('tasks.id', 'tasks.takenHours','tasks.taskName','tasks.sprint_id','users.firstName')
-    ->where('projects.id','=',$id)->get();
-    $projectData['projectList']=$chart;
-   return $projectData;
-}
-
-
-public function getSprintEstimatedHoursTotal(Sprint $id){
-    $helper = new HelperFunctions();
-    $taskTotal = Tasks::where('sprint_id','=',$id->id)->selectRaw('estimatedHours')->get();
-    $total=0;
-    foreach($taskTotal as $tsk){
-        $total = $total + (int)$helper->timeToSec($tsk['estimatedHours']);
+    public function directProjectChart($id)
+    {
+        $projectData=[];
+        $chart=Tasks::leftJoin('sprints','sprints.id','=','sprint_id')
+            ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+            ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+            ->leftJoin('task_members','task_members.task_identification','=','tasks.id')
+            ->leftJoin('users','task_members.member_identification','=','users.id')
+            ->select('tasks.id', 'tasks.takenHours','tasks.taskName','tasks.sprint_id','users.firstName')
+            ->where('projects.id','=',$id)->get();
+        $projectData['projectList']=$chart;
+    return $projectData;
     }
-    
-    $sprintEstimatedHours = $helper->timeToSec($id->estimatedHours);
-    $result['remaining'] =$helper->secToTime($sprintEstimatedHours - $total);
-    $result['totalUsed'] =$helper->secToTime($total);        
-    $result['sprintHours'] =$id->estimatedHours;
 
-    return $result;
-}
+
+    public function getSprintEstimatedHoursTotal(Sprint $id){
+        $helper = new HelperFunctions();
+        $taskTotal = Tasks::where('sprint_id','=',$id->id)->selectRaw('estimatedHours')->get();
+        $total=0;
+        foreach($taskTotal as $tsk){
+            $total = $total + (int)$helper->timeToSec($tsk['estimatedHours']);
+        }
+        
+        $sprintEstimatedHours = $helper->timeToSec($id->estimatedHours);
+        $result['remaining'] =$helper->secToTime($sprintEstimatedHours - $total);
+        $result['totalUsed'] =$helper->secToTime($total);        
+        $result['sprintHours'] =$id->estimatedHours;
+
+        return $result;
+    }
 }

@@ -130,6 +130,9 @@ Route::prefix('v1')->group(function () {
     //Sprint routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('sprint/milestone-estimatedhours-stat/{id}', 'SprintController@getMilestoneEstimatedHoursTotal');
+        Route::post('sprint/complete-all-task/status-complete', 'SprintController@completeSprintByTaskComplete');
+        Route::post('sprint/uncomplete-tasks', 'SprintController@getUncompleteSprints');
+        Route::post('sprint/set-complet/by-move-task', 'SprintController@moveTaskAndComplete');
         Route::get('sprint/by-milestone/{id}', 'SprintController@index');
         Route::post('sprint', 'SprintController@create');
         Route::delete('sprint/{id}', 'SprintController@delete');
@@ -154,7 +157,7 @@ Route::prefix('v1')->group(function () {
    
     //Task member routes
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::get('task-member/current-assigned-tasks', 'TaskMemberController@getCurrentAssignedTasks');
+        // Route::get('task-member/current-assigned-tasks', 'TaskMemberController@getCurrentAssignedTasks');
         Route::get('task-member/all-assigned-tasks', 'TaskMemberController@getAllAssignedTasks');
         Route::get('task-member/{id}', 'TaskMemberController@getAssignedMembers');
         Route::post('task-member', 'TaskMemberController@addMember');
