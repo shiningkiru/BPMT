@@ -1,7 +1,9 @@
 <?php
 namespace App\Helpers;
 use App\User;
+use App\Sprint;
 use App\Project;
+use App\Milestones;
 use App\TaskMember;
 use App\ProjectTeam;
 use App\Repositories\ProjectRepository;
@@ -164,5 +166,42 @@ class HelperFunctions{
         $t = round($seconds);
         return sprintf('%d:%02d:%02d', ($t/3600),($t/60%60), $t%60);
     }
- }
+
+    public function sprintTakenHourUpdate($sprintId){
+        $sprint = Sprint::find($sprintId);
+        $tasks = $sprint->tasks;
+        $total = 0;
+
+        foreach($tasks as $task){
+            $total+=$this->timeToSec($task->takenHours);
+        }
+        $sprint->takenHours=$this->timeConversion($this->secToTime($total));
+        $sprint->save();
+        $this->milestoneTakenHoursUpdate($sprint->milestone_id);
+    }
+
+    public function milestoneTakenHoursUpdate($milestoneId){
+        $milestone = Milestones::find($milestoneId);
+        $sprints=$milestone->sprints;
+        $total=0;
+        foreach($sprints as $sprint){
+            $total+=$this->timeToSec($sprint->takenHours);
+        }
+        $milestone->takenHours=$this->timeConversion($this->secToTime($total));
+        $milestone->save();
+        $this->projectTakenHoursUpdate($milestone->project_milestone_id);
+    }
+
+    public function projectTakenHoursUpdate($projectId){
+        $project = Project::find($projectId);
+        $milestones=$project->milestones;
+        $total=0;
+        foreach($milestones as $milestone){
+            $total+=$this->timeToSec($milestone->takenHours);
+        }
+        $project->takenHours=$this->timeConversion($this->secToTime($total));
+        $project->save();
+    }
+}
+
 ?>

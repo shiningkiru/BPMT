@@ -9,6 +9,8 @@ use App\TaskMember;
 use App\WorkTimeTrack;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
+use Illuminate\Pagination\Paginator;
+use App\Repositories\TasksRepository;
 use App\Http\Requests\TaskMemberRequest;
 use App\Repositories\NotificationRepository;
 
@@ -67,7 +69,7 @@ class TaskMemberController extends Controller
    *
    * Returns Updated  Task member
    */
-    public function addMember(TaskMemberRequest $request){
+    public function addMember(TaskMemberRequest $request) {
         $helper = new HelperFunctions();
         $id=$request->id;
         if(empty($id)){
@@ -261,37 +263,47 @@ class TaskMemberController extends Controller
     }
 
     public function employeeWorkReport(Request $request){
-        // $user = \Auth::user();
-        // $id=$user->id;
         $helper = new HelperFunctions();
-        $projectstart= date('Y-m-d',strtotime($request->get('dateOfEntry'))); 
-        $projectend= date('Y-m-d',strtotime($request->get('endDate')));
-       
-        $taskReport=WorkTimeTrack::leftJoin('task_members','task_members.id','=','work_time_tracks.task_member_identification')
-                            ->leftJoin('tasks','tasks.id','=','task_members.task_identification')
+        $taskRepository = new TasksRepository();
+        $valid = $taskRepository->validateRules($request->all(), [
+            'dateOfEntry' => 'required|date',
+            'endDate' => 'required|date'
+        ]);
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        $startDate = new \Datetime($request->dateOfEntry);
+        $endDate = new \Datetime($request->endDate);
+
+        $currentPage = $request->pageNumber;
+        Paginator::currentPageResolver(function () use ($currentPage) {
+            return $currentPage;
+        });
+        $taskList = Tasks::leftJoin('task_members','tasks.id','=','task_members.task_identification')
+                            ->leftJoin('work_time_tracks','work_time_tracks.task_member_identification','=','task_members.id')
                             ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
                             ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
                             ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
                             ->leftJoin('users','task_members.member_identification','=','users.id')
-                            ->groupBy('users.firstName', 'projects.projectName','tasks.taskName')
-                            ->selectRaw('SUM(TIME_TO_SEC(work_time_tracks.takenHours)) as total,users.firstName, users.profilePic, projects.projectName, task_members.estimatedHours, task_members.takenHours, tasks.taskName, tasks.status, work_time_tracks.dateOfEntry,work_time_tracks.takenHours');
-                            if (!empty($request->get('projectName')))
-        $taskReport->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
-        if (!empty($request->get('firstName')))
-        $taskReport->where('users.firstName', 'like', '%'. $request->get('firstName').'%');  
-        if (!empty($request->get('dateOfEntry')) && !empty($request->get('endDate')))
-        $taskReport->WhereBetween('work_time_tracks.dateOfEntry', [$projectstart,$projectend]);
-        if (!empty($request->get('dateOfEntry')) && empty($request->get('endDate')))
-        $taskReport->where('work_time_tracks.dateOfEntry','=',$projectstart);                  
-        $report= $taskReport->get();    
-               
-        // $rpt=0;
-        // foreach($report as $rpt):   
-        //   $memberTakenHours=  $helper->timeConversion((empty($report[0]->takenHours))?00:$report[0]->takenHours);
-        //   $rpt['list']=$memberTakenHours;
-        //   $teamData[]=$rpt++;
-                
-        // endforeach;
-        return $report;   
+                            ->selectRaw('projects.projectName,users.id as userId, users.firstName, users.lastName, users.profilePic, tasks.taskName, tasks.status, task_members.estimatedHours, task_members.takenHours, task_members.id as taskMemberId')
+                            ->groupBy('projects.projectName', 'tasks.taskName','users.id')
+                            ->WhereBetween('work_time_tracks.dateOfEntry', [$startDate,$endDate]);
+        if($request->projectName != null){
+            $taskList = $taskList->where('projects.projectName','LIKE','%'.$request->projectName."%");
+        }
+        if($request->firstName != null){
+            $taskList = $taskList->where('users.firstName','LIKE','%'.$request->firstName."%");
+        }
+        $taskList=$taskList->paginate(20);
+        foreach($taskList as $task){
+            $WorkTimeTrack = WorkTimeTrack::where('task_member_identification','=',$task->taskMemberId)
+                                ->WhereBetween('work_time_tracks.dateOfEntry', [$startDate,$endDate])
+                                ->selectRaw('work_time_tracks.takenHours')
+                                ->get();
+            $total=0;
+            foreach($WorkTimeTrack as $track){
+                $total += $helper->timeToSec($track->takenHours);
+            }
+            $task['workedHours']=$helper->timeConversion($helper->secToTime($total));
+        }
+        return $taskList;   
     }
 }
