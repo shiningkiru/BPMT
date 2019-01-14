@@ -17,7 +17,8 @@ class NotificationRepository extends Repository {
     }
 
     public function sendNotification(User $from_user, User $to_user, $message, $notification_type, $linkId=null){
-        $notification = new Notification();
+        try{
+            $notification = new Notification();
         $notification->title = $message;
         $notification->notificationType=$notification_type;
         $notification->linkId = $linkId;
@@ -25,6 +26,9 @@ class NotificationRepository extends Repository {
         $notification->to_user_id=$to_user->id;
         $notification->save();
         Event::fire(new NotificationFired($to_user->id));
+        }catch(\excpetion $e){
+            dd($e);
+        }
     }
 
     public function getReceivedNotification($user_id, $limit){
