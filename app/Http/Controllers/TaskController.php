@@ -154,13 +154,11 @@ class TaskController extends Controller
         $estimatedHours=$helper->timeToSec($request->estimatedHours);
         $oldEstimatedHours=$helper->timeToSec($oldTask->estimatedHours ?? 00);
         $sprintEstimatedHour = $helper->timeToSec($sprint->estimatedHours);
-        $total = (int)$totalSeconds + (int)$estimatedHours - (int)$oldEstimatedHours; 
-        
+        $total = (int)$totalSeconds + (int)$estimatedHours - (int)$oldEstimatedHours;         
         if($total > $sprintEstimatedHour){
             return Response::json(['errors'=>['estimatedHours'=>['Estimated limit crossed']]], 422);
         }
         //estimated hour calculation end
-
         $task->save();
 
         if($oldTask->status != $task->status){
@@ -412,7 +410,6 @@ public function getSprintEstimatedHoursTotal(Sprint $id){
     $result['remaining'] =$helper->secToTime($sprintEstimatedHours - $total);
     $result['totalUsed'] =$helper->secToTime($total);        
     $result['sprintHours'] =$id->estimatedHours;
-
     return $result;
 }
 }

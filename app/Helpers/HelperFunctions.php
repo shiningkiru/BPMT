@@ -139,11 +139,8 @@ class HelperFunctions{
     }
 
     public function timeToSec($time){
-        
         $timeArray=explode(":", $time);
-        
         $totalTime = $timeArray[0] * 3600;
-
         if(array_key_exists(1, $timeArray))
             $totalTime+= $timeArray[1]*60;
         if(array_key_exists(2, $timeArray))

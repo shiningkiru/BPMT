@@ -405,16 +405,14 @@ class ProjectController extends Controller
 
     public function setProjectStatus(Request $request)
     {
-        $projectRepository=new ProjectRepository();
-        $valid = $projectRepository->validateRules($request->all(), [
-            'project_id' => 'required|exists:projects,id',
-            'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled'
-        ]);
+    $projectRepository=new ProjectRepository();
+    $valid = $projectRepository->validateRules($request->all(), [
+    'project_id' => 'required|exists:projects,id',
+    'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled'
+    ]);
 
-        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
-        
-        return $projectRepository->updateProjectStatus($request->project_id,$request->status);
-        
+    if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+    return $projectRepository->updateProjectStatus($request->project_id,$request->status);    
     }
 
     /**
