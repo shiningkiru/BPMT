@@ -137,7 +137,6 @@ class TaskController extends Controller
         $endDate=new \Datetime($request->endDate);
         $task->endDate=$endDate->format('Y-m-d 00:00:00');
         $task->estimatedHours=$helper->timeConversion($request->estimatedHours);
-        $task->takenHours=$helper->timeConversion($request->takenHours ?? 00);
         $task->status=$request->status;
         $task->priority=$request->priority;
         $task->sprint_id=$request->sprint_id;

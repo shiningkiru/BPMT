@@ -330,15 +330,12 @@ class SprintController extends Controller
 
     public function index($id)
     {
-        // $sprint = Sprint::where('milestone_id','=',$id)->get();
-        // return $sprint;
-
         $sprint = Sprint::leftjoin('tasks','sprint_id','=','sprints.id')
         ->leftJoin('milestones','milestones.id','=','milestone_id')
         ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
         ->where('milestone_id','=',$id)
-        ->selectRaw('sprints.id,sprints.sprintTitle,sprints.startDate,sprints.endDate,sprints.status,sprints.priority,sprints.estimatedHours,ifnull(count(tasks.id),0) as total_tasks')
-        ->groupBy('sprints.id','sprints.sprintTitle','sprints.startDate','sprints.endDate','sprints.status','sprints.priority','sprints.estimatedHours')
+        ->selectRaw('sprints.id,sprints.sprintTitle,sprints.startDate,sprints.endDate,sprints.status,sprints.priority,sprints.estimatedHours,sprints.takenHours,count(tasks.id) as total_tasks')
+        ->groupBy('sprints.id','sprints.sprintTitle','sprints.startDate','sprints.endDate','sprints.status','sprints.priority','sprints.estimatedHours','sprints.takenHours')
         ->get();
         return  $sprint; 
     } 

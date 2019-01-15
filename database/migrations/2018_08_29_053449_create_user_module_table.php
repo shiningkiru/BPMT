@@ -139,6 +139,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->string('budget')->nullable(true);
                 $table->text('estimatedHours');
+                $table->text('takenHours')->nullable(true);
                 $table->enum('projectCategory', ['internal', 'external'])->default('internal');
                 $table->enum('projectType', ['support', 'service'])->default('service');
                 $table->enum('status', ['new', 'received', 'pending', 'started', 'in-progress', 'on-hold', 'completed', 'cancelled']);
@@ -201,6 +202,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);
                 $table->text('estimatedHours');
+                $table->text('takenHours')->nullable(true);
                 $table->float('progress')->default(0.0);
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
                 $table->unsignedInteger('dependent_milestone_id')->nullable(true);
@@ -223,6 +225,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('startDate');
                 $table->dateTimeTz('endDate');
                 $table->text('estimatedHours');
+                $table->text('takenHours')->nullable(true);
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_sprint_id')->nullable(true);

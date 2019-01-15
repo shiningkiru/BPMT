@@ -79,51 +79,54 @@ class WorkTrackController extends Controller
     * Returns success message
     */
     public function addMyTime(WorkTrackRequest $request){
-        $task=Tasks::find($request->task_id); 
-        $helper=new HelperFunctions();
-        $date=new \Datetime($request->entryDate);
-        $weekDetails=$helper->getYearWeekNumber($date);
-        $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
-        $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('task_member_identification','=',$taskMember->id)->first();
-        
-        $takenHour = $helper->timeToSec($helper->timeConversion($request->takenHours) ?? 00);
-        $taskTaken = $helper->timeToSec($helper->timeConversion($task->takenHours));
-        $taskMemberTaken = $helper->timeToSec($helper->timeConversion((empty($taskMember->takenHours))?00:$taskMember->takenHours));
-        
-         if(!($workTrack instanceof WorkTimeTrack)){
-            $workTrack=new WorkTimeTrack();
-            $workTrack->dateOfEntry=$date;
-            $workTrack->task_member_identification=$taskMember->id;
+        \DB::transaction(function() use ($request){
+            $task=Tasks::find($request->task_id);  
+            $helper=new HelperFunctions();
+            $date=new \Datetime($request->entryDate);
+            $weekDetails=$helper->getYearWeekNumber($date);
+            $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
+            $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('task_member_identification','=',$taskMember->id)->first();
+            
+            $takenHour = $helper->timeToSec($helper->timeConversion($request->takenHours) ?? 00);
+            $taskTaken = $helper->timeToSec($helper->timeConversion($task->takenHours));
+            $taskMemberTaken = $helper->timeToSec($helper->timeConversion((empty($taskMember->takenHours))?00:$taskMember->takenHours));
+            
+            if(!($workTrack instanceof WorkTimeTrack)){
+                $workTrack=new WorkTimeTrack();
+                $workTrack->dateOfEntry=$date;
+                $workTrack->task_member_identification=$taskMember->id;
 
-            $weekValidationRepository = new WeekValidationRepository();
-            $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year'])->first();
-            if(!($weekValidation instanceof WeekValidation)){
-                $weekValidation= new WeekValidation();
-                $dateGap=$helper->getStartAndEndDate($date);
-                $weekValidation->weekNumber=$weekDetails['week'];
-                $weekValidation->entryYear=$weekDetails['year'];
-                $weekValidation->user_id=$request->user_id;
-                $weekValidation->startDate = $dateGap[0];
-                $weekValidation->endDate = $dateGap[1];
-                $weekValidation->save();
+                $weekValidationRepository = new WeekValidationRepository();
+                $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year'])->first();
+                if(!($weekValidation instanceof WeekValidation)){
+                    $weekValidation= new WeekValidation();
+                    $dateGap=$helper->getStartAndEndDate($date);
+                    $weekValidation->weekNumber=$weekDetails['week'];
+                    $weekValidation->entryYear=$weekDetails['year'];
+                    $weekValidation->user_id=$request->user_id;
+                    $weekValidation->startDate = $dateGap[0];
+                    $weekValidation->endDate = $dateGap[1];
+                    $weekValidation->save();
+                }
+                $workTrack->week_number=$weekValidation->id;
+            }else{
+                $workTrackTaken = $helper->timeToSec($helper->timeConversion($workTrack->takenHours));
+                $taskTaken-= $workTrackTaken;
+                $taskMemberTaken-= $workTrackTaken;
+                $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken)); 
+                $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken ));
             }
-            $workTrack->week_number=$weekValidation->id;
-        }else{
-            $workTrackTaken = $helper->timeToSec($helper->timeConversion($workTrack->takenHours));
-            $taskTaken-= $workTrackTaken;
-            $taskMemberTaken-= $workTrackTaken;
-            $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken)); 
-            $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken ));
-        }
-        $workTrack->takenHours=$helper->timeConversion($request->takenHours);
-        $workTrack->description=$request->description;
-        
-        $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken + $takenHour));
-        $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken + $takenHour));
-        $workTrack->save();
-        $taskMember->save();
-        $task->save();
-        return $workTrack;
+            $workTrack->takenHours=$helper->timeConversion($request->takenHours);
+            $workTrack->description=$request->description;
+            
+            $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken + $takenHour));
+            $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken + $takenHour));
+            $workTrack->save();
+            $taskMember->save();
+            $task->save();
+            $helper->sprintTakenHourUpdate($task->sprint_id);
+            return $workTrack;
+        });
     }
 
     /**

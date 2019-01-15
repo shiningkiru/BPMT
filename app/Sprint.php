@@ -15,7 +15,7 @@ class Sprint extends Model
      * @var array
      */
     protected $fillable = [
-        'sprintTitle', 'startDate', 'endDate', 'status', 'estimatedHours', 'priority'
+        'sprintTitle', 'startDate', 'endDate', 'status', 'estimatedHours', 'takenHours', 'priority'
     ];
 
     /**

@@ -16,7 +16,7 @@ class Milestones extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'description', 'startDate', 'endDate', 'estimatedHours', 'progress', 'status'
+        'title', 'description', 'startDate', 'endDate', 'estimatedHours', 'takenHours', 'progress', 'status'
     ];
 
 

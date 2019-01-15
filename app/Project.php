@@ -15,7 +15,7 @@ class Project extends Model
      * @var array
      */
     protected $fillable = [
-        'projectName', 'description', 'projectCode', 'projectCategory', 'startDate', 'endDate', 'budget', 'status'
+        'projectName', 'description', 'projectCode','estimatedHours', 'takenHours', 'projectCategory', 'startDate', 'endDate', 'budget', 'status'
     ];
 
     /**
