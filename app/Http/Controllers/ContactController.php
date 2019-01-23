@@ -50,7 +50,10 @@ class ContactController extends MasterController
        $contact->streetNo=$request->streetNo;
        $contact->postalCode=$request->postalCode;
        $contact->city=$request->city;
-       $contact->country=$request->country;
+       $contact->country=$request->country; 
+       $contact->dateOfBirth=new \Datetime($request->dateOfBirth); 
+       $contact->interests=$request->interests; 
+       $contact->updates=$request->updates; 
        $contact->status=$request->status;
        $contact->contact_customer_id=$request->contact_customer_id;
        try {
