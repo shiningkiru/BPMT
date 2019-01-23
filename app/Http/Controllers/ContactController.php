@@ -44,6 +44,7 @@ class ContactController extends MasterController
        $contact->firstName=$request->firstName;
        $contact->lastName=$request->lastName;
        $contact->email=$request->email;
+       $contact->mobile=$request->mobile;
        $contact->streetNo=$request->streetNo;
        $contact->postalCode=$request->postalCode;
        $contact->city=$request->city;
