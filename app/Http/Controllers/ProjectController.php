@@ -389,8 +389,8 @@ class ProjectController extends Controller
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
         if (!empty($request->get('status')))
             $projects->where('projects.status', $request->get('status'));
-        if (!empty($request->get('name')))
-            $projects->where('customers.name', 'like', '%'.$request->get('name').'%');
+        if (!empty($request->get('customer_name')))
+            $projects->where('customers.company', 'like', '%'.$request->get('customer_name').'%');
         if (!empty($request->get('startDate')) && !empty($request->get('endDate')))
             $projects->WhereBetween('projects.startDate', [$projectstart,$projectend]);
         if (!empty($request->get('startDate')) && empty($request->get('endDate')))
