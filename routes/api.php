@@ -81,10 +81,36 @@ Route::prefix('v1')->group(function () {
  
     //client routes
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::get('client/{id}', 'ClientController@show');
-        Route::get('client', 'ClientController@index');
-        Route::post('client', 'ClientController@create');
-        Route::delete('client/{id}', 'ClientController@delete');
+        Route::get('customer/{id}', 'CustomerController@show');
+        Route::post('customer/change-status', 'CustomerController@changeStatus');
+        Route::post('customer/change-responsible-person', 'CustomerController@changeResponsiblePersons');
+        Route::get('customer', 'CustomerController@index');
+        Route::post('customer', 'CustomerController@create');
+        Route::delete('customer/{id}', 'CustomerController@delete');
+    });
+
+    //contacts routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('contact/by-customer', 'ContactController@getByCustomer');
+        Route::delete('contact/{id}', 'ContactController@delete');
+        Route::get('contact/{id}', 'ContactController@get');
+        Route::post('contact', 'ContactController@addContact');
+    });
+
+    //todo routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('todo/by-related', 'TodoController@getByRelated');
+        Route::delete('todo/{id}', 'TodoController@delete');
+        Route::get('todo/{id}', 'TodoController@get');
+        Route::post('todo', 'TodoController@addTodo');
+    });
+
+    //opportunity routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('opportunity/by-related', 'CustomerOpprtunityController@getByRelated');
+        Route::delete('opportunity/{id}', 'CustomerOpprtunityController@delete');
+        Route::get('opportunity/{id}', 'CustomerOpprtunityController@get');
+        Route::post('opportunity', 'CustomerOpprtunityController@addOpportunity');
     });
 
      //Project routes
@@ -96,7 +122,7 @@ Route::prefix('v1')->group(function () {
         Route::get('project', 'ProjectController@index');
         Route::get('project/assigned', 'ProjectController@assignedPrjects');
         Route::get('project/{id}', 'ProjectController@show');
-        Route::get('project/by-client/{id}', 'ProjectController@byClient');
+        Route::get('project/by-customer/{id}', 'ProjectController@byCustomer');
         Route::delete('project/{id}', 'ProjectController@delete');
         Route::post('project/search-project', 'ProjectController@searchproject');
         Route::post('project-team', 'ProjectTeamController@create');
@@ -187,7 +213,7 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('access-previlege', 'AccessPrevilegesController@updatePrevilages');
         Route::get('access-previlege', 'AccessPrevilegesController@getAllAccessPrevileges');
-        Route::get('access-previlege/user', 'AccessPrevilegesController@getAccessForUser');
+        Route::get('access-previlege/user', 'AccessPrevilegesController@getAccessForUser'); 
     });
 
     //Document Manager routes

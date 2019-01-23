@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\User;
 use Validator;
 use App\Sprint;
+use App\Project;
+use App\Customer;
 use App\Milestones;
 use App\MassParameter;
 use App\Repositories\SprintRepository;
@@ -109,6 +111,24 @@ class AppServiceProvider extends ServiceProvider
             }
             return true;
         }, 'Can not add another sprint before completing previous one.');
+
+
+        Validator::extend('todo_link_id', function($attribute, $value, $parameters)
+        { 
+            $relatedTo = $parameters[0];
+            if($relatedTo == 'customer'){
+                $customer = Customer::find($value);
+                if(!($customer) instanceof Customer)
+                    return false;
+            }elseif($relatedTo == 'project'){
+                $project = Project::find($value);
+                if(!($project) instanceof Project)
+                    return false;
+            }
+
+            return true;
+
+        }, 'Invalid link id provided');
     }
 
     /**

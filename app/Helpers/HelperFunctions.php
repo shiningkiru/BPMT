@@ -3,6 +3,7 @@ namespace App\Helpers;
 use App\User;
 use App\Sprint;
 use App\Project;
+use App\Customer;
 use App\Milestones;
 use App\TaskMember;
 use App\ProjectTeam;
@@ -37,7 +38,7 @@ class HelperFunctions{
             'sprint', 
             'task', 
             'project_team', 
-            'client', 
+            'customer', 
             'user', 
             'my_task', 
             'time_sheet', 
@@ -111,6 +112,15 @@ class HelperFunctions{
         return $timeGaps;
     }
 
+    public function getMonthStartEndDate($date){
+        $date=new \Datetime();
+        $first_day_this_month = $date->format('m-01-Y'); // hard-coded '01' for first day
+        $last_day_this_month  = $date->date('m-t-Y');
+        $gap[0]=$first_day_this_month;
+        $gap[1]=$last_day_this_month;
+        return $gap;
+    }
+
     public function getYearWeekNumber($date){
         $year=$date->format("Y");
         $week = $date->format("W");
@@ -138,6 +148,23 @@ class HelperFunctions{
         $lastRecord=Project::where("projectCategory",'=',$type)->orderby('id', 'desc')->first();
         $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
         return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
+    }
+
+    public function getCustomerNumber(){
+        $digits = 5;
+        $prefix = "CUST-";
+        $lastRecord=Customer::orderby('id', 'desc')->first();
+        $currentCode = (($lastRecord)?(explode("-", $lastRecord->customerNumber))[1]:0) + 1;
+        $flag = true;
+        $number=$prefix."00001";
+        while($flag){
+            $number = $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT);
+            $check = Customer::where('customerNumber','=',$number)->first();
+            if(!($check instanceof Customer)){
+                $flag=false;
+            }
+        }
+        return $number;
     }
 
     public function timeToSec($time){

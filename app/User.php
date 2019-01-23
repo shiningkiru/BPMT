@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Customer;
 use App\WeekValidation;
 use App\Traits\LogTrait;
 use Illuminate\Notifications\Notifiable;
@@ -77,6 +78,14 @@ class User extends Authenticatable
     public function weekValidation()
     {
         return $this->hasMany(WeekValidation::class, 'user_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function handlingCustomer()
+    {
+        return $this->hasMany(Customer::class, 'responsible_user_id');
     }
 
     /**

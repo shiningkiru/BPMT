@@ -29,7 +29,7 @@ class ProjectFormRequest extends FormRequest
             'projectCode' => 'unique:projects,projectCode,'.$this->request->get('id'),
             'status' => 'required|in:received,pending,started,in-progress,on-hold,completed,cancelled,new',
             'company_id' => 'required|exists:companies,id',
-            'client_project_id' => 'required|exists:clients,id',
+            'customer_project_id' => 'required|exists:customers,id',
             'project_lead_id' => 'required|exists:users,id',
             'projectCategory' =>'required|in:internal,external',
             'projectType' =>'required|in:service,support',

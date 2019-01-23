@@ -107,28 +107,90 @@ class CreateUserModuleTable extends Migration
         });
 
 
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('name');
-                $table->string('mobileNumber');
-                $table->string('secondaryMobileNumber')->nullable(true);
-                $table->string('email');
-                $table->string('secondaryEmail')->nullable(true);
-                $table->string('profilePic')->nullable(true);
-                $table->string('address');
-                $table->string('longitude')->nullable(true);
-                $table->string('latitude')->nullable(true);
+                $table->string('customerNumber')->nullable(false)->unique();
+                $table->string('company');
+                $table->string('streetNo');
+                $table->string('postCode');
+                $table->string('city');
+                $table->string('country');
+                $table->string('officeTel')->nullable(true);
+                $table->string('branch');
+                $table->string('homepage')->nullable(true);
+                $table->string('email')->nullable(true);
+                $table->string('details')->nullable(true);
                 $table->enum('status', ['active', 'inactive']);
-                $table->unsignedInteger('client_company_id');
-                $table->foreign('client_company_id')
+                $table->unsignedInteger('customer_company_id');
+                $table->foreign('customer_company_id')
                         ->references('id')
                         ->on('companies')
                         ->onDelete('cascade');
-                $table->unique(['mobileNumber', 'client_company_id']);
-                $table->unique(['email', 'client_company_id']);
+                $table->unsignedInteger('responsible_user_id');
+                $table->foreign('responsible_user_id')
+                        ->references('id')
+                        ->on('users');
+                // $table->unique(['email', 'customer_company_id']);
                 $table->timestamps();
         });
 
+
+        Schema::create('contacts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('firstName');
+            $table->string('lastName');
+            $table->string('designation')->nullable(true);
+            $table->string('streetNo');
+            $table->string('postalCode');
+            $table->string('city');
+            $table->string('country');
+            $table->string('telephone')->nullable(true);
+            $table->string('mobile')->nullable(true);
+            $table->string('email');
+            $table->date('dateOfBirth')->nullable(true);
+            $table->text('interests')->nullable(true);
+            $table->text('updates')->nullable(true);
+            $table->enum('status', ['active', 'inactive']);
+            $table->unsignedInteger('contact_customer_id');
+            $table->foreign('contact_customer_id')
+                    ->references('id')
+                    ->on('customers')
+                    ->onDelete('cascade');
+            $table->unique(['email', 'contact_customer_id']);
+            $table->timestamps();
+        });
+
+        Schema::create('customer_opportunities', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('customer_op_id');
+            $table->foreign('customer_op_id')
+                    ->references('id')
+                    ->on('customers')
+                    ->onDelete('cascade');
+            $table->date('dateFor');
+            $table->enum('status', ['active', 'inactive']);
+            $table->text('details')->nullable(true);
+            $table->unsignedInteger('customer_contact_person')->nullable();
+            $table->foreign('customer_contact_person')
+                    ->references('id')
+                    ->on('contacts')
+                    ->onDelete('set null');
+            $table->timestamps();
+        });
+
+        Schema::create('todos', function (Blueprint $table) {
+            $table->increments('id');
+            $table->date('dateFor');
+            $table->enum('status', ['active', 'inactive']);
+            $table->text('details')->nullable(true);
+            $table->unsignedInteger('to_do_resp_user');
+            $table->foreign('to_do_resp_user')
+                    ->references('id')
+                    ->on('users');
+            $table->unsignedInteger('linkId')->nullable(true);
+            $table->enum('relatedTo', ['customer', 'project', 'general']);
+            $table->timestamps();
+        });
 
         Schema::create('projects', function (Blueprint $table) {
                 $table->increments('id');
@@ -148,10 +210,10 @@ class CreateUserModuleTable extends Migration
                         ->references('id')
                         ->on('companies')
                         ->onDelete('cascade');
-                $table->unsignedInteger('client_project_id');
-                $table->foreign('client_project_id')
+                $table->unsignedInteger('customer_project_id');
+                $table->foreign('customer_project_id')
                         ->references('id')
-                        ->on('clients')
+                        ->on('customers')
                         ->onDelete('cascade');
                 $table->unsignedInteger('project_lead_id');
                 $table->foreign('project_lead_id')
@@ -426,7 +488,11 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('project_teams');
         Schema::dropIfExists('users');
         Schema::dropIfExists('branch_departments');
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('contacts');
+        Schema::dropIfExists('todos');
+        Schema::dropIfExists('customer_opportunities');
+        Schema::dropIfExists('opportunities');
+        Schema::dropIfExists('customers');
         Schema::dropIfExists('locations');
         Schema::dropIfExists('sprints');
         Schema::dropIfExists('tasks');

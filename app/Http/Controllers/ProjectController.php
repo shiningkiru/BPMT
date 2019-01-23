@@ -105,8 +105,8 @@ class ProjectController extends Controller
      *          in="formData"
      *      ),
      *      @SWG\Parameter(
-     *          name="client_project_id",
-     *          description="client ID",
+     *          name="customer_project_id",
+     *          description="customer ID",
      *          required=true,
      *          type="number",
      *          in="formData"
@@ -161,7 +161,7 @@ class ProjectController extends Controller
                 if($project->projectCategory!=$request->projectCategory)
                     $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
                 $project->projectCategory=$request->projectCategory;
-                $project->client_project_id=$request->client_project_id;
+                $project->customer_project_id=$request->customer_project_id;
                 $project->project_lead_id=$request->project_lead_id;
                 $project->project_company_id=$request->company_id;
                 $project->save();
@@ -252,18 +252,18 @@ class ProjectController extends Controller
      */
     public function index(){
         $user = \Auth::user();
-        $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','projects.projectType','clients.email','clients.name as clientName')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
+        $projects=Project::leftJoin('customers','customers.id','=','customer_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','projects.projectType','customers.email','customers.company')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
         return $projects;
     }
 
 
     /**
        * @SWG\Get(
-       *      path="/v1/project/by-client/{id}",
-       *      operationId="project list by client",
+       *      path="/v1/project/by-customer/{id}",
+       *      operationId="project list by customer",
        *      tags={"Project"},
-       *      summary="Project list by client",
-       *      description="Returns Project list by client",
+       *      summary="Project list by customer",
+       *      description="Returns Project list by customer",
        *      @SWG\Parameter(
        *          name="Authorization",
        *          description="authorization header",
@@ -273,7 +273,7 @@ class ProjectController extends Controller
        *      ),
        *      @SWG\Parameter(
        *          name="id",
-       *          description="Client Id",
+       *          description="Customer Id",
        *          required=true,
        *          type="number",
        *          in="path"
@@ -286,11 +286,11 @@ class ProjectController extends Controller
        *       @SWG\Response(response=400, description="Bad request"),
        *     )
        *
-       * Returns list of projects by client
+       * Returns list of projects by customer
        */
-      public function byClient(Request $request,$id){
+      public function byCustomer(Request $request,$id){
           $user = \Auth::user();
-          $projects=Project::leftJoin('clients','clients.id','=','client_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','projects.projectType','clients.email','clients.name as clientName')->where('projects.project_company_id','=',$user->company_id)->where('clients.id','=',$id)->orderBy('projects.startDate','ASC')->get();
+          $projects=Project::leftJoin('customers','customers.id','=','customer_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','projects.projectType','customers.email','customers.company')->where('projects.project_company_id','=',$user->company_id)->where('customers.id','=',$id)->orderBy('projects.startDate','ASC')->get();
           return $projects;
       }
 
@@ -382,15 +382,15 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $projectstart= date('Y-m-d',strtotime($request->get('startDate'))); 
         $projectend= date('Y-m-d',strtotime($request->get('endDate')));
-        $projects = Project::leftJoin('clients','clients.id','=','client_project_id')
-                        ->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.client_project_id','clients.email','clients.name as clientName')
+        $projects = Project::leftJoin('customers','customers.id','=','customer_project_id')
+                        ->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','customers.email','customers.company')
                         ->where('projects.project_company_id','=',$user->company_id);
         if (!empty($request->get('projectName')))
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
         if (!empty($request->get('status')))
             $projects->where('projects.status', $request->get('status'));
         if (!empty($request->get('name')))
-            $projects->where('clients.name', 'like', '%'.$request->get('name').'%');
+            $projects->where('customers.name', 'like', '%'.$request->get('name').'%');
         if (!empty($request->get('startDate')) && !empty($request->get('endDate')))
             $projects->WhereBetween('projects.startDate', [$projectstart,$projectend]);
         if (!empty($request->get('startDate')) && empty($request->get('endDate')))

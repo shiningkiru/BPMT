@@ -43,9 +43,9 @@ class Project extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function client()
+    public function customer()
     {
-      return $this->belongsTo(Client::class, 'client_project_id');
+      return $this->belongsTo(Customer::class, 'customer_project_id');
     }
 
 
