@@ -108,6 +108,7 @@ Route::prefix('v1')->group(function () {
     //opportunity routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('opportunity/by-related', 'CustomerOpprtunityController@getByRelated');
+        Route::post('opportunity/by-contact', 'CustomerOpprtunityController@getByContact');
         Route::delete('opportunity/{id}', 'CustomerOpprtunityController@delete');
         Route::get('opportunity/{id}', 'CustomerOpprtunityController@get');
         Route::post('opportunity', 'CustomerOpprtunityController@addOpportunity');

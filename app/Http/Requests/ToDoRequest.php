@@ -27,7 +27,7 @@ class ToDoRequest extends FormRequest
             'id' => 'nullable|exists:todos,id',
             'dateFor' => 'required|date',
             'details' => 'required',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:open,close',
             'relatedTo' => 'required|in:customer,project,general',
             'linkId' => 'todo_link_id:'.$this->get('relatedTo'),
             'to_do_resp_user' => 'required|exists:users,id'

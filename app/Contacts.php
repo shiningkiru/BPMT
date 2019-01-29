@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\ContactUpdates;
 use Illuminate\Database\Eloquent\Model;
 
 class Contacts extends Model
@@ -12,7 +13,7 @@ class Contacts extends Model
      * @var array
      */
     protected $fillable = [
-        'firstName', 'lastName', 'designation', 'streetNo', 'postalCode', 'city', 'country', 'telephone', 'mobile', 'email', 'dateOfBirth', 'interests', 'updates', 'status'
+        'firstName', 'lastName', 'designation', 'streetNo', 'postalCode', 'city', 'country', 'telephone', 'mobile', 'email', 'dateOfBirth', 'interests', 'status'
     ];
 
     /**
@@ -23,6 +24,12 @@ class Contacts extends Model
     public function customer()
     {
       return $this->belongsTo(Customer::class, 'contact_customer_id');
+    }
+
+
+    public function updates()
+    {
+        return $this->hasMany(ContactUpdates::class, 'contact_id');
     }
 
 

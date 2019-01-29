@@ -55,7 +55,7 @@ class TodoController extends MasterController
      *      ),
      *      @SWG\Parameter(
      *          name="status",
-     *          description="status active/inactive",
+     *          description="status open/close",
      *          required=true,
      *          type="string",
      *          in="formData"
