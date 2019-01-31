@@ -48,7 +48,7 @@ class CustomerOpprtunityController extends MasterController
      *      ),
      *      @SWG\Parameter(
      *          name="status",
-     *          description="status active/inactive",
+     *          description="status open/close",
      *          required=true,
      *          type="string",
      *          in="formData"
@@ -158,6 +158,44 @@ class CustomerOpprtunityController extends MasterController
             $pageSize=20;
         }
         $opprtunities = CustomerOpportunity::where('customer_op_id','=',$request->customer_id)->orderBy('id','DESC')->paginate($pageSize);
+        return $opprtunities;
+    }
+
+    /**
+     * @SWG\Post(
+     *      path="/v1/opportunity/by-contact",
+     *      operationId="list opportunitys by contact",
+     *      tags={"Opprtunities"},
+     *      summary="Todo list by contact",
+     *      description="Returns opportunity list by contact",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="contact_id",
+     *          description="related contact Id",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns list of opportunitys
+     */
+    public function getByContact(Request $request){
+        $user = \Auth::user();
+        
+        $opprtunities = CustomerOpportunity::where('customer_contact_person','=',$request->contact_id)->orderBy('id','DESC')->get();
         return $opprtunities;
     }
 }

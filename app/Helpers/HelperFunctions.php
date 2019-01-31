@@ -175,7 +175,6 @@ class HelperFunctions{
         if(array_key_exists(2, $timeArray))
             $totalTime+= $timeArray[2];
         return $totalTime;
-      
     }
 
     public function timeConversion($time){
@@ -200,7 +199,7 @@ class HelperFunctions{
         $total = 0;
 
         foreach($tasks as $task){
-            $total+=$this->timeToSec($task->takenHours);
+            $total+=$this->timeToSec($task->takenHours ?? 00);
         }
         $sprint->takenHours=$this->timeConversion($this->secToTime($total));
         $sprint->save();
@@ -212,7 +211,7 @@ class HelperFunctions{
         $sprints=$milestone->sprints;
         $total=0;
         foreach($sprints as $sprint){
-            $total+=$this->timeToSec($sprint->takenHours);
+            $total+=$this->timeToSec($sprint->takenHours ?? 00);
         }
         $milestone->takenHours=$this->timeConversion($this->secToTime($total));
         $milestone->save();
@@ -224,7 +223,7 @@ class HelperFunctions{
         $milestones=$project->milestones;
         $total=0;
         foreach($milestones as $milestone){
-            $total+=$this->timeToSec($milestone->takenHours);
+            $total+=$this->timeToSec($milestone->takenHours ?? 00);
         }
         $project->takenHours=$this->timeConversion($this->secToTime($total));
         $project->save();

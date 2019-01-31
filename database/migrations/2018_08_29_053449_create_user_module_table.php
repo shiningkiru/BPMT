@@ -149,7 +149,6 @@ class CreateUserModuleTable extends Migration
             $table->string('email');
             $table->date('dateOfBirth')->nullable(true);
             $table->text('interests')->nullable(true);
-            $table->text('updates')->nullable(true);
             $table->enum('status', ['active', 'inactive']);
             $table->unsignedInteger('contact_customer_id');
             $table->foreign('contact_customer_id')
@@ -157,6 +156,17 @@ class CreateUserModuleTable extends Migration
                     ->on('customers')
                     ->onDelete('cascade');
             $table->unique(['email', 'contact_customer_id']);
+            $table->timestamps();
+        });
+
+        Schema::create('contact_updates', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('details');
+            $table->unsignedInteger('contact_id');
+            $table->foreign('contact_id')
+                    ->references('id')
+                    ->on('contacts')
+                    ->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -168,7 +178,7 @@ class CreateUserModuleTable extends Migration
                     ->on('customers')
                     ->onDelete('cascade');
             $table->date('dateFor');
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('status', ['open', 'close']);
             $table->text('details')->nullable(true);
             $table->unsignedInteger('customer_contact_person')->nullable();
             $table->foreign('customer_contact_person')
@@ -181,7 +191,7 @@ class CreateUserModuleTable extends Migration
         Schema::create('todos', function (Blueprint $table) {
             $table->increments('id');
             $table->date('dateFor');
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('status', ['open', 'close']);
             $table->text('details')->nullable(true);
             $table->unsignedInteger('to_do_resp_user');
             $table->foreign('to_do_resp_user')
@@ -488,6 +498,7 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('project_teams');
         Schema::dropIfExists('users');
         Schema::dropIfExists('branch_departments');
+        Schema::dropIfExists('contact_updates');
         Schema::dropIfExists('contacts');
         Schema::dropIfExists('todos');
         Schema::dropIfExists('customer_opportunities');

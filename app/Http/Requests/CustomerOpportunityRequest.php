@@ -28,7 +28,7 @@ class CustomerOpportunityRequest extends FormRequest
             'customer_id' => 'required|exists:customers,id',
             'contacts_id' => 'required|exists:contacts,id',
             'dateFor' => 'required|date',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:open,close',
             'details' => 'required'
         ];
     }
