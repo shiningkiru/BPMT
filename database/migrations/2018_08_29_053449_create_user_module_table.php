@@ -190,9 +190,11 @@ class CreateUserModuleTable extends Migration
 
         Schema::create('todos', function (Blueprint $table) {
             $table->increments('id');
-            $table->date('dateFor');
+            $table->dateTimeTz('dateFor');
+            $table->dateTimeTz('endDate')->nullable(true);
             $table->enum('status', ['open', 'close']);
             $table->text('details')->nullable(true);
+            $table->boolean('fullDay')->default(true);
             $table->unsignedInteger('to_do_resp_user');
             $table->foreign('to_do_resp_user')
                     ->references('id')

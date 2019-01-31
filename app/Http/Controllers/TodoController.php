@@ -178,7 +178,7 @@ class TodoController extends MasterController
 
     /**
      * @SWG\Post(
-     *      path="/v1/todo/by-date-and-user",
+     *      path="/v1/todo/by-month",
      *      operationId="list todos by month and user ",
      *      tags={"Todo"},
      *      summary="Todo list by month and user ",
@@ -222,7 +222,19 @@ class TodoController extends MasterController
             $user_id=$user->id;
         }
         $dateGap = $helper->getMonthStartEndDate($request->dateFor);
-        $todos = Todo::where('to_do_resp_user','=',$user_id)->whereBetween('dateFor',$dateGap)->get();
+        $dateEntry = new \Datetime($request->dateFor);
+        $todos = Todo::where('to_do_resp_user','=',$user_id)
+                        ->where(function($query) use ($dateEntry){
+                            $query->where(function($quer) use ($dateEntry){
+                                $quer->whereYear('dateFor', $dateEntry->format('Y'))
+                                    ->whereMonth('dateFor', $dateEntry->format('m'));
+                            })
+                            ->orWhere(function($quer) use ($dateEntry) {
+                                $quer->whereYear('endDate', $dateEntry->format('Y'))
+                                    ->whereMonth('endDate', $dateEntry->format('m'));
+                            });
+                        })
+                        ->get();
         return $todos;
     }
 }

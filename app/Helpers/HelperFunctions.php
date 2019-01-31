@@ -113,11 +113,11 @@ class HelperFunctions{
     }
 
     public function getMonthStartEndDate($date){
-        $date=new \Datetime();
-        $first_day_this_month = $date->format('m-01-Y'); // hard-coded '01' for first day
-        $last_day_this_month  = $date->date('m-t-Y');
-        $gap[0]=$first_day_this_month;
-        $gap[1]=$last_day_this_month;
+        $date=new \Datetime($date);
+        $first_day_this_month = $date->format('Y-m-01'); // hard-coded '01' for first day
+        $last_day_this_month  = $date->format('Y-m-t');
+        $gap[0]=new \Datetime($first_day_this_month);
+        $gap[1]=new \Datetime($last_day_this_month);
         return $gap;
     }
 

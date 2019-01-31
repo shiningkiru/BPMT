@@ -100,9 +100,15 @@ Route::prefix('v1')->group(function () {
     //todo routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('todo/by-related', 'TodoController@getByRelated');
+        Route::post('todo/by-month', 'TodoController@getByUserAndDate');
         Route::delete('todo/{id}', 'TodoController@delete');
         Route::get('todo/{id}', 'TodoController@get');
         Route::post('todo', 'TodoController@addTodo');
+    });
+
+    //calendar routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('calendar', 'CalendarController@getCalendarEntries');
     });
 
     //opportunity routes
