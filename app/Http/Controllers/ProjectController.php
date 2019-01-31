@@ -199,6 +199,7 @@ class ProjectController extends Controller
                     $task->startDate = $project->startDate;
                     $task->endDate = $project->endDate;
                     $task->estimatedHours = $helper->timeConversion($project->estimatedHours);
+                    $task->takenHours = '00';
                     $task->status = ($project->status == 'completed')?'complted':'inprogress';
                     $task->priority = "medium";
                     $task->sprint_id = $sprint->id;
