@@ -21,14 +21,15 @@ class ContactController extends MasterController
    public function addContact(Request $request){
         $valid = $this->model->validateRules($request->all(), [
             'id' => 'nullable|exists:contacts,id',
-            'firstName' => 'required',
-            'lastName' => 'required',
-            'streetNo' => 'required',
-            'postalCode' => 'required',
+            'firstName' => 'required|regex:/^[a-zA-Z\'\- \-]*$/',
+            'lastName' => 'required|regex:/^[a-zA-Z\'\- \-]*$/',
+            'streetNo' => 'required|regex:/^[a-zA-Z0-9_\'\- \-]*$/',
+            'street' => 'required|regex:/^[a-zA-Z0-9_\'\- \-]*$/',
+            'postalCode' => 'required|numeric',
             'city' => 'required',
             'country' => 'required',
-            'telephone' => 'nullable|numeric',
-            'mobile' => 'nullable|numeric',
+            'telephone' => 'nullable|regex:/^(\+41)\s(\d{2})\s(\d{3})\s(\d{2})\s(\d{2})$/',
+            'mobile' => 'nullable|regex:/^(\+41)\s(\d{2})\s(\d{3})\s(\d{2})\s(\d{2})$/',
             'email' => 'required|email',
             'dateOfBirth' => 'nullable|date',
             'contact_customer_id' => 'required|exists:customers,id',
@@ -61,6 +62,7 @@ class ContactController extends MasterController
        $contact->telephone=$request->telephone;
        $contact->designation=$request->designation;
        $contact->streetNo=$request->streetNo;
+       $contact->street=$request->street;
        $contact->postalCode=$request->postalCode;
        $contact->city=$request->city;
        $contact->country=$request->country; 

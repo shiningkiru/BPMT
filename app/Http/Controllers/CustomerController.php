@@ -48,6 +48,13 @@ class CustomerController extends Controller
      *          in="formData"
      *      ),
      *      @SWG\Parameter(
+     *          name="street",
+     *          description="Street name",
+     *          required=true,
+     *          type="string",
+     *          in="formData"
+     *      ),
+     *      @SWG\Parameter(
      *          name="postCode",
      *          description="postal code",
      *          required=true,
@@ -141,6 +148,7 @@ class CustomerController extends Controller
         }
         $customer->company=$request->company;
         $customer->streetNo=$request->streetNo;
+        $customer->street=$request->street;
         $customer->postCode=$request->postCode;
         $customer->city=$request->city;
         $customer->country=$request->country;

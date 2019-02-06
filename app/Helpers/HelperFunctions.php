@@ -39,6 +39,7 @@ class HelperFunctions{
             'task', 
             'project_team', 
             'customer', 
+            'calendar', 
             'user', 
             'my_task', 
             'time_sheet', 

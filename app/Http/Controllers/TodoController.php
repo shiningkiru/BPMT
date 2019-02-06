@@ -172,8 +172,8 @@ class TodoController extends MasterController
         if(empty($pageSize)){
             $pageSize=20;
         }
-        $todos = Todo::where('linkId','=',$request->linkId)->where('relatedTo','=',$request->relatedTo)->orderBy('id','DESC')->paginate($pageSize);
-        return $todos;
+        $customerTodo = Todo::select('todos.id', 'todos.details', 'todos.endDate', 'todos.status', 'todos.fullDay', \DB::raw('DATE_FORMAT(todos.dateFor, "%Y-%m-%d") as dateFor'))->leftJoin('customers','customers.id','=','todos.linkId')->where('relatedTo','=','customer')->where('linkId','=',$request->linkId)->where('relatedTo','=',$request->relatedTo)->orderBy('id','DESC')->paginate($pageSize);
+        return $customerTodo;
     }
 
     /**

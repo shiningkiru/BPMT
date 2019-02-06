@@ -112,6 +112,7 @@ class CreateUserModuleTable extends Migration
                 $table->string('customerNumber')->nullable(false)->unique();
                 $table->string('company');
                 $table->string('streetNo');
+                $table->string('street');
                 $table->string('postCode');
                 $table->string('city');
                 $table->string('country');
@@ -119,7 +120,7 @@ class CreateUserModuleTable extends Migration
                 $table->string('branch');
                 $table->string('homepage')->nullable(true);
                 $table->string('email')->nullable(true);
-                $table->string('details')->nullable(true);
+                $table->text('details')->nullable(true);
                 $table->enum('status', ['active', 'inactive']);
                 $table->unsignedInteger('customer_company_id');
                 $table->foreign('customer_company_id')
@@ -141,6 +142,7 @@ class CreateUserModuleTable extends Migration
             $table->string('lastName');
             $table->string('designation')->nullable(true);
             $table->string('streetNo');
+            $table->string('street');
             $table->string('postalCode');
             $table->string('city');
             $table->string('country');
