@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\User;
 use App\Project;
+use App\TaskMember;
 use App\ProjectTeam;
 use App\MassParameter;
 use Illuminate\Http\Request;
@@ -239,14 +240,29 @@ class ProjectTeamController extends Controller
         $i=0;
         foreach($departments as $dept):
             $users=User::leftJoin('project_teams','users.id','=','project_teams.team_user_id')
-            ->leftJoin('branch_departments','users.branch_dept_id','=','branch_departments.id')
-            ->leftJoin('mass_parameters as designation','designation_id','=','designation.id')
-            ->leftjoin('task_members','member_identification','=','users.id')
-            ->where('project_teams.team_project_id','=',$id)
-            ->where('branch_departments.dept_id','=',$dept->id)
-            ->selectRaw('ifnull(count(task_members.task_identification),0) as total_tasks,users.id,users.firstName,users.lastName,users.email,users.mobileNumber,users.profilePic,users.roles,designation.title as designation')
-            ->groupBy('users.id', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.profilePic','designation.title','users.roles')
-            ->get();
+                ->leftJoin('branch_departments','users.branch_dept_id','=','branch_departments.id')
+                ->leftJoin('mass_parameters as designation','designation_id','=','designation.id')
+                // ->leftJoin('projects','projects.id','=','project_teams.team_project_id')
+                // ->leftJoin('milestones','projects.id','=','milestones.project_milestone_id')
+                // ->leftJoin('sprints','sprints.milestone_id','=','milestones.id')
+                // ->leftJoin('tasks','tasks.sprint_id','=','sprints.id')
+                // ->leftjoin('task_members','task_members.task_identification','=','tasks.id')
+                ->where('project_teams.team_project_id','=',$project->id)
+                ->where('branch_departments.dept_id','=',$dept->id)
+                ->selectRaw('users.id,users.firstName,users.lastName,users.email,users.mobileNumber,users.profilePic,users.roles,designation.title as designation')
+                ->groupBy('users.id', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.profilePic','designation.title','users.roles')
+                ->get();
+            foreach($users as $usr){
+                $total=TaskMember::leftJoin('tasks','tasks.id','=','task_members.task_identification')
+                                                ->leftJoin('sprints','sprints.id','=','tasks.sprint_id')
+                                                ->leftJoin('milestones','milestones.id','=','sprints.milestone_id')
+                                                ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
+                                                ->where('projects.id','=',$project->id)
+                                                ->where('task_members.member_identification','=',$usr->id)
+                                                ->selectRaw('count(task_members.id) as total')
+                                                ->first();
+                $usr['total_tasks']=$total->total;
+            }
             $dept['teamMembers']=$users;
             $teamData[$i]=$dept;
             $i++;

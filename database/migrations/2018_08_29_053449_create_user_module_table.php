@@ -209,7 +209,7 @@ class CreateUserModuleTable extends Migration
         Schema::create('projects', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('projectName')->unique();
-                $table->string('description')->nullable(true);
+                $table->text('description')->nullable(true);
                 $table->string('projectCode')->start_from(140000)->unique();
                 $table->dateTimeTz('startDate')->nullable(true);
                 $table->dateTimeTz('endDate')->nullable(true);

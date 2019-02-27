@@ -26,7 +26,8 @@ class HelperFunctions{
             'hr', 
             'team-lead', 
             'project-lead', 
-            'employee'
+            'employee',
+            'sales'
         ];
         return $roles;
     }
@@ -83,12 +84,12 @@ class HelperFunctions{
                 $team->save();
                 if($localstatus == "new"){
                     $project = $projectRepository->show($project_id);
-                    $projectType = 'project-team';
+                    $notificationType = 'project-team';
                     if($project->projectType == 'support')
-                        $projectType = 'direct-project-team';
+                        $notificationType = 'direct-project-team';
                     if($project->project_lead_id != $user_id){
                         $message = "You are assigned for a new project ".$project->projectName;
-                        $notificationRepository->sendNotification(\Auth::user(), User::find($user_id), $message, $projectType, $project->id);
+                        $notificationRepository->sendNotification(\Auth::user(), User::find($user_id), $message, $notificationType, $project->id);
                     }
                 }
                 return $team;
@@ -146,7 +147,7 @@ class HelperFunctions{
     public function getInternalProjectId($type = "internal"){
         $digits = ($type == "internal")?3:4;
         $prefix = ($type == "internal")?"IPR-":"PR-";
-        $lastRecord=Project::where("projectCategory",'=',$type)->orderby('id', 'desc')->first();
+        $lastRecord=Project::where("projectCategory",'=',$type)->orderby('projectCode', 'desc')->first();
         $currentCode = (($lastRecord)?(explode("-", $lastRecord->projectCode))[1]:0) + 1;
         return $prefix. str_pad($currentCode, $digits, "0", STR_PAD_LEFT) ."-".date("y");
     }

@@ -25,7 +25,11 @@ class NotificationController extends MasterController
    public function getMyNotification(Request $request){
        $user=\Auth::user();
         if($request->limitType == 'limited')
-            return $this->model->getReceivedNotification($user->id, $request->limitType)->get(); 
+        {
+            $result['count']= Notification::selectRaw('count("id") as count')->where('to_user_id','=',$user->id)->where('isRead','=',false)->first();
+            $result['data']=$this->model->getReceivedNotification($user->id, $request->limitType)->get(); 
+            return $result;
+        }
         else{
             $currentPage = $request->pageNumber;
             Paginator::currentPageResolver(function () use ($currentPage) {
@@ -33,6 +37,12 @@ class NotificationController extends MasterController
             });
             return $this->model->getReceivedNotification($user->id, $request->limitType)->paginate(20); 
         }
+   }
+
+   public function setAsRead(Request $request){
+       try {
+        Notification::where('id', $request->notificationId)->update(['isRead' => true]);
+       }catch(\Exception $e){}
    }
 
 

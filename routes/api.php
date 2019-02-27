@@ -29,6 +29,7 @@ Route::prefix('v1')->group(function () {
         Route::get('user/management', 'UserController@managementShow');
         Route::get('user/team-lead', 'UserController@teamleadShow');
         Route::get('user/project-lead', 'UserController@projectleadShow');
+        Route::get('user/project-lead-and-management', 'UserController@projectleadAndManagementShow');
         Route::get('user/employee', 'UserController@employeeShow');
         Route::post('user/reset-password', 'UserController@resetPassword');
         Route::get('user/{id}', 'AuthController@singleUser');
@@ -81,6 +82,7 @@ Route::prefix('v1')->group(function () {
  
     //client routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('customer/active', 'CustomerController@activeCustomerList');
         Route::get('customer/{id}', 'CustomerController@show');
         Route::post('customer/change-status', 'CustomerController@changeStatus');
         Route::post('customer/change-responsible-person', 'CustomerController@changeResponsiblePersons');
@@ -236,6 +238,7 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('notification', 'NotificationController@create');
         Route::put('notification/{id}', 'NotificationController@update');
+        Route::get('notification/is-read', 'NotificationController@setAsRead');
         Route::get('notification', 'NotificationController@index');
         Route::get('notification/received', 'NotificationController@getMyNotification');
         Route::get('notification/{id}', 'NotificationController@get');

@@ -303,6 +303,36 @@ class UserController extends MasterController
     
  /**
  * @SWG\Get(
+ *      path="/v1/user/project-lead-and-management",
+ *      operationId="project-lead-show",
+ *      tags={"Users"},
+ *      summary="project-lead User list",
+ *      description="project-lead User list",
+ *      @SWG\Parameter(
+ *          name="Authorization",
+ *          description="authorization header",
+ *          required=true,
+ *          type="string",
+ *          in="header"
+ *      ),
+ *      @SWG\Response(
+ *          response=200,
+ *          description="successful operation"
+ *       ),
+ *       @SWG\Response(response=500, description="Internal server error"),
+ *       @SWG\Response(response=400, description="Bad request"),
+ *     )
+ *
+ * Returns User Profile Pic
+ */
+public function projectleadAndManagementShow()
+{
+    return User::where('roles','project-lead')->orWhere('roles','management')->get();
+}
+
+    
+ /**
+ * @SWG\Get(
  *      path="/v1/user/employee",
  *      operationId="employee-show",
  *      tags={"Users"},

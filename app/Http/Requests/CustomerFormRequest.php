@@ -25,7 +25,7 @@ class CustomerFormRequest extends FormRequest
     {
         return [
             'id' => 'exists:customers,id',
-            'company' => 'required|regex:/^[a-zA-Z\'\- \-]*$/',
+            'company' => 'required',
             'streetNo' => 'required|regex:/^[a-zA-Z0-9_\'\- \-]*$/',
             'street' => 'required|regex:/^[a-zA-Z0-9_\'\- \-]*$/',
             'postCode' => 'required|numeric',

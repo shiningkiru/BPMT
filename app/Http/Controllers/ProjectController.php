@@ -209,10 +209,10 @@ class ProjectController extends Controller
                 
                 if($oldProject->project_lead_id != $project->project_lead_id){
                     $message = "You are assigned for a new project ".$project->projectName. " as a lead";
-                    $processType = 'project-team';
+                    $notificationType = 'project-team';
                     if($projectType == 'support')
-                        $projectType = 'direct-project-team';
-                    $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, $projectType, $project->id);
+                        $notificationType = 'direct-project-team';
+                    $notificationRepository->sendNotification($user, User::find($project->project_lead_id), $message, $notificationType, $project->id);
                 }
 
                 $helper->updateProjectTeam($request->project_lead_id, $project->id, 'active');
@@ -253,7 +253,14 @@ class ProjectController extends Controller
      */
     public function index(){
         $user = \Auth::user();
-        $projects=Project::leftJoin('customers','customers.id','=','customer_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','projects.projectType','customers.email','customers.company')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id)->paginate(500);
+        $projects=Project::leftJoin('customers','customers.id','=','customer_project_id')->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','projects.projectType','customers.email','customers.company')->orderBy('projects.startDate','ASC')->where('projects.project_company_id','=',$user->company_id);
+        
+        if($user->roles != 'admin' && $user->roles != 'management'){
+            $projects = $projects->leftJoin('project_teams','project_teams.team_project_id', '=', 'projects.id')
+                                ->where('project_teams.team_user_id','=',$user->id)
+                                ->distinct('projects.id');
+        }
+        $projects=$projects->paginate(500);
         return $projects;
     }
 
@@ -329,6 +336,7 @@ class ProjectController extends Controller
      */
     public function show($id){
         $project = Project::find($id);
+        if(!$project instanceof Project)return Response::json("Project Not Found", 404);
         if($project->projectType == 'support')
             $project['task']=$project->milestones()->first()->sprints()->first()->tasks()->first();
         return $project;
@@ -396,7 +404,7 @@ class ProjectController extends Controller
             $projects->WhereBetween('projects.startDate', [$projectstart,$projectend]);
         if (!empty($request->get('startDate')) && empty($request->get('endDate')))
             $projects->where('projects.startDate','=',$projectstart);
-        if($user->roles != 'admin'){
+        if($user->roles != 'admin' && $user->roles != 'management'){
             $projects = $projects->leftJoin('project_teams','project_teams.team_project_id', '=', 'projects.id')
                                 ->where('project_teams.team_user_id','=',$user->id)
                                 ->distinct('projects.id');

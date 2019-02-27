@@ -172,7 +172,17 @@ class TodoController extends MasterController
         if(empty($pageSize)){
             $pageSize=20;
         }
-        $customerTodo = Todo::select('todos.id', 'todos.details', 'todos.endDate', 'todos.status', 'todos.fullDay', \DB::raw('DATE_FORMAT(todos.dateFor, "%Y-%m-%d") as dateFor'))->leftJoin('customers','customers.id','=','todos.linkId')->where('relatedTo','=','customer')->where('linkId','=',$request->linkId)->where('relatedTo','=',$request->relatedTo)->orderBy('id','DESC')->paginate($pageSize);
+        $customerTodo = Todo::select('todos.id', 'todos.details', 'todos.endDate', 'todos.status', 'todos.fullDay', 'todos.to_do_resp_user', 'todos.linkId', 'todos.relatedTo', 'todos.created_at', 'todos.updated_at', \DB::raw('DATE_FORMAT(todos.dateFor, "%Y-%m-%d") as dateFor'));
+        if($request->relatedTo == 'customer')
+            $customerTodo = $customerTodo->leftJoin('customers','customers.id','=','todos.linkId')
+                                        ->addSelect('customers.company');
+                        
+        if(!empty($request->linkId))
+            $customerTodo = $customerTodo->where('linkId','=',$request->linkId);
+
+        $customerTodo = $customerTodo->where('relatedTo','=',$request->relatedTo)
+                        ->orderBy('todos.dateFor','DESC')
+                        ->paginate($pageSize);
         return $customerTodo;
     }
 

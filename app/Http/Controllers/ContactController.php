@@ -21,8 +21,8 @@ class ContactController extends MasterController
    public function addContact(Request $request){
         $valid = $this->model->validateRules($request->all(), [
             'id' => 'nullable|exists:contacts,id',
-            'firstName' => 'required|regex:/^[a-zA-Z\'\- \-]*$/',
-            'lastName' => 'required|regex:/^[a-zA-Z\'\- \-]*$/',
+            'firstName' => 'required',
+            'lastName' => 'required',
             'streetNo' => 'required|regex:/^[a-zA-Z0-9_\'\- \-]*$/',
             'street' => 'required|regex:/^[a-zA-Z0-9_\'\- \-]*$/',
             'postalCode' => 'required|numeric',

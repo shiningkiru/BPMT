@@ -258,6 +258,9 @@ class TaskMemberController extends Controller
     */
     public function removeMember($id){
         $taskMember=TaskMember::find($id);
+        $workTracks = WorkTimeTrack::where('task_member_identification','=',$taskMember->id)->get();
+        if(sizeof($workTracks) > 0)
+            return response()->json(['errors'=>'Can not delete value added employee'], 422);
         $taskMember->delete();
         return $taskMember;
     }

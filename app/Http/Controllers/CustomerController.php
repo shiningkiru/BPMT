@@ -193,6 +193,36 @@ class CustomerController extends Controller
     }
 
     /**
+     * @SWG\Get(
+     *      path="/v1/customer/active",
+     *      operationId="list active customer",
+     *      tags={"Customer"},
+     *      summary="Customer active list",
+     *      description="Returns customer list",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns list of customers
+     */
+    public function activeCustomerList(){
+        $user = \Auth::user();
+        $customers = Customer::with('responsible_person')->where('customer_company_id','=',$user->company_id)->where('status','=','active')->get();
+        return $customers;
+    }
+
+    /**
      * @SWG\Post(
      *      path="/v1/customer/change-status",
      *      operationId="change customer status",

@@ -157,7 +157,11 @@ class CustomerOpprtunityController extends MasterController
         if(empty($pageSize)){
             $pageSize=20;
         }
-        $opprtunities = CustomerOpportunity::where('customer_op_id','=',$request->customer_id)->orderBy('id','DESC')->paginate($pageSize);
+        $opprtunities = CustomerOpportunity::leftJoin('customers','customers.id', '=', 'customer_opportunities.customer_op_id')->select('customer_opportunities.id', 'customer_opportunities.dateFor', 'customer_opportunities.details', 'customer_opportunities.customer_contact_person', 'customer_opportunities.customer_op_id', 'customer_opportunities.created_at', 'customer_opportunities.updated_at', 'customer_opportunities.status', 'customers.company');
+        if(!empty($request->customer_id))
+            $opprtunities = $opprtunities->where('customer_op_id','=',$request->customer_id);
+
+        $opprtunities = $opprtunities->orderBy('customer_opportunities.dateFor','DESC')->paginate($pageSize);
         return $opprtunities;
     }
 
