@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\User;
+use Response;
 use App\BranchDepartment;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -92,6 +93,15 @@ class UserController extends MasterController
         }else{
             return response("Invalid Email ID",500);
         }  
+    }
+
+    public function deleteUser(Request $request, $id){
+        $user = User::find($id);
+        try{
+            $user->delete();
+        }catch(\Exception $e){
+            return Response::json(['errors'=>['user'=>['Can not delete user']]], 422);
+        }
     }
 
 

@@ -20,6 +20,7 @@ class CalendarController extends Controller
 
         //todos for calendar
         $todos = Todo::where('to_do_resp_user','=',$user_id)
+                        ->where('status','=','open')
                         ->where(function($query) use ($dateEntry){
                             $query->where(function($quer) use ($dateEntry){
                                 $quer->whereYear('dateFor', $dateEntry->format('Y'))
