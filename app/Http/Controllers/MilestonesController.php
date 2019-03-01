@@ -111,7 +111,6 @@ class MilestonesController extends Controller
         else
             $milestone=Milestones::find($id);
         $oldMilestone = clone $milestone;
-
         $milestone->title=$request->title;
         $milestone->description=$request->description;
         $startDate=new \Datetime($request->startDate);
@@ -122,6 +121,23 @@ class MilestonesController extends Controller
         $milestone->status=$request->status;
         $milestone->project_milestone_id=$request->project_id;
         $milestone->dependent_milestone_id=$request->dependent_milestone_id;
+
+        // throws an error if any sprint is pending
+        if($oldMilestone->status != $milestone->status){
+            if($milestone->status == 'completed' || $milestone->status == 'cancelled' || $milestone->status == 'failed'){
+                $sprintList = Sprint::where('milestone_id','=',$milestone->id)
+                                    ->where(function($q){
+                                        $q->where('status', '=', "created")
+                                            ->orWhere('status', '=', "assigned")
+                                            ->orWhere('status', '=', "onhold")
+                                            ->orWhere('status', '=', "inprogress");
+                                    })
+                                    ->get();
+                if(sizeof($sprintList) > 0){
+                    return Response::json(['errors'=>['sprintStatus'=>['Pending sprint availbale']]], 422);
+                }
+            }
+        }
 
         //estimated hour calculation
         $project=Project::find($request->project_id);

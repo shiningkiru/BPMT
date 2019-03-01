@@ -143,7 +143,7 @@ class TaskController extends Controller
         $task->dependent_task_id=$request->dependent_task_id;        
         
         $sprint=Sprint::find($request->sprint_id);
-
+        
         if($sprint->status == 'completed' || $sprint->status == 'cancelled' || $sprint->status == 'failed'){
             return Response::json(['errors'=>['sprint'=>['You can not add new tasks. Sprint is closed.']]], 422);
         }

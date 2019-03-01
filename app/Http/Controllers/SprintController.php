@@ -143,6 +143,9 @@ class SprintController extends Controller
         
         //estimated hour calculation
         $milestone=Milestones::find($request->milestone_id);
+        if($milestone->status == 'completed' || $milestone->status == 'cancelled' || $milestone->status == 'failed'){
+            return Response::json(['errors'=>['milestoneStatus'=>['Selected milstone is closed.']]], 422);
+        }
         $sprintTotal = Sprint::where('milestone_id','=',$milestone->id)->selectRaw('estimatedHours')->get();
         $total=0;
         foreach($sprintTotal as $spr){

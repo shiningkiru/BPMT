@@ -254,6 +254,11 @@ Route::prefix('v1')->group(function () {
         Route::get('week-validation/{id}', 'WeekValidationController@get');
     });
 
+    //week validation
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('report/department-performance', 'WorkReportController@departmentPerformance');
+    });
+
     //Activity Logs
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('access-logs', 'ActivityLogController@getLogs');

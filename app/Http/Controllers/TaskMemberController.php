@@ -85,6 +85,9 @@ class TaskMemberController extends Controller
         
         //estimated hour calculation
         $task=Tasks::find($request->task_id);
+        if($task->status == 'completed' || $task->status == 'cancelled' || $task->status == 'failed'){
+            return Response::json(['errors'=>['task'=>['Task is closed.']]], 422);
+        }
         $taskMemberTotal = TaskMember::where('task_identification','=',$task->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('task_members.task_identification')->first();
         
         $totalSeconds = ($taskMemberTotal->total ?? 00);
