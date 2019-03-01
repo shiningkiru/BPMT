@@ -302,7 +302,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('endDate');
                 $table->text('estimatedHours');
                 $table->text('takenHours')->nullable(true);
-                $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
+                $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_sprint_id')->nullable(true);
                 $table->foreign('dependent_sprint_id')
@@ -326,7 +326,7 @@ class CreateUserModuleTable extends Migration
                 $table->dateTimeTz('endDate');
                 $table->text('estimatedHours');
                 $table->text('takenHours')->nullable(true);
-                $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled',' failed']);
+                $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
                 $table->enum('priority', ['critical', 'high', 'medium', 'low']);
                 $table->unsignedInteger('dependent_task_id')->nullable(true);
                 $table->foreign('dependent_task_id')
