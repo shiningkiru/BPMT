@@ -20,7 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //version 1 apis
 Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::delete('user/{id}', 'AuthController@deleteUser');
+        Route::delete('user/{id}', 'UserController@deleteUser');
         Route::get('current-user', 'AuthController@user');
         Route::post('auth/logout', 'AuthController@logout');
         Route::get('user', 'UserController@getAllUsers');
