@@ -85,9 +85,6 @@ class TaskMemberController extends Controller
         
         //estimated hour calculation
         $task=Tasks::find($request->task_id);
-        if($task->status == 'completed' || $task->status == 'cancelled' || $task->status == 'failed'){
-            return Response::json(['errors'=>['task'=>['Task is closed.']]], 422);
-        }
         $taskMemberTotal = TaskMember::where('task_identification','=',$task->id)->selectRaw('SUM(TIME_TO_SEC(estimatedHours)) as total')->groupBy('task_members.task_identification')->first();
         
         $totalSeconds = ($taskMemberTotal->total ?? 00);
@@ -271,13 +268,16 @@ class TaskMemberController extends Controller
     public function employeeWorkReport(Request $request){
         $helper = new HelperFunctions();
         $taskRepository = new TasksRepository();
-        $valid = $taskRepository->validateRules($request->all(), [
-            'dateOfEntry' => 'required|date',
-            'endDate' => 'required|date'
-        ]);
-        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
-        $startDate = new \Datetime($request->dateOfEntry);
-        $endDate = new \Datetime($request->endDate);
+        // $valid = $taskRepository->validateRules($request->all(), [
+        //     'dateOfEntry' => 'required|date',
+        //     'endDate' => 'required|date'
+        // ]);
+        // if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        // $startDate = new \Datetime($request->dateOfEntry);
+        // $endDate = new \Datetime($request->endDate);
+
+        $startDate= date('Y-m-d',strtotime($request->get('dateOfEntry'))); 
+        $endDate= date('Y-m-d',strtotime($request->get('endDate')));
 
         $currentPage = $request->pageNumber;
         Paginator::currentPageResolver(function () use ($currentPage) {
@@ -290,14 +290,18 @@ class TaskMemberController extends Controller
                             ->leftJoin('projects','projects.id','=','milestones.project_milestone_id')
                             ->leftJoin('users','task_members.member_identification','=','users.id')
                             ->selectRaw('projects.projectName,users.id as userId, users.firstName, users.lastName, users.profilePic, tasks.taskName, tasks.status, task_members.estimatedHours, task_members.takenHours, task_members.id as taskMemberId')
-                            ->groupBy('projects.projectName', 'tasks.taskName','users.id')
-                            ->WhereBetween('work_time_tracks.dateOfEntry', [$startDate,$endDate]);
-        if($request->projectName != null){
-            $taskList = $taskList->where('projects.projectName','LIKE','%'.$request->projectName."%");
+                            ->groupBy('projects.projectName', 'tasks.taskName','users.id');      
+        if(!empty($request->get('projectName'))){
+            $taskList = $taskList->where('projects.projectName','LIKE','%'.$request->get('projectName')."%");
         }
-        if($request->firstName != null){
+        if(!empty($request->get('firstName'))){
             $taskList = $taskList->where('users.firstName','LIKE','%'.$request->firstName."%");
         }
+        if (!empty($request->get('dateOfEntry')) && !empty($request->get('endDate')))
+        $taskList->WhereBetween('work_time_tracks.dateOfEntry', [$startDate,$endDate]);
+        if (!empty($request->get('dateOfEntry')) && empty($request->get('endDate')))
+        $taskList->where('work_time_tracks.dateOfEntry','=',$startDate);
+
         $taskList=$taskList->paginate(20);
         foreach($taskList as $task){
             $WorkTimeTrack = WorkTimeTrack::where('task_member_identification','=',$task->taskMemberId)
