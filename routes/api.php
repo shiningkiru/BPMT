@@ -27,7 +27,9 @@ Route::prefix('v1')->group(function () {
         Route::get('user/admin', 'UserController@adminShow');
         Route::get('user/hr', 'UserController@hrShow');
         Route::get('user/management', 'UserController@managementShow');
+        Route::get('user/reporting-manager', 'UserController@reportingManagerShow');
         Route::get('user/team-lead', 'UserController@teamleadShow');
+        Route::get('user/project-lead/members', 'UserController@getProjectMembers');
         Route::get('user/project-lead', 'UserController@projectleadShow');
         Route::get('user/project-lead-and-management', 'UserController@projectleadAndManagementShow');
         Route::get('user/employee', 'UserController@employeeShow');
@@ -78,6 +80,15 @@ Route::prefix('v1')->group(function () {
         Route::get('branch', 'BranchController@index');
         Route::post('branch', 'BranchController@create');
         Route::delete('branch/{id}', 'BranchController@delete');
+    });
+
+    //global task routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('global-task/{id}', 'GlobalTaskController@singleTask');
+        Route::get('global-task', 'GlobalTaskController@getGlobalTasks');
+        Route::post('global-task', 'GlobalTaskController@addTask');
+        Route::post('global-task/add-time', 'GlobalTaskController@addTime');
+        Route::delete('global-task/{id}', 'GlobalTaskController@deleteTask');
     });
  
     //client routes
@@ -252,6 +263,11 @@ Route::prefix('v1')->group(function () {
         Route::put('week-validation/{id}', 'WeekValidationController@update');
         Route::get('week-validation', 'WeekValidationController@index');
         Route::get('week-validation/{id}', 'WeekValidationController@get');
+    });
+
+    //week validation
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('my-task', 'MyTaskController@getMyTask');
     });
 
     //week validation

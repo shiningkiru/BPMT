@@ -145,4 +145,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(Todo::class, 'to_do_resp_user');
     }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function dept_team_members()
+    {
+        return $this->hasMany(User::class, 'team_lead');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function dept_team_lead()
+    {
+        return $this->belongsTo(User::class, 'team_lead');
+    }
+
+
 }

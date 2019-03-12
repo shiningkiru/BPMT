@@ -26,101 +26,92 @@ class WeekValidationController extends MasterController
     }
 
     public function submitWeeklyPtt(Request $request){
-        $helper = new HelperFunctions();
-        $user = \Auth::user();
-        $valid = $this->model->validateRules($request->all(), [
-            'week_validation' => 'required:exists:week_validations,id'
-        ]);
-        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        return \DB::transaction(function () use ($request) {
+            $helper = new HelperFunctions();
+            $notificationRepository = new NotificationRepository();
+            $user = \Auth::user();
+            $valid = $this->model->validateRules($request->all(), [
+                'weekNumber' => 'required|integer|between:1,53',
+                'year' => 'required|integer|between:2017,2030'
+            ]);
+            if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
 
-        $weekValidation = $this->model->show($request->week_validation);
-
-        //after friday validation
-        $currentWeekNumber = $helper->getYearWeekNumber(new \Datetime());
-        if($weekValidation->entryYear == (int)$currentWeekNumber['year'] && $weekValidation->weekNumber == (int)$currentWeekNumber['week']){
-            $dateGap=$helper->getStartAndEndDate(new \Datetime());
-            $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
-            $friday=explode("-",$dates[4]);
-            $friday = strtotime($friday[1]."-".$friday[0]."-".$friday[2]);
-            $thisDate = new \Datetime();
-            $thisDate = strtotime($thisDate->format('d-m-Y'));
-            if($thisDate < $friday){
-                return response()->json(['errors'=>['system'=>['You can assign PTT only after friday.']]], 422);
+            if($user->roles == 'admin'){
+                return response()->json(['errors'=>['system'=>['You can\'t submit PTT as admin.']]], 422);
             }
-        }
-        //end of after friday validation
+            $weekValidation = WeekValidation::where('weekNumber', '=', $request->weekNumber)->where('entryYear', '=', $request->year)->where('user_id', '=', $user->id)->first();
+            if(!($weekValidation instanceof WeekValidation)){
+                $weekValidation= new WeekValidation();
+                $dateGap=$helper->getStartAndEndDateByWeekNumber($request->weekNumber, $request->year);
+                $weekValidation->weekNumber=$request->weekNumber;
+                $weekValidation->entryYear=$request->year;
+                $weekValidation->user_id=$user->id;
+                $weekValidation->startDate = $dateGap[0];
+                $weekValidation->endDate = $dateGap[1];
+                $weekValidation->save();
+            }
+
+            if($weekValidation->status != 'entried') {
+                return response()->json(['errors'=>['system'=>['You can\'t submit PTT twice.']]], 422);
+            }
+
+
+            //after friday validation
+            $currentWeekNumber = $helper->getYearWeekNumber(new \Datetime());
+            if($weekValidation->entryYear == (int)$currentWeekNumber['year'] && $weekValidation->weekNumber == (int)$currentWeekNumber['week']){
+                $dateGap=$helper->getStartAndEndDate(new \Datetime());
+                $dates=$helper->getDateRange($dateGap[0], $dateGap[1]);
+                $friday=explode("-",$dates[4]);
+                $friday = strtotime($friday[1]."-".$friday[0]."-".$friday[2]);
+                $thisDate = new \Datetime();
+                $thisDate = strtotime($thisDate->format('d-m-Y'));
+                if($thisDate < $friday){
+                    return response()->json(['errors'=>['system'=>['You can assign PTT only after friday.']]], 422);
+                }
+            }
+            //end of after friday validation
         
-
-        $management = $this->userRepository->findByRole('management')->toArray();
-        if(sizeof($management) == 0){
-            return response()->json(['errors'=>['system'=>['Please assign management position']]], 422);
-        }
-        try{
-            \DB::transaction(function () use ($weekValidation, $management, $user) {
-                $oldStatus=$weekValidation->status;
-                if($oldStatus=='entried' || $oldStatus=='reassigned'):
-                    $weekValidation->status='requested';
-                    $weekValidation->request_time=new \Datetime();
-                    $weekValidation->save();
-                    
-                    $projectRepository = new ProjectRepository();
-                    $notificationRepository = new NotificationRepository();
-                    $projects=$projectRepository->findWeeklyWorkingProjects(new \Datetime($weekValidation->startDate),new \Datetime($weekValidation->endDate), $user->id);
-                    foreach($projects as $project){
-                        $management=array_merge($management, [['id'=>$project->project_lead_id]]);
+            $weekProjects = $weekValidation->week_projects;
+            $weekValidation->status='requested';
+            if(sizeof($weekProjects) > 0){
+                foreach($weekProjects as $wproject){
+                    $project_lead = $wproject->project->project_lead;
+                    if($project_lead instanceof User){
+                        $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
+                        $notificationRepository->sendNotification($user, $project_lead, $message, "time-track-project-approval", $weekValidation->id);
                     }
-                    $message="submited Time Tracks";
-                    if($oldStatus == 'reassigned')$message='re requested for Time Tracks submission';
-                    
-                    foreach($management as $manager){
-                        $message = $user->firstName." has ".$message." of the week ".$weekValidation->weekNumber."/".$weekValidation->entryYear;
-                        $notificationRepository->sendNotification($user, User::find($manager['id']), $message, "time-track", $weekValidation->id);
-                    }
-
-                else:
-                    return response()->json(['errors'=>['condition'=>["You can't do this."]]], 422);
-                endif;
-            });
+                    $wproject->status="requested";
+                    $wproject->save();
+                }
+            }else {
+                $teamLead = $user->dept_team_lead;
+                if($teamLead instanceof User){
+                    $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
+                    $notificationRepository->sendNotification($user, $teamLead, $message, "time-track-final-approval", $weekValidation->id);
+                }else {
+                    return response()->json(['errors'=>['team_lead'=>['You have no team leads. Check your management flow.']]], 422);
+                }
+            }
+            $weekValidation->save();
             return $weekValidation;
-        }catch(\Exception $e){
-            return response()->json(['errors'=>['server'=>[$e->getMessage()]]], 422);
-        }
+        });
     }
 
     public function approveWeeklyPtt(Request $request){
         $user = \Auth::user();
         $valid = $this->model->validateRules($request->all(), [
-            'week_validation' => 'required:exists:week_validations,id'
+            'week_validation' => 'required:exists:week_validations,id',
+            'approval_user' => 'required|in:project_lead,team_lead'
         ]);
         if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
 
         $weekValidation = $this->model->show($request->week_validation);
+        $notificationRepository = new NotificationRepository();
         
-        try{
-            \DB::transaction(function () use ($weekValidation, $user) {
-                if($weekValidation->status=='requested'):
-                    $weekValidation->status='accepted';
-                    $weekValidation->accept_time=new \Datetime();
-                    $weekValidation->save();
-                    
-                    // $projectRepository = new ProjectRepository();
-                    // $projects=$projectRepository->findWeeklyWorkingProjects(new \Datetime($weekValidation->startDate),new \Datetime($weekValidation->endDate), $user->id);
-                    // $targetUsers=[['id'=>$weekValidation->user_id]];
-                    // foreach($projects as $project){
-                    //     $targetUsers=array_merge($targetUsers, [['id'=>$project->project_lead_id]]);
-                    // }
-                    
-                    $notificationRepository = new NotificationRepository();
-                    $message = $user->firstName." has approved Time Tracks for the week ".$weekValidation->weekNumber."/".$weekValidation->entryYear;
-                    $notificationRepository->sendNotification($user, User::find($weekValidation->user_id), $message, "time-track-approve", $weekValidation->startDate);
-                else:
-                    return response()->json(['errors'=>['condition'=>["You can't do this."]]], 422);
-                endif;
-            });
-            return $weekValidation;
-        }catch(\Exception $e){
-            return response()->json(['errors'=>['server'=>[$e->getMessage()]]], 422);
-        }
+        if($request->approval_user == 'project_lead')
+
+
+        return $weekValidation;
     }
 
     public function resendWeeklyPtt(Request $request){

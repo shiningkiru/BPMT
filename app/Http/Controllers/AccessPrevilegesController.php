@@ -140,8 +140,6 @@ class AccessPrevilegesController extends Controller
                         $access_previlege->roles = $role;
                         $access_previlege->access_previlage = 'full-access';
                         $access_previlege->save();
-
-                        dump($access_previlege);
                     }
                 }catch(\Exception $e){
                 }

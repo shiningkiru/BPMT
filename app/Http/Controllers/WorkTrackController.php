@@ -9,6 +9,7 @@ use App\TaskMember;
 use App\WorkTimeTrack;
 use App\WeekValidation;
 use Illuminate\Http\Request;
+use App\WeekValidationProject;
 use App\Helpers\HelperFunctions;
 use Illuminate\Pagination\Paginator;
 use App\Repositories\TasksRepository;
@@ -79,10 +80,24 @@ class WorkTrackController extends Controller
     * Returns success message
     */
     public function addMyTime(WorkTrackRequest $request){
-        \DB::transaction(function() use ($request){
+        return \DB::transaction(function() use ($request){
             $task=Tasks::find($request->task_id);  
             $helper=new HelperFunctions();
             $date=new \Datetime($request->entryDate);
+
+            //validations
+            if($date > new \Datetime()){
+                return \Response::json(['errors'=>['time'=>['Cant add time for future dates.']]], 422);
+            }
+
+            if($date > new \Datetime($task->endDate) || $date < new \Datetime($task->startDate)){
+                return \Response::json(['errors'=>['task'=>['Task Seems to be closed at this time.']]], 422);
+            }
+
+            if($task->status == 'completed' || $task->status == 'cancelled' || $task->status == 'failed'){
+                return \Response::json(['errors'=>['task'=>['Task Seems to be '.$task->status.'.']]], 422);
+            }
+            //validation end
             $weekDetails=$helper->getYearWeekNumber($date);
             $taskMember=TaskMember::where('task_identification','=',$request->task_id)->where('member_identification','=',$request->user_id)->first();
             $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('task_member_identification','=',$taskMember->id)->first();
@@ -91,24 +106,52 @@ class WorkTrackController extends Controller
             $taskTaken = $helper->timeToSec($helper->timeConversion($task->takenHours));
             $taskMemberTaken = $helper->timeToSec($helper->timeConversion((empty($taskMember->takenHours))?00:$taskMember->takenHours));
             
+            
+            $weekValidationRepository = new WeekValidationRepository();
+            $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year'])->first();
+            if(!($weekValidation instanceof WeekValidation)){
+                $weekValidation= new WeekValidation();
+                $dateGap=$helper->getStartAndEndDate($date);
+                $weekValidation->weekNumber=$weekDetails['week'];
+                $weekValidation->entryYear=$weekDetails['year'];
+                $weekValidation->user_id=$request->user_id;
+                $weekValidation->startDate = $dateGap[0];
+                $weekValidation->endDate = $dateGap[1];
+                $weekValidation->save();
+            }
+
+            //submit validation in tl level
+            if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned'){
+                return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
+            }
+
+            //logic project connection
+            $project = $taskMember->task->sprint->milestone->project;
+            $weekValidationProject = WeekValidationProject::where('project_id','=',$project->id)->where('week_validation_id', '=', $weekValidation->id)->first();
+            if(!($weekValidationProject instanceof WeekValidationProject)) {
+                $weekValidationProject = new WeekValidationProject();
+                $weekValidationProject->project_id = $project->id;
+                $weekValidationProject->week_validation_id = $weekValidation->id;
+                $weekValidationProject->save();
+            }
+
+            if(($weekValidationProject->status != 'entried')){
+                if($weekValidationProject->status == 'reassigned'){
+                    if($project->project_lead_id != \Auth::user()->id){
+                        return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you. Please contact team/project lead.']]], 422);
+                    }
+                }else{
+                    return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
+                }
+            }
+
+
             if(!($workTrack instanceof WorkTimeTrack)){
                 $workTrack=new WorkTimeTrack();
                 $workTrack->dateOfEntry=$date;
                 $workTrack->task_member_identification=$taskMember->id;
-
-                $weekValidationRepository = new WeekValidationRepository();
-                $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year'])->first();
-                if(!($weekValidation instanceof WeekValidation)){
-                    $weekValidation= new WeekValidation();
-                    $dateGap=$helper->getStartAndEndDate($date);
-                    $weekValidation->weekNumber=$weekDetails['week'];
-                    $weekValidation->entryYear=$weekDetails['year'];
-                    $weekValidation->user_id=$request->user_id;
-                    $weekValidation->startDate = $dateGap[0];
-                    $weekValidation->endDate = $dateGap[1];
-                    $weekValidation->save();
-                }
                 $workTrack->week_number=$weekValidation->id;
+                $workTrack->task_project = $weekValidationProject->id;
             }else{
                 $workTrackTaken = $helper->timeToSec($helper->timeConversion($workTrack->takenHours));
                 $taskTaken-= $workTrackTaken;

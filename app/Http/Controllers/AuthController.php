@@ -156,10 +156,10 @@ class AuthController extends Controller
      */
     public function register(RegisterFormRequest $request)
     {
+        $helper = new HelperFunctions();
         $id=$request->id;
         if(empty($id)):
             $user = new User();
-            $helper = new HelperFunctions();
             $user->employeeId=$helper->getLastEmployeeId();
             $user->password = bcrypt($request->password);
         else:
@@ -172,6 +172,7 @@ class AuthController extends Controller
         $user->address = $request->address;
         $user->company_id=$request->company_id;
         $user->designation_id=$request->designation_id;
+        $user->team_lead=$request->team_lead;
         $user->roles=$request->roles;
 
         // $branchDepartment=BranchDepartment::leftJoin('branches as br','branch_departments.id','=','br.id')->where('br.id','=',$request->branch_id)->get();
@@ -198,7 +199,12 @@ class AuthController extends Controller
         $user->doj = new \Datetime($request->doj);
         $user->salary = $request->salary;
         $user->bloodGroup = $request->bloodGroup;
-        $user->save();
+        try{
+            $user->save();
+            return $helper->synchMemberGlobalTasks($user);
+        }catch(\Exception $e){
+            return response("Cant update data error code : ".$e->getCode(), 400);
+        }
         return response([
             'status' => 'success',
             'data' => $user
@@ -328,7 +334,7 @@ class AuthController extends Controller
      * Returns logout user
      */
     public function singleUser($id){
-        $user=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->leftJoin('branch_departments','branch_departments.id','=','users.branch_dept_id')->where('users.id','=',$id)->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','users.designation_id', 'users.roles','users.company_id','mass_parameters.type','mass_parameters.title',"branch_departments.branches_id","branch_departments.dept_id")->get();
+        $user=User::leftJoin('users as team_leads','team_leads.id','=','users.team_lead')->leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->leftJoin('branch_departments','branch_departments.id','=','users.branch_dept_id')->where('users.id','=',$id)->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.address','users.profilePic','users.team_lead', 'team_leads.firstName as lead_first_name','team_leads.lastName as lead_last_name','users.salary','users.bloodGroup', 'users.relievingDate','users.designation_id', 'users.roles','users.company_id','mass_parameters.type','mass_parameters.title',"branch_departments.branches_id","branch_departments.dept_id")->get();
         // $user = User::find($id);
         return $user[0];
     }

@@ -188,7 +188,7 @@ class CustomerController extends Controller
      */
     public function index(){
         $user = \Auth::user();
-        $companies = Customer::with('responsible_person')->where('customer_company_id','=',$user->company_id)->get();
+        $companies = Customer::with('responsible_person')->where('customer_company_id','=',$user->company_id)->orderBy('company', 'ASC')->get();
         return $companies;
     }
 

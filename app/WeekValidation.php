@@ -22,7 +22,17 @@ class WeekValidation extends Model
      */
     public function work_tracks()
     {
-      return $this->belongsTo(WorkTimeTrack::class, 'weekNumber');
+      return $this->hasMany(WorkTimeTrack::class, 'weekNumber'); 
+    }
+    
+    /**
+     * A message belong to a user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function week_projects()
+    {
+      return $this->hasMany(WeekValidationProject::class, 'week_validation_id'); 
     }
 
     

@@ -56,7 +56,7 @@ class Project extends Model
      */
     public function project_lead()
     {
-      return $this->belongsTo(Client::class, 'project_lead_id');
+      return $this->belongsTo(User::class, 'project_lead_id');
     }
 
     /**
@@ -83,5 +83,13 @@ class Project extends Model
     public function documents()
     {
         return $this->hasMany(DocumentManager::class, 'doc_project_id');
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function week_projects()
+    {
+        return $this->hasMany(WeekValidationProject::class, 'project_id');
     }
 }

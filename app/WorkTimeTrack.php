@@ -27,6 +27,6 @@ class WorkTimeTrack extends Model
     
     public function weekNumber()
     {
-        return $this->hasMany(WeekValidation::class, 'weekNumber');
+        return $this->belongsTo(WeekValidation::class, 'weekNumber');
     }
 }

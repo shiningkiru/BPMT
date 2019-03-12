@@ -85,8 +85,8 @@ class CreateUserModuleTable extends Migration
                 $table->string('salary');
                 $table->string('bloodGroup')->nullable(true);
                 $table->string('relievingDate')->nullable(true);
-                $table->string('isActive')->default(1);
-                $table->enum('roles', ['admin', 'management', 'hr', 'team-lead', 'project-lead', 'employee']);
+                $table->boolean('isActive')->default(1);
+                $table->enum('roles', ['admin', 'management', 'hr', 'team-lead', 'project-lead', 'employee', 'sales']);
                 $table->unsignedInteger('branch_dept_id')->nullable(true);
                 $table->foreign('branch_dept_id')
                         ->references('id')
@@ -102,6 +102,11 @@ class CreateUserModuleTable extends Migration
                         ->references('id')
                         ->on('companies')
                         ->onDelete('cascade');
+                $table->unsignedInteger('team_lead')->nullable(true);
+                $table->foreign('team_lead')
+                        ->references('id')
+                        ->on('users')
+                        ->onDelete('set null');
                 $table->rememberToken();
                 $table->timestamps();
         });
@@ -385,21 +390,79 @@ class CreateUserModuleTable extends Migration
                 $table->timestamps();
         });
 
+        
+        Schema::create('global_tasks', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('title')->unique();;
+                $table->text('description')->nullable(true);
+                $table->boolean('isActive')->default(true);
+                $table->timestamps();
+        });
+
+        
+        Schema::create('global_task_users', function (Blueprint $table) {
+                $table->increments('id');
+                $table->unsignedInteger('global_task_id');
+                $table->foreign('global_task_id')
+                        ->references('id')
+                        ->on('global_tasks')
+                        ->onDelete('cascade');
+                $table->unsignedInteger('user_id');
+                $table->foreign('user_id')
+                        ->references('id')
+                        ->on('users')
+                        ->onDelete('cascade');
+                $table->unique(['global_task_id', 'user_id']);
+                $table->timestamps();
+        });
+
+        Schema::create('week_validation_projects', function (Blueprint $table) {
+            $table->increments('id');
+            $table->enum('status', ['entried', 'requested', 'accepted', 'reassigned'])->default('entried');
+            $table->dateTimeTz('accept_time')->nullable(true);
+            $table->unsignedInteger('project_id');
+            $table->foreign('project_id')
+                    ->references('id')
+                    ->on('projects')
+                    ->onDelete('cascade');
+            $table->unsignedInteger('week_validation_id');
+            $table->foreign('week_validation_id')
+                    ->references('id')
+                    ->on('week_validations')
+                    ->onDelete('cascade');
+            $table->unsignedInteger('accepted_user_id')->nullable(true);
+            $table->foreign('accepted_user_id')
+                    ->references('id')
+                    ->on('users')
+                    ->onDelete('cascade');
+            $table->unique(['project_id', 'week_validation_id']);
+        });
+
         Schema::create('work_time_tracks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->text('description');
                 $table->text('takenHours')->nullable(true);
                 $table->date('dateOfEntry');
                 $table->boolean('isUpdated')->default(false);
-                $table->unsignedInteger('task_member_identification');
+                $table->unsignedInteger('task_member_identification')->nullable(true);
                 $table->foreign('task_member_identification')
                         ->references('id')
                         ->on('task_members')
+                        ->onDelete('cascade');
+                $table->unsignedInteger('global_task_user_id')->nullable(true);
+                $table->foreign('global_task_user_id')
+                        ->references('id')
+                        ->on('global_task_users')
                         ->onDelete('cascade');
                 $table->unsignedInteger('week_number');
                 $table->foreign('week_number')
                         ->references('id')
                         ->on('week_validations')
+                        ->onDelete('cascade');
+                $table->unsignedInteger('task_project')->nullable(true);
+                $table->foreign('task_project')
+                        ->references('id')
+                        ->on('week_validation_projects')
                         ->onDelete('cascade');
                 $table->unique(['task_member_identification', 'dateOfEntry']);
                 $table->timestamps();
@@ -495,6 +558,9 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('notifications');
         Schema::dropIfExists('document_managers');
         Schema::dropIfExists('work_time_tracks');
+        Schema::dropIfExists('week_validation_projects');
+        Schema::dropIfExists('global_task_users');
+        Schema::dropIfExists('global_tasks');
         Schema::dropIfExists('week_validations');
         Schema::dropIfExists('task_members');
         Schema::dropIfExists('mass_parameters');

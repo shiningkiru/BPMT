@@ -49,7 +49,7 @@ class UserController extends MasterController
      */
     public function getAllUsers()
     {
-        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')->get();
+        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.team_lead','users.relievingDate','mass_parameters.type','mass_parameters.title')->get();
         return $allusers;
     }
 
@@ -341,39 +341,117 @@ public function projectleadAndManagementShow()
 }
 
     
- /**
- * @SWG\Get(
- *      path="/v1/user/employee",
- *      operationId="employee-show",
- *      tags={"Users"},
- *      summary="employee User list",
- *      description="employee User list",
- *      @SWG\Parameter(
- *          name="Authorization",
- *          description="authorization header",
- *          required=true,
- *          type="string",
- *          in="header"
- *      ),
- *      @SWG\Response(
- *          response=200,
- *          description="successful operation"
- *       ),
- *       @SWG\Response(response=500, description="Internal server error"),
- *       @SWG\Response(response=400, description="Bad request"),
- *     )
- *
- * Returns User Profile Pic
- */
-public function employeeShow()
-{
-    return $this->model->findByRole('employee');
-}
-   //rolewise user list end
+    /**
+     * @SWG\Get(
+     *      path="/v1/user/employee",
+     *      operationId="employee-show",
+     *      tags={"Users"},
+     *      summary="employee User list",
+     *      description="employee User list",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns User Profile Pic
+     */
+    public function employeeShow()
+    {
+        return $this->model->findByRole('employee');
+    }
 
+    
+    /**
+     * @SWG\Get(
+     *      path="/v1/user/reporting-manager",
+     *      operationId="reporting-manager-show",
+     *      tags={"Users"},
+     *      summary="reporting-manager User list",
+     *      description="reporting-manager User list",
+     *      @SWG\Parameter(
+     *          name="Authorization",
+     *          description="authorization header",
+     *          required=true,
+     *          type="string",
+     *          in="header"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="dept_id",
+     *          description="Department ID",
+     *          required=true,
+     *          type="string",
+     *          in="path"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="branch_id",
+     *          description="Branch ID",
+     *          required=true,
+     *          type="string",
+     *          in="path"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       ),
+     *       @SWG\Response(response=500, description="Internal server error"),
+     *       @SWG\Response(response=400, description="Bad request"),
+     *     )
+     *
+     * Returns User Profile Pic
+     */
+    public function reportingManagerShow(Request $request)
+    {
+        $user= \Auth::user();
+        $branchDepartment=BranchDepartment::where('branches_id','=',$request->branch_id)->where('dept_id','=',$request->dept_id)->first();
+        if(!($branchDepartment instanceof BranchDepartment)){
+            $branchDepartment=new BranchDepartment();
+            $branchDepartment->branches_id=$request->branch_id;
+            $branchDepartment->dept_id=$request->dept_id;
+            $branchDepartment->save();
+        }
+        return User::where(function($query) use ($branchDepartment){
+                $query->where('branch_dept_id','=',$branchDepartment->id)
+                    ->where('roles', '=', 'team-lead');
+            })
+            ->orWhere(function($query){
+                $query->where('roles','=','management')
+                    ->orWhere('roles','=','admin');
+            })
+            ->get();
+    }
+
+   //rolewise user list end
    public function designationFilter($id)
     {
         $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')->where('designation_id','=', $id)->paginate(10);
         return $allusers;
+    }
+
+    //get all the members of project lead
+    public function getProjectMembers(Request $request){
+        $user = Auth::user();
+
+        $users = User::leftJoin('project_teams', 'users.id', '=', 'project_teams.team_user_id')
+                        ->leftJoin('projects', 'projects.id', '=', 'project_teams.team_project_id')
+                        ->leftJoin('mass_parameters as designation_t', 'designation_t.id', 'users.designation_id')
+                        ->leftJoin('branch_departments', 'branch_departments.id', '=', 'users.branch_dept_id')
+                        ->leftJoin('branches', 'branches.id', '=', 'branch_departments.branches_id')
+                        ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
+                        ->where('projects.project_lead_id', '=', $user->id)
+                        ->where('users.id', '<>', $user->id)
+                        ->selectRaw('CONCAT(users.firstName, " ", users.lastName) as fullName, users.email, users.id, users.mobileNumber, projects.projectName, designation_t.title as designation, department_tb.title as department, branches.branchName')
+                        ->distinct('users.id')
+                        ->get();
+        return $users;
     }
 }

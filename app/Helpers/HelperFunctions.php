@@ -4,9 +4,11 @@ use App\User;
 use App\Sprint;
 use App\Project;
 use App\Customer;
+use App\GlobalTask;
 use App\Milestones;
 use App\TaskMember;
 use App\ProjectTeam;
+use App\GlobalTaskUser;
 use App\Repositories\ProjectRepository;
 use App\Repositories\TaskMemberRepository;
 use App\Repositories\ProjectTeamRepository;
@@ -105,6 +107,10 @@ class HelperFunctions{
         $yearWeek=$this->getYearWeekNumber($date);
         $year=$yearWeek['year'];
         $week = $yearWeek['week'];
+        return $this->getStartAndEndDateByWeekNumber($week, $year);
+    }
+    
+    public function getStartAndEndDateByWeekNumber($week, $year) {
         $dto = new \DateTime();
         $dto->setISODate($year, $week);
         $date = new \Datetime($dto->format('Y-m-d'));
@@ -229,6 +235,36 @@ class HelperFunctions{
         }
         $project->takenHours=$this->timeConversion($this->secToTime($total));
         $project->save();
+    }
+
+    public function synchGlobalTaskMembers(GlobalTask $task) {
+        try {
+            $users = User::where('isActive',true)->get();
+            foreach($users as $user) {
+                $globalUser = GlobalTaskUser::where('global_task_id', $task->id)->where('user_id',$user->id)->first();
+                if(!($globalUser instanceof GlobalTaskUser)){
+                    $globalUser = new GlobalTaskUser();
+                    $globalUser->user_id = $user->id;
+                    $globalUser->global_task_id = $task->id;
+                    $globalUser->save();
+                }
+            }
+        }catch(\Exception $e){}
+    }
+
+    public function synchMemberGlobalTasks(User $user) {
+        try {
+            $globalTasks = GlobalTask::where('isActive','=',true)->get();
+            foreach($globalTasks as $task) {
+                $globalUser = GlobalTaskUser::where('global_task_id', $task->id)->where('user_id',$user->id)->first();
+                if(!($globalUser instanceof GlobalTaskUser)){
+                    $globalUser = new GlobalTaskUser();
+                    $globalUser->user_id = $user->id;
+                    $globalUser->global_task_id = $task->id;
+                    $globalUser->save();
+                }
+            }
+        }catch(\Exception $e){}
     }
 }
 
