@@ -343,7 +343,8 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('sprint_id');
                 $table->foreign('sprint_id')
                         ->references('id')
-                        ->on('sprints');
+                        ->on('sprints')
+                        ->onDelete('cascade');
                 $table->unique(['taskName', 'sprint_id']);
                 $table->timestamps();
         });
@@ -356,7 +357,8 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('task_identification');
                 $table->foreign('task_identification')
                         ->references('id')
-                        ->on('tasks');
+                        ->on('tasks')
+                        ->onDelete('cascade');
                 $table->unsignedInteger('member_identification');
                 $table->foreign('member_identification')
                         ->references('id')
