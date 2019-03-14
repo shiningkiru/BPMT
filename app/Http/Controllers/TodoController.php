@@ -180,6 +180,33 @@ class TodoController extends MasterController
         if(!empty($request->linkId))
             $customerTodo = $customerTodo->where('linkId','=',$request->linkId);
 
+        if(!empty($request->searchText)){
+            $customerTodo = $customerTodo->where('todos.details', 'LIKE', '%'.$request->searchText.'%');
+        }
+
+        if(!empty($request->startDate) && empty($request->endDate)){
+            $startDate = new \Datetime($request->startDate);
+            $customerTodo = $customerTodo->where('dateFor', '=', $startDate->format('Y-m-d'));
+        }else if(!empty($request->startDate) && !empty($request->endDate)){
+            $startDate = new \Datetime($request->startDate);
+            $endDate = new \Datetime($request->endDate);
+            $endDate->modify('+1 day');
+            $customerTodo = $customerTodo->whereBetween('dateFor', [$startDate, $endDate]);
+        }
+
+        if(!empty($request->searchStatus)){
+            $status = $request->searchStatus;
+            if($status == 'overdue'){
+                $status = 'open';
+                $today = new \Datetime();
+                $customerTodo = $customerTodo->where('dateFor', '<' , $today->format('Y-m-d'));
+            }
+            $customerTodo = $customerTodo->where('todos.status', '=', $status);
+        }
+
+        if(!empty($request->customerName)){
+            $customerTodo = $customerTodo->where('customers.company', '=', $request->customerName);
+        }
         $customerTodo = $customerTodo->where('relatedTo','=',$request->relatedTo)
                         ->orderBy('todos.dateFor','DESC')
                         ->paginate($pageSize);

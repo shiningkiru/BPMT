@@ -275,9 +275,13 @@ class MilestonesController extends Controller
     * Deletes a single Milestone
     */
     public function delete($id){
-        $milestone = Milestones::find($id);
-        $milestone->delete();
-        return $milestone;
+        try {
+            $milestone = Milestones::find($id);
+            $milestone->delete();
+            return $milestone;
+        }catch(\Exception $e) {
+            return Response::json(['errors'=>['milestone'=>['You can not delete because productive tasks are included.']]], 422);
+        }
     }
 
     /**

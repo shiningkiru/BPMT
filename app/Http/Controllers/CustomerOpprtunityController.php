@@ -161,6 +161,28 @@ class CustomerOpprtunityController extends MasterController
         if(!empty($request->customer_id))
             $opprtunities = $opprtunities->where('customer_op_id','=',$request->customer_id);
 
+        if(!empty($request->searchText)){
+            $opprtunities = $opprtunities->where('customer_opportunities.details', 'LIKE', '%'.$request->searchText.'%');
+        }
+
+        if(!empty($request->startDate) && empty($request->endDate)){
+            $startDate = new \Datetime($request->startDate);
+            $opprtunities = $opprtunities->where('dateFor', '=', $startDate->format('Y-m-d'));
+        }else if(!empty($request->startDate) && !empty($request->endDate)){
+            $startDate = new \Datetime($request->startDate);
+            $endDate = new \Datetime($request->endDate);
+            $endDate->modify('+1 day');
+            $opprtunities = $opprtunities->whereBetween('dateFor', [$startDate, $endDate]);
+        }
+
+        if(!empty($request->searchStatus)){
+            $opprtunities = $opprtunities->where('customer_opportunities.status', '=', $request->searchStatus);
+        }
+
+        if(!empty($request->customerName)){
+            $opprtunities = $opprtunities->where('customers.company', '=', $request->customerName);
+        }
+
         $opprtunities = $opprtunities->orderBy('customer_opportunities.dateFor','DESC')->paginate($pageSize);
         return $opprtunities;
     }
@@ -199,7 +221,7 @@ class CustomerOpprtunityController extends MasterController
     public function getByContact(Request $request){
         $user = \Auth::user();
         
-        $opprtunities = CustomerOpportunity::where('customer_contact_person','=',$request->contact_id)->orderBy('id','DESC')->get();
-        return $opprtunities;
+        $opprtunities = CustomerOpportunity::where('customer_contact_person','=',$request->contact_id);
+        return $opprtunities->orderBy('id','DESC')->get();
     }
 }

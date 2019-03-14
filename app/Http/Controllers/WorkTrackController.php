@@ -132,6 +132,7 @@ class WorkTrackController extends Controller
                 $weekValidationProject = new WeekValidationProject();
                 $weekValidationProject->project_id = $project->id;
                 $weekValidationProject->week_validation_id = $weekValidation->id;
+                $weekValidationProject->status='entried';
                 $weekValidationProject->save();
             }
 
@@ -141,7 +142,7 @@ class WorkTrackController extends Controller
                         return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you. Please contact team/project lead.']]], 422);
                     }
                 }else{
-                    return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
+                    return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.'.$weekValidationProject->status]]], 422);
                 }
             }
 
@@ -151,7 +152,6 @@ class WorkTrackController extends Controller
                 $workTrack->dateOfEntry=$date;
                 $workTrack->task_member_identification=$taskMember->id;
                 $workTrack->week_number=$weekValidation->id;
-                $workTrack->task_project = $weekValidationProject->id;
             }else{
                 $workTrackTaken = $helper->timeToSec($helper->timeConversion($workTrack->takenHours));
                 $taskTaken-= $workTrackTaken;
@@ -159,6 +159,7 @@ class WorkTrackController extends Controller
                 $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken)); 
                 $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken ));
             }
+            $workTrack->task_project = $weekValidationProject->id;
             $workTrack->takenHours=$helper->timeConversion($request->takenHours);
             $workTrack->description=$request->description;
             

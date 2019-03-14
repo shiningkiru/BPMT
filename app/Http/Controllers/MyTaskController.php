@@ -125,8 +125,8 @@ class MyTaskController extends Controller
                                     });
                                     
                             })
-                            ->select('tasks.*')
-                            ->distinct('tasks.*')
+                            ->select('tasks.*','sprints.sprintTitle')
+                            ->distinct('tasks.*','sprints.sprintTitle')
                             ->get();
             
             //find current week validations

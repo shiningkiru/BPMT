@@ -375,9 +375,13 @@ class SprintController extends Controller
     * Deletes a single Sprint
     */
     public function delete($id){
-        $sprint = Sprint::find($id);
-        $sprint->delete();
-        return $sprint;
+        try {
+            $sprint = Sprint::find($id);
+            $sprint->delete();
+            return $sprint;
+        }catch(\Exception $e) {
+            return Response::json(['errors'=>['sprint'=>['You can not delete because productive tasks are included.']]], 422);
+        }
     }
 
        /**

@@ -185,7 +185,7 @@ class CreateUserModuleTable extends Migration
                     ->on('customers')
                     ->onDelete('cascade');
             $table->date('dateFor');
-            $table->enum('status', ['open', 'close']);
+            $table->enum('status', ['open', 'close', 'won', 'lost']);
             $table->text('details')->nullable(true);
             $table->unsignedInteger('customer_contact_person')->nullable();
             $table->foreign('customer_contact_person')
@@ -329,6 +329,8 @@ class CreateUserModuleTable extends Migration
                 $table->text('description')->nullable(true);
                 $table->dateTimeTz('startDate');
                 $table->dateTimeTz('endDate');
+                $table->dateTimeTz('uatRelease')->nullable(true);
+                $table->dateTimeTz('prodRelease')->nullable(true);
                 $table->text('estimatedHours');
                 $table->text('takenHours')->nullable(true);
                 $table->enum('status', ['created', 'assigned', 'onhold', 'inprogress','completed', 'cancelled','failed']);
@@ -341,8 +343,7 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('sprint_id');
                 $table->foreign('sprint_id')
                         ->references('id')
-                        ->on('sprints')
-                        ->onDelete('cascade');
+                        ->on('sprints');
                 $table->unique(['taskName', 'sprint_id']);
                 $table->timestamps();
         });
@@ -355,13 +356,11 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('task_identification');
                 $table->foreign('task_identification')
                         ->references('id')
-                        ->on('tasks')
-                        ->onDelete('cascade');
+                        ->on('tasks');
                 $table->unsignedInteger('member_identification');
                 $table->foreign('member_identification')
                         ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
+                        ->on('users');
                 $table->unique(['task_identification', 'member_identification']);
                 $table->timestamps();
         });
@@ -379,13 +378,11 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('user_id');
                 $table->foreign('user_id')
                         ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
+                        ->on('users');
                 $table->unsignedInteger('accepted_user_id')->nullable(true);
                 $table->foreign('accepted_user_id')
                         ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
+                        ->on('users');
                 $table->unique(['weekNumber', 'entryYear','user_id']);
                 $table->timestamps();
         });
@@ -410,8 +407,7 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('user_id');
                 $table->foreign('user_id')
                         ->references('id')
-                        ->on('users')
-                        ->onDelete('cascade');
+                        ->on('users');
                 $table->unique(['global_task_id', 'user_id']);
                 $table->timestamps();
         });
@@ -423,18 +419,15 @@ class CreateUserModuleTable extends Migration
             $table->unsignedInteger('project_id');
             $table->foreign('project_id')
                     ->references('id')
-                    ->on('projects')
-                    ->onDelete('cascade');
+                    ->on('projects');
             $table->unsignedInteger('week_validation_id');
             $table->foreign('week_validation_id')
                     ->references('id')
-                    ->on('week_validations')
-                    ->onDelete('cascade');
+                    ->on('week_validations');
             $table->unsignedInteger('accepted_user_id')->nullable(true);
             $table->foreign('accepted_user_id')
                     ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
+                    ->on('users');
             $table->unique(['project_id', 'week_validation_id']);
         });
 
@@ -447,23 +440,19 @@ class CreateUserModuleTable extends Migration
                 $table->unsignedInteger('task_member_identification')->nullable(true);
                 $table->foreign('task_member_identification')
                         ->references('id')
-                        ->on('task_members')
-                        ->onDelete('cascade');
+                        ->on('task_members');
                 $table->unsignedInteger('global_task_user_id')->nullable(true);
                 $table->foreign('global_task_user_id')
                         ->references('id')
-                        ->on('global_task_users')
-                        ->onDelete('cascade');
+                        ->on('global_task_users');
                 $table->unsignedInteger('week_number');
                 $table->foreign('week_number')
                         ->references('id')
-                        ->on('week_validations')
-                        ->onDelete('cascade');
+                        ->on('week_validations');
                 $table->unsignedInteger('task_project')->nullable(true);
                 $table->foreign('task_project')
                         ->references('id')
-                        ->on('week_validation_projects')
-                        ->onDelete('cascade');
+                        ->on('week_validation_projects');
                 $table->unique(['task_member_identification', 'dateOfEntry']);
                 $table->timestamps();
         });

@@ -140,7 +140,17 @@ class TaskController extends Controller
         $task->status=$request->status;
         $task->priority=$request->priority;
         $task->sprint_id=$request->sprint_id;
-        $task->dependent_task_id=$request->dependent_task_id;        
+        $task->dependent_task_id=$request->dependent_task_id;   
+
+        if(!empty($request->uatRelease)){
+            $uatRelease=new \Datetime($request->uatRelease);  
+            $task->uatRelease=$uatRelease->format('Y-m-d 00:00:00');
+        }  
+
+        if(!empty($request->prodRelease)){
+            $prodRelease=new \Datetime($request->prodRelease);  
+            $task->prodRelease=$prodRelease->format('Y-m-d 00:00:00');
+        }   
         
         $sprint=Sprint::find($request->sprint_id);
         
