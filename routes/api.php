@@ -30,6 +30,7 @@ Route::prefix('v1')->group(function () {
         Route::get('user/reporting-manager', 'UserController@reportingManagerShow');
         Route::get('user/team-lead', 'UserController@teamleadShow');
         Route::get('user/project-lead/members', 'UserController@getProjectMembers');
+        Route::get('user/team-lead/members', 'UserController@getMyReportingMembers');
         Route::get('user/project-lead', 'UserController@projectleadShow');
         Route::get('user/project-lead-and-management', 'UserController@projectleadAndManagementShow');
         Route::get('user/employee', 'UserController@employeeShow');
@@ -224,7 +225,7 @@ Route::prefix('v1')->group(function () {
         Route::post('task-member/all-assigned-tasks', 'WorkTrackController@getAllAssignedTasks');
         Route::post('task-member/user-ptt', 'WorkTrackController@getMyWeeklyPtt');
         Route::post('task-member/user-ptt/request-submit', 'WeekValidationController@submitWeeklyPtt');
-        Route::post('task-member/user-ptt/request-approve', 'WeekValidationController@approveWeeklyPtt');
+        Route::post('task-member/project-lead-approve', 'WeekValidationController@projectLeadApproveWeeklyPtt');
         Route::post('task-member/user-ptt/request-reject', 'WeekValidationController@resendWeeklyPtt');
     });
 
@@ -267,7 +268,7 @@ Route::prefix('v1')->group(function () {
 
     //week validation
     Route::group(['middleware' => 'jwt.auth'], function(){
-        Route::get('my-task', 'MyTaskController@getMyTask');
+        Route::post('my-task', 'MyTaskController@getMyTask');
     });
 
     //week validation

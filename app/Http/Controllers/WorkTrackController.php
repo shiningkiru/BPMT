@@ -120,11 +120,6 @@ class WorkTrackController extends Controller
                 $weekValidation->save();
             }
 
-            //submit validation in tl level
-            if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned'){
-                return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
-            }
-
             //logic project connection
             $project = $taskMember->task->sprint->milestone->project;
             $weekValidationProject = WeekValidationProject::where('project_id','=',$project->id)->where('week_validation_id', '=', $weekValidation->id)->first();
@@ -136,13 +131,22 @@ class WorkTrackController extends Controller
                 $weekValidationProject->save();
             }
 
+            //submit validation in tl level
+            if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned' && $project->project_lead_id != \Auth::user()->id){
+                return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
+            }
+
             if(($weekValidationProject->status != 'entried')){
                 if($weekValidationProject->status == 'reassigned'){
                     if($project->project_lead_id != \Auth::user()->id){
                         return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you. Please contact team/project lead.']]], 422);
                     }
+                }else if($weekValidationProject->status == 'requested') {
+                    if($project->project_lead_id != \Auth::user()->id){
+                        return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you.']]], 422);
+                    }
                 }else{
-                    return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.'.$weekValidationProject->status]]], 422);
+                    return \Response::json(['errors'=>['weekValidation'=>['PTT already '.$weekValidationProject->status]]], 422);
                 }
             }
 

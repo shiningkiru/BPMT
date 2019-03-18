@@ -449,8 +449,24 @@ public function projectleadAndManagementShow()
                         ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
                         ->where('projects.project_lead_id', '=', $user->id)
                         ->where('users.id', '<>', $user->id)
-                        ->selectRaw('CONCAT(users.firstName, " ", users.lastName) as fullName, users.email, users.id, users.mobileNumber, projects.projectName, designation_t.title as designation, department_tb.title as department, branches.branchName')
-                        ->distinct('users.id')
+                        ->select('users.id', 'users.email', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
+                        ->distinct('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.mobileNumber', 'designation_t.title', 'department_tb.title', 'branches.branchName')
+                        ->get();
+        return $users;
+    }
+
+    //get all the members of team lead
+    public function getMyReportingMembers(Request $request){
+        $user = Auth::user();
+
+        $users = User::leftJoin('mass_parameters as designation_t', 'designation_t.id', 'users.designation_id')
+                        ->leftJoin('branch_departments', 'branch_departments.id', '=', 'users.branch_dept_id')
+                        ->leftJoin('branches', 'branches.id', '=', 'branch_departments.branches_id')
+                        ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
+                        ->where('users.team_lead', '=', $user->id)
+                        ->where('users.id', '<>', $user->id)
+                        ->select('users.id', 'users.email', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
+                        ->distinct('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.mobileNumber', 'designation_t.title', 'department_tb.title', 'branches.branchName')
                         ->get();
         return $users;
     }
