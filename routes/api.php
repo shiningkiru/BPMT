@@ -227,6 +227,8 @@ Route::prefix('v1')->group(function () {
         Route::post('task-member/user-ptt/request-submit', 'WeekValidationController@submitWeeklyPtt');
         Route::post('task-member/project-lead-approve', 'WeekValidationController@projectLeadApproveWeeklyPtt');
         Route::post('task-member/user-ptt/request-reject', 'WeekValidationController@resendWeeklyPtt');
+        Route::post('task-member/user-ptt/reassign-project', 'WeekValidationController@reassignWeeklyProjectPtt');
+        Route::post('task-member/team-lead-approve', 'WeekValidationController@teamLeadApprovePtt');
     });
 
     //Access previlege routes

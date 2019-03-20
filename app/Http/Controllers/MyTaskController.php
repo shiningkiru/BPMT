@@ -26,6 +26,7 @@ class MyTaskController extends Controller
             'approvalType' => 'required|in:project-lead,team-lead,my-task',
         ]);
         if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        $teamLead=false;
 
         //declarations
         $user = \Auth::user();
@@ -56,6 +57,10 @@ class MyTaskController extends Controller
 
         $columnTotals=[];
         $globalTasks=[];
+
+        if($currentUser->id == $user->team_lead){
+            $teamLead =true;
+        }
 
         //find start and end date
         $timeGap = $helper->getStartAndEndDateByWeekNumber($weekNumber, $year);
@@ -201,7 +206,7 @@ class MyTaskController extends Controller
             $columnTotals[$key] = $helper->secToTime($total);
         }
 
-        if($weekValidation->status != 'requested' && $weekValidation->status != 'reassigned'){
+        if(($weekValidation->status != 'requested' && $weekValidation->status != 'reassigned') || $request->approvalType != 'team-lead'){
             $teamLeadSubmission=false;
         }
 
@@ -210,6 +215,7 @@ class MyTaskController extends Controller
         $result['projects'] = $projects;
         $result['projectLeadSubmission']=$projectLeadSubmission;
         $result['teamLeadSubmission']=$teamLeadSubmission;
+        $result['teamLead']=$teamLead;
         $result['columnTotals'] = $columnTotals;
         $result['grandTotal'] = $helper->secToTime($grandTotal);
         $result['weekNumber']=$weekNumber;

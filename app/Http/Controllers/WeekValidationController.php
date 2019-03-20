@@ -7,6 +7,7 @@ use App\User;
 use App\Notification;
 use App\WeekValidation;
 use Illuminate\Http\Request;
+use App\WeekValidationProject;
 use App\Helpers\HelperFunctions;
 use App\Events\NotificationFired;
 use App\Repositories\UserRepository;
@@ -138,39 +139,64 @@ class WeekValidationController extends MasterController
         return $weekValidation;
     }
 
-    public function resendWeeklyPtt(Request $request){
-        $user = \Auth::user();
-        $valid = $this->model->validateRules($request->all(), [
-            'week_validation' => 'required:exists:week_validations,id'
-        ]);
-        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+    public function reassignWeeklyProjectPtt(Request $request) {
+        return \DB::transaction(function() use ($request){
+            try {
+                $notificationRepository = new NotificationRepository();
+                $user = \Auth::user();
+                $valid = $this->model->validateRules($request->all(), [
+                    'week_validation' => 'required:exists:week_validations,id',
+                    'week_validation_project' => 'required:exists:week_validation_projects,id',
+                ]);
+                if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+                $weekValidation = $this->model->show($request->week_validation);
+                $weekValidationProject = WeekValidationProject::find($request->week_validation_project);
 
-        $weekValidation = $this->model->show($request->week_validation);
-        
-        try{
-            \DB::transaction(function () use ($weekValidation, $user) {
-                if($weekValidation->status=='requested'):
-                    $weekValidation->status='reassigned';
-                    $weekValidation->save();
-                    
-                    // $projectRepository = new ProjectRepository();
-                    // $projects=$projectRepository->findWeeklyWorkingProjects(new \Datetime($weekValidation->startDate),new \Datetime($weekValidation->endDate), $user->id);
-                    // $targetUsers=[['id'=>$weekValidation->user_id]];
-                    // foreach($projects as $project){
-                    //     $targetUsers=array_merge($targetUsers, [['id'=>$project->project_lead_id]]);
-                    // }
-                    
-                    $notificationRepository = new NotificationRepository();
-                    $message = $user->firstName." has resent Time Tracks for the week ".$weekValidation->weekNumber."/".$weekValidation->entryYear.". Please verify";
-                    $notificationRepository->sendNotification($user, User::find($weekValidation->user_id), $message, "time-track-reject", $weekValidation->startDate);
-                else:
-                    return response()->json(['errors'=>['condition'=>["You can't do this."]]], 422);
-                endif;
-            });
-            return $weekValidation;
-        }catch(\Exception $e){
-            return response()->json(['errors'=>['server'=>[$e->getMessage()]]], 422);
-        }
+                if($weekValidation->status == 'accepted') {
+                    return response()->json(['errors'=>['reassign'=>["Final Approval is already completed."]]], 422);
+                }
+
+                $project=$weekValidationProject->project;
+                $projectLead = $project->project_lead;
+
+                $weekValidationProject->status = 'reassigned';
+                $weekValidationProject->save();
+                $message = $project->projectName." project of ".$weekValidation->user->firstName." ".$weekValidation->user->lastName. "(".$weekValidation->weekNumber."/".$weekValidation->entryYear.") is reassigned.";
+                $notificationRepository->sendNotification($user, $projectLead, $message, 'ptt-team-lead-reassign', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                return $weekValidationProject;
+            }catch(\Exception $e){
+                return response()->json(['errors'=>['reassign'=>[$e->getMessage()]]], 422);
+            }
+        });
+                
+    }
+
+    public function teamLeadApprovePtt(Request $request){
+        return \DB::transaction(function() use ($request){
+            try {
+                $notificationRepository = new NotificationRepository();
+                $user = \Auth::user();
+                $valid = $this->model->validateRules($request->all(), [
+                    'week_validation' => 'required:exists:week_validations,id'
+                ]);
+                if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+
+                $weekValidation = $this->model->show($request->week_validation);
+                $weekValidation->status="accepted";
+                $weekValidation->save();
+                $ruser = $weekValidation->user;
+                foreach($weekValidation->week_projects as $wproject){
+                    $message = $ruser->firstName." ".$ruser->lastName."'s PTT for the week ".$weekValidation->weekNumber."/".$weekValidation->entryYear." is approved by team lead ".$user->firstName." ".$user->lastName;
+                    $notificationRepository->sendNotification($user, $wproject->project->project_lead, $message, 'ptt-team-lead-approve', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                }
+                
+                $message = "PTT of week ".$weekValidation->weekNumber."/".$weekValidation->entryYear." is approved by team lead ".$user->firstName." ".$user->lastName;
+                $notificationRepository->sendNotification($user, $ruser, $message, 'ptt-team-lead-approve-user', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                return $weekValidation;
+            }catch(\Exception $e){
+                return response()->json(['errors'=>['team-lead-approve'=>[$e->getMessage()]]], 422);
+            }
+        });
     }
 
     public function getByUserYear(Request $request){
