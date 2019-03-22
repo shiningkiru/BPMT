@@ -32,7 +32,7 @@ class MyTaskController extends Controller
         $user = \Auth::user();
         $currentUser = clone $user;
 
-        if($request->approvalType == 'project-lead' || $request->approvalType == 'team-lead') {
+        if($request->approvalType == 'project-lead' || $request->approvalType == 'team-lead' || $request->approvalType == 'admin') {
             if(!empty($request->user_id)){
                 $user = User::find($request->user_id);
             }
@@ -132,7 +132,6 @@ class MyTaskController extends Controller
         $projects = $projects->select('projects.*')
                             ->distinct('projects.*')
                             ->get();
-
         //find the current tasks which are available in each project
         $projectLeadSubmission =false;
         $teamLeadSubmission=true;
