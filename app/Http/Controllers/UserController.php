@@ -49,8 +49,19 @@ class UserController extends MasterController
      */
     public function getAllUsers()
     {
-        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.team_lead','users.relievingDate','mass_parameters.type','mass_parameters.title')->get();
-        return $allusers;
+        //$allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.team_lead','users.relievingDate','mass_parameters.type','mass_parameters.title')->get();
+        
+        $user = Auth::user();
+
+        $users = User::leftJoin('mass_parameters as designation_t', 'designation_t.id', 'users.designation_id')
+                        ->leftJoin('branch_departments', 'branch_departments.id', '=', 'users.branch_dept_id')
+                        ->leftJoin('branches', 'branches.id', '=', 'branch_departments.branches_id')
+                        ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
+                        ->where('users.id', '<>', $user->id)
+                        ->select('users.id', 'users.email', 'users.employeeId', 'users.profilePic', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
+                        ->distinct('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', 'users.mobileNumber', 'designation_t.title', 'department_tb.title', 'branches.branchName')
+                        ->get();
+        return $users;
     }
 
      /**

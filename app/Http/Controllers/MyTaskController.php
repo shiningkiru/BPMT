@@ -23,7 +23,7 @@ class MyTaskController extends Controller
             'week_validation_id' => 'nullable|exists:week_validations,id',
             'weekNumber' => 'nullable|integer|between:1,53',
             'year' => 'nullable|integer|between:2017,2030',
-            'approvalType' => 'required|in:project-lead,team-lead,my-task',
+            'approvalType' => 'required|in:project-lead,team-lead,my-task,admin',
         ]);
         if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
         $teamLead=false;
@@ -76,7 +76,7 @@ class MyTaskController extends Controller
             $weekValidation->save();
         }
 
-        if(($request->approvalType != 'project-lead' && $request->approvalType == 'team-lead') || $request->approvalType == 'my-task') {
+        if(($request->approvalType != 'project-lead' && $request->approvalType == 'team-lead') || $request->approvalType == 'my-task'|| $request->approvalType == 'admin') {
 
             //global task system
             $globalTasks = GlobalTask::leftJoin('global_task_users','global_task_users.global_task_id', '=', 'global_tasks.id')
@@ -210,6 +210,11 @@ class MyTaskController extends Controller
             $teamLeadSubmission=false;
         }
 
+        if($request->approvalType == 'admin' ){
+            $teamLead=false;
+            $teamLeadSubmission=false;
+            $projectLeadSubmission=false;
+        }
         $result['dates'] = $helper->getDateRange($timeGap[0], $timeGap[1]);
         $result['weekValidation'] = $weekValidation;
         $result['projects'] = $projects;

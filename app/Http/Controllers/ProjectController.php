@@ -485,9 +485,20 @@ class ProjectController extends Controller
      *
      * Returns Project code for the Employee
      */
-    public function projectCode($type){
+    public function projectCode($type) {
         $helper = new HelperFunctions();
         $projectCode=$helper->getInternalProjectId($type);
         return ['projectCode'=>$projectCode];
+    }
+
+    public function employeeProjectReport($id) {
+        $user = \Auth::user();
+        $projects=Project::leftJoin('project_teams','project_teams.team_project_id', '=', 'projects.id')
+        ->where('project_teams.team_user_id','=',$id)
+        ->groupBy('projects.id','projects.projectName','projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.status')
+        ->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','projects.projectType')
+        ->orderBy('projects.startDate','ASC')
+        ->get();
+        return $projects;       
     }
 }

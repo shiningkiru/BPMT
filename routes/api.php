@@ -136,6 +136,7 @@ Route::prefix('v1')->group(function () {
 
      //Project routes
     Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::get('project/project-employee-report/{id}', 'ProjectController@employeeProjectReport');
         Route::get('project/project-code/{type}', 'ProjectController@projectCode');
         Route::get('project/task-chart-list', 'ProjectController@taskChartList');
         Route::post('project', 'ProjectController@create');

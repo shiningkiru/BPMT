@@ -334,7 +334,12 @@ class AuthController extends Controller
      * Returns logout user
      */
     public function singleUser($id){
-        $user=User::leftJoin('users as team_leads','team_leads.id','=','users.team_lead')->leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->leftJoin('branch_departments','branch_departments.id','=','users.branch_dept_id')->where('users.id','=',$id)->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.address','users.profilePic','users.team_lead', 'team_leads.firstName as lead_first_name','team_leads.lastName as lead_last_name','users.salary','users.bloodGroup', 'users.relievingDate','users.designation_id', 'users.roles','users.company_id','mass_parameters.type','mass_parameters.title',"branch_departments.branches_id","branch_departments.dept_id")->get();
+        $user=User::leftJoin('users as team_leads','team_leads.id','=','users.team_lead')
+        ->leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')
+        ->leftJoin('branch_departments','branch_departments.id','=','users.branch_dept_id')
+        ->leftJoin('branch_departments as branch_deptname','branch_deptname.id','=','users.branch_dept_id')
+        ->leftJoin('mass_parameters as department_name','department_name.id','=','branch_departments.dept_id')
+        ->where('users.id','=',$id)->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.address','users.profilePic','users.team_lead', 'team_leads.firstName as lead_first_name','team_leads.lastName as lead_last_name','users.salary','users.bloodGroup', 'users.relievingDate','users.designation_id', 'users.roles','users.company_id','mass_parameters.type','mass_parameters.title',"branch_departments.branches_id","branch_departments.dept_id","department_name.title as dept_name")->get();
         // $user = User::find($id);
         return $user[0];
     }
