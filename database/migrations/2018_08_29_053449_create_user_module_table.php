@@ -211,6 +211,41 @@ class CreateUserModuleTable extends Migration
             $table->timestamps();
         });
 
+
+        Schema::create('customer_meetings', function (Blueprint $table) {
+            $table->increments('id');
+            $table->dateTimeTz('dateFor');
+            $table->enum('status', ['open', 'close']);
+            $table->text('details')->nullable(true);
+            $table->unsignedInteger('customer_id');
+            $table->foreign('customer_id')
+                    ->references('id')
+                    ->on('customers')
+                    ->onDelete('cascade');
+            $table->unsignedInteger('resp_user');
+            $table->foreign('resp_user')
+                    ->references('id')
+                    ->on('users');
+            $table->timestamps();
+        });
+
+        Schema::create('customer_calls', function (Blueprint $table) {
+            $table->increments('id');
+            $table->dateTimeTz('dateFor');
+            $table->enum('status', ['open', 'close']);
+            $table->text('details')->nullable(true);
+            $table->unsignedInteger('customer_id');
+            $table->foreign('customer_id')
+                    ->references('id')
+                    ->on('customers')
+                    ->onDelete('cascade');
+            $table->unsignedInteger('resp_user');
+            $table->foreign('resp_user')
+                    ->references('id')
+                    ->on('users');
+            $table->timestamps();
+        });
+
         Schema::create('projects', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('projectName')->unique();
@@ -564,6 +599,8 @@ class CreateUserModuleTable extends Migration
         Schema::dropIfExists('todos');
         Schema::dropIfExists('customer_opportunities');
         Schema::dropIfExists('opportunities');
+        Schema::dropIfExists('customer_meetings');
+        Schema::dropIfExists('customer_calls');
         Schema::dropIfExists('customers');
         Schema::dropIfExists('locations');
         Schema::dropIfExists('sprints');

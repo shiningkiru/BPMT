@@ -88,7 +88,7 @@ class WeekValidationController extends MasterController
                 $teamLead = $user->dept_team_lead;
                 if($teamLead instanceof User){
                     $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
-                    $notificationRepository->sendNotification($user, $teamLead, $message, "time-track-final-approval", $user->id.'///'.$request->weekNumber.'///'.$request->year);
+                    $notificationRepository->sendNotification($user, $teamLead, $message, "ptt-project-lead-approval-complete", $user->id.'///'.$request->weekNumber.'///'.$request->year);
                 }else {
                     return response()->json(['errors'=>['team_lead'=>['You have no team leads. Check your management flow.']]], 422);
                 }
@@ -135,13 +135,11 @@ class WeekValidationController extends MasterController
                         $notificationRepository->sendNotification($user, $weekValidation->user->dept_team_lead, $message, 'ptt-project-lead-approval-complete', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
                     }
                 }
-                return $weekValidation;
+                return $weekValidation->week_projects;
             }catch(\Exception $e){
                 return response()->json(['errors'=>['approval'=>[$e->getMessage()]]], 422);
             }
         });
-
-        return $weekValidation;
     }
 
     public function projectLeadResendPTT(Request $request) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contacts;
+use App\Customer;
 use App\ContactUpdates;
 use App\CustomerOpportunity;
 use Illuminate\Http\Request;
@@ -73,7 +74,9 @@ class ContactController extends MasterController
 
        try {
             $contact->save();
-
+               $customer=Customer::find($request->contact_customer_id);
+               $customer->updated_at=new \Datetime();
+               $customer->save();
             
           if(is_array($request->updates)) {
                foreach($request->updates as $updt){

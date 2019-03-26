@@ -58,7 +58,7 @@ class MyTaskController extends Controller
         $columnTotals=[];
         $globalTasks=[];
 
-        if($currentUser->id == $user->team_lead){
+        if($currentUser->id == $user->team_lead && $request->approvalType == 'team-lead'){
             $teamLead =true;
         }
 
@@ -71,9 +71,11 @@ class MyTaskController extends Controller
             $weekValidation->weekNumber=$weekNumber;
             $weekValidation->entryYear=$year;
             $weekValidation->user_id=$user->id;
+            $weekValidation->status="entried";
             $weekValidation->startDate = $dateGap[0];
             $weekValidation->endDate = $dateGap[1];
             $weekValidation->save();
+            $weekValidation=WeekValidation::find($weekValidation->id);
         }
 
         if(($request->approvalType != 'project-lead' && $request->approvalType == 'team-lead') || $request->approvalType == 'my-task'|| $request->approvalType == 'admin') {
@@ -213,11 +215,15 @@ class MyTaskController extends Controller
             $projectLeadSubmission=false;
         }
 
-        if($request->approvalType == 'admin' ){
+        if($request->approvalType == 'admin' || $request->approvalType == 'my-task' ){
             $teamLead=false;
             $teamLeadSubmission=false;
             $projectLeadSubmission=false;
-        } 
+        } else if( $request->approvalType == 'team-lead') {
+            $projectLeadSubmission = false;
+        }else if( $request->approvalType == 'project-lead') {
+            $teamLeadSubmission = false;
+        }
 
         $userDetail = User::leftJoin('mass_parameters as designation_t', 'designation_t.id', 'users.designation_id')
                         ->leftJoin('branch_departments', 'branch_departments.id', '=', 'users.branch_dept_id')
@@ -279,12 +285,14 @@ class MyTaskController extends Controller
                         ->distinct('users.id', 'users.firstName', 'users.lastName')
                         ->get();
         foreach($users as $usr) {
+
+            //if error occurs on team lead approval list then this query might be changed
             $weekValidations = WeekValidation::leftJoin('week_validation_projects', 'week_validation_projects.week_validation_id', '=', 'week_validations.id')
                                                 ->where('week_validations.status','=', 'requested')
-                                                ->where(function($query) {
-                                                    $query->select('COUNT(week_validation_projects.id)')
-                                                            ->where('week_validation_projects.status', '<>', 'accepted')
-                                                            
+                                                ->whereNotIn('week_validations.id', function($query) {
+                                                    $query->select('week_validation_projects.week_validation_id')
+                                                            ->from('week_validation_projects')
+                                                            ->where('week_validation_projects.status', '<>', 'accepted');
                                                 })
                                                 ->where('week_validations.user_id', '=', $usr->id)
                                                 ->select('week_validations.*')

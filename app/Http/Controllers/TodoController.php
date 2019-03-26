@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Todo;
+use App\Customer;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use Illuminate\Http\UploadedFile;
@@ -106,6 +107,9 @@ class TodoController extends MasterController
         $todo->details=$request->details;
 
         $todo->save();
+        $customer=Customer::find($request->linkId);
+        $customer->updated_at=new \Datetime();
+        $customer->save();
         return $todo;
     }
 

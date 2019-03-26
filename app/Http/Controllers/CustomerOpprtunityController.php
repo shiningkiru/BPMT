@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Customer;
 use App\CustomerOpportunity;
 use Illuminate\Http\Request;
 use App\Helpers\HelperFunctions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\Paginator;
-use App\Http\Requests\CustomerOpportunityRequest;
 use App\Http\Controllers\Master\MasterController;
+use App\Http\Requests\CustomerOpportunityRequest;
 use App\Repositories\CustomerOpportunityRepository;
 
 class CustomerOpprtunityController extends MasterController
@@ -98,6 +99,9 @@ class CustomerOpprtunityController extends MasterController
         $opprtunity->details=$request->details;
 
         $opprtunity->save();
+        $customer=Customer::find($request->customer_id);
+        $customer->updated_at=new \Datetime();
+        $customer->save();
         return $opprtunity;
     }
 

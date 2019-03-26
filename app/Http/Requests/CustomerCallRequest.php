@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ToDoRequest extends FormRequest
+class CustomerCallRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +24,11 @@ class ToDoRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'nullable|exists:todos,id',
+            'id' => 'nullable|exists:customer_meetings,id',
+            'customer_id' => 'required|exists:customers,id',
             'dateFor' => 'required|date',
-            'details' => 'required',
             'status' => 'required|in:open,close',
-            'relatedTo' => 'required|in:customer',
-            'linkId' => 'todo_link_id:'.$this->get('relatedTo'),
-            'to_do_resp_user' => 'required|exists:users,id'
+            'details' => 'required'
         ];
     }
 }

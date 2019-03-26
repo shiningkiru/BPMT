@@ -58,7 +58,7 @@ class UserController extends MasterController
                         ->leftJoin('branches', 'branches.id', '=', 'branch_departments.branches_id')
                         ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
                         ->where('users.id', '<>', $user->id)
-                        ->select('users.id', 'users.email', 'users.employeeId', 'users.profilePic', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
+                        ->select('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
                         ->distinct('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', 'users.mobileNumber', 'designation_t.title', 'department_tb.title', 'branches.branchName')
                         ->get();
         return $users;

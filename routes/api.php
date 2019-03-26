@@ -134,6 +134,22 @@ Route::prefix('v1')->group(function () {
         Route::post('opportunity', 'CustomerOpprtunityController@addOpportunity');
     });
 
+    //meeting routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('meeting/by-related', 'CustomerMeetingController@getByRelated');
+        Route::delete('meeting/{id}', 'CustomerMeetingController@delete');
+        Route::get('meeting/{id}', 'CustomerMeetingController@get');
+        Route::post('meeting', 'CustomerMeetingController@addMeeting');
+    });
+
+    //call routes
+    Route::group(['middleware' => 'jwt.auth'], function(){
+        Route::post('call/by-related', 'CustomerCallController@getByRelated');
+        Route::delete('call/{id}', 'CustomerCallController@delete');
+        Route::get('call/{id}', 'CustomerCallController@get');
+        Route::post('call', 'CustomerCallController@addMeeting');
+    });
+
      //Project routes
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::get('project/project-employee-report/{id}', 'ProjectController@employeeProjectReport');
@@ -274,6 +290,7 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('my-task', 'MyTaskController@getMyTask');
         Route::get('my-task/project-lead/members', 'MyTaskController@getProjectLeadSubmittedPttUsers');
+        Route::get('my-task/team-lead/members', 'MyTaskController@getTeamLeadSubmittedPttUsers');
     });
 
     //week validation
