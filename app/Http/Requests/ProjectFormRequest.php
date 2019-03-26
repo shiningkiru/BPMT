@@ -26,7 +26,7 @@ class ProjectFormRequest extends FormRequest
         return [
             // 'id' => 'exists:projects,id',
             'projectName' => 'string|unique:projects,projectName,'.$this->request->get('id'),
-            'projectCode' => 'unique:projects,projectCode,'.$this->request->get('id'),
+            'projectCode' => 'required|unique:projects,projectCode,'.$this->request->get('id').'|regex:/^([(IPR)?(PR)?]{2,3})-[0-9]{3,4}-[0-9]{2}$/',
             'status' => 'required|in:received,pending,started,in-progress,on-hold,completed,cancelled,new',
             'company_id' => 'required|exists:companies,id',
             'customer_project_id' => 'required|exists:customers,id',

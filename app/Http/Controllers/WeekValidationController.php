@@ -52,7 +52,7 @@ class WeekValidationController extends MasterController
                 $weekValidation->save();
             }
 
-            if($weekValidation->status != 'entried') {
+            if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned') {
                 return response()->json(['errors'=>['system'=>['You can\'t submit PTT twice.']]], 422);
             }
 
@@ -110,6 +110,11 @@ class WeekValidationController extends MasterController
             try {
                 $notificationRepository = new NotificationRepository();
                 $allCompleted=true;
+
+                if($weekValidation->status == 'reassigned')
+                    return response()->json(['errors'=>['approval'=>['You reassigned PTT to user.']]], 422);
+
+
                 foreach($weekValidation->week_projects as $wproject){
                     if($wproject->project->project_lead_id == $user->id){
                         $wproject->status="accepted";
@@ -139,6 +144,34 @@ class WeekValidationController extends MasterController
         return $weekValidation;
     }
 
+    public function projectLeadResendPTT(Request $request) {
+        $user = \Auth::user();
+        $valid = $this->model->validateRules($request->all(), [
+            'week_validation' => 'required:exists:week_validations,id'
+        ]);
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+
+        $weekValidation = $this->model->show($request->week_validation);
+        return \DB::transaction(function() use ($weekValidation, $user){
+            try {
+                $notificationRepository = new NotificationRepository();
+
+                if($weekValidation->status == 'accepted')
+                    return response()->json(['errors'=>['approval'=>['PTT approval process already completed']]], 422);
+
+
+                $weekValidation->status = 'reassigned';
+                $weekValidation->save();
+                
+                $message = "PTT of week ".$weekValidation->weekNumber."/".$weekValidation->entryYear." is reassigned by project lead ".$user->firstName." ".$user->lastName;
+                $notificationRepository->sendNotification($user, $weekValidation->user, $message, 'ptt-proj-lead-resend-ptt', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                return $weekValidation;
+            }catch(\Exception $e){
+                return response()->json(['errors'=>['approval'=>[$e->getMessage()]]], 422);
+            }
+        });
+    }
+
     public function reassignWeeklyProjectPtt(Request $request) {
         return \DB::transaction(function() use ($request){
             try {
@@ -161,7 +194,7 @@ class WeekValidationController extends MasterController
 
                 $weekValidationProject->status = 'reassigned';
                 $weekValidationProject->save();
-                $message = $project->projectName." project of ".$weekValidation->user->firstName." ".$weekValidation->user->lastName. "(".$weekValidation->weekNumber."/".$weekValidation->entryYear.") is reassigned.";
+                $message = $project->projectName." project of ".$weekValidation->user->firstName." ".$weekValidation->user->lastName. "(".$weekValidation->weekNumber."/".$weekValidation->entryYear.") is reassigned by team lead.";
                 $notificationRepository->sendNotification($user, $projectLead, $message, 'ptt-team-lead-reassign', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
                 return $weekValidationProject;
             }catch(\Exception $e){

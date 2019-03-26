@@ -132,6 +132,14 @@ class ProjectController extends Controller
     {
         $user = \Auth::user();
         $helper = new HelperFunctions();
+
+        $dta = explode('-', $request->projectCode);
+        if($request->projectCategory == 'internal' && $dta[0] != 'IPR'){
+            return response()->json(['errors'=>['projectCode'=>['Internal project code format invalid']]], 422);
+        } else if($request->projectCategory == 'external' && $dta[0] != 'PR'){
+            return response()->json(['errors'=>['projectCode'=>['External project code format invalid']]], 422);
+        }
+
         try{
             \DB::transaction(function() use ($helper, $request, $user){
                 $id=$request->id;
@@ -158,8 +166,7 @@ class ProjectController extends Controller
                 $project->budget=$request->budget;
                 $project->estimatedHours=$helper->timeConversion($request->estimatedHours);
                 $project->status=$request->status;
-                if($project->projectCategory!=$request->projectCategory)
-                    $project->projectCode=$helper->getInternalProjectId($request->projectCategory);
+                $project->projectCode=$request->projectCode;
                 $project->projectCategory=$request->projectCategory;
                 $project->customer_project_id=$request->customer_project_id;
                 $project->project_lead_id=$request->project_lead_id;
@@ -222,7 +229,7 @@ class ProjectController extends Controller
             
           
         }catch(\Exception $e){
-            return Response::json(['errors'=>['server'=>[$e]]], 400);
+            return Response::json(['errors'=>['server'=>[$e]]], 422);
         }
     }
 

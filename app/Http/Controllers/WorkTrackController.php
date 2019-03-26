@@ -136,7 +136,7 @@ class WorkTrackController extends Controller
                 return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
             }
 
-            if(($weekValidationProject->status != 'entried')){
+            if(($weekValidationProject->status != 'entried' && $weekValidation->status != 'reassigned')){
                 if($weekValidationProject->status == 'reassigned'){
                     if($project->project_lead_id != \Auth::user()->id){
                         return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you. Please contact team/project lead.']]], 422);

@@ -228,6 +228,7 @@ Route::prefix('v1')->group(function () {
         Route::post('task-member/user-ptt/request-submit', 'WeekValidationController@submitWeeklyPtt');
         Route::post('task-member/project-lead-approve', 'WeekValidationController@projectLeadApproveWeeklyPtt');
         Route::post('task-member/user-ptt/request-reject', 'WeekValidationController@resendWeeklyPtt');
+        Route::post('task-member/project-lead-resend-ptt', 'WeekValidationController@projectLeadResendPTT');
         Route::post('task-member/user-ptt/reassign-project', 'WeekValidationController@reassignWeeklyProjectPtt');
         Route::post('task-member/team-lead-approve', 'WeekValidationController@teamLeadApprovePtt');
     });
@@ -272,6 +273,7 @@ Route::prefix('v1')->group(function () {
     //week validation
     Route::group(['middleware' => 'jwt.auth'], function(){
         Route::post('my-task', 'MyTaskController@getMyTask');
+        Route::get('my-task/project-lead/members', 'MyTaskController@getProjectLeadSubmittedPttUsers');
     });
 
     //week validation

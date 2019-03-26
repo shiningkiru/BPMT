@@ -170,8 +170,8 @@ class MyTaskController extends Controller
                                     });
                                     
                             })
-                            ->select('tasks.*','sprints.sprintTitle')
-                            ->distinct('tasks.*','sprints.sprintTitle')
+                            ->select('tasks.*','sprints.sprintTitle', 'task_members.estimatedHours as assignedHours', 'task_members.takenHours as youTaken')
+                            ->distinct('tasks.*','sprints.sprintTitle', 'task_members.estimatedHours', 'task_members.takenHours')
                             ->get();
             
             //find current week validations
@@ -209,11 +209,25 @@ class MyTaskController extends Controller
             $teamLeadSubmission=false;
         }
 
+        if($weekValidation->status == 'reassigned' || $weekValidation->status == 'accepted') {
+            $projectLeadSubmission=false;
+        }
+
         if($request->approvalType == 'admin' ){
             $teamLead=false;
             $teamLeadSubmission=false;
             $projectLeadSubmission=false;
-        }
+        } 
+
+        $userDetail = User::leftJoin('mass_parameters as designation_t', 'designation_t.id', 'users.designation_id')
+                        ->leftJoin('branch_departments', 'branch_departments.id', '=', 'users.branch_dept_id')
+                        ->leftJoin('branches', 'branches.id', '=', 'branch_departments.branches_id')
+                        ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
+                        ->leftJoin('users as team_lead', 'team_lead.id', '=', 'users.team_lead')
+                        ->where('users.id', '=', $user->id)
+                        ->select('users.id', 'users.email', 'users.employeeId', 'users.profilePic', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName', \DB::raw('CONCAT(team_lead.firstName, " ", team_lead.lastName) as leadName'))
+                        ->distinct('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', 'users.mobileNumber', 'designation_t.title', 'department_tb.title', 'branches.branchName', 'team_lead.firstName','team_lead.lastName')
+                        ->first();
         $result['dates'] = $helper->getDateRange($timeGap[0], $timeGap[1]);
         $result['weekValidation'] = $weekValidation;
         $result['projects'] = $projects;
@@ -224,6 +238,60 @@ class MyTaskController extends Controller
         $result['grandTotal'] = $helper->secToTime($grandTotal);
         $result['weekNumber']=$weekNumber;
         $result['year']=$year;
+        $result['user']=$userDetail;
         return $result;
+    }
+
+    public function getProjectLeadSubmittedPttUsers(Request $request){
+        $user = \Auth::user();
+
+        $users = User::leftJoin('project_teams', 'users.id', '=', 'project_teams.team_user_id')
+                        ->leftJoin('projects', 'projects.id', '=', 'project_teams.team_project_id')
+                        ->where('projects.project_lead_id', '=', $user->id)
+                        ->where('users.id', '<>', $user->id)
+                        ->select('users.id', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'))
+                        ->distinct('users.id', 'users.firstName', 'users.lastName')
+                        ->get();
+        foreach($users as $usr) {
+            $weekValidations = WeekValidation::leftJoin('week_validation_projects', 'week_validation_projects.week_validation_id', '=', 'week_validations.id')
+                                                ->leftJoin('projects', 'projects.id', '=', 'week_validation_projects.project_id')
+                                                ->where('week_validations.status','=', 'requested')
+                                                ->where(function($query) {
+                                                    $query->where('week_validation_projects.status', '=' ,'requested')
+                                                            ->orWhere('week_validation_projects.status', '=' ,'reassigned');
+                                                })
+                                                ->where('projects.project_lead_id', '=', $user->id)
+                                                ->where('week_validations.user_id', '=', $usr->id)
+                                                ->select('week_validations.*')
+                                                ->distinct('week_validations.*')
+                                                ->get();
+            $usr['weekValidation'] = $weekValidations;
+        }
+        return $users;
+    }
+
+    public function getTeamLeadSubmittedPttUsers(Request $request){
+        $user = \Auth::user();
+
+        $users = User::where('users.team_lead', '=', $user->id)
+                        ->where('users.id', '<>', $user->id)
+                        ->select('users.id', 'users.email', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'))
+                        ->distinct('users.id', 'users.firstName', 'users.lastName')
+                        ->get();
+        foreach($users as $usr) {
+            $weekValidations = WeekValidation::leftJoin('week_validation_projects', 'week_validation_projects.week_validation_id', '=', 'week_validations.id')
+                                                ->where('week_validations.status','=', 'requested')
+                                                ->where(function($query) {
+                                                    $query->select('COUNT(week_validation_projects.id)')
+                                                            ->where('week_validation_projects.status', '<>', 'accepted')
+                                                            
+                                                })
+                                                ->where('week_validations.user_id', '=', $usr->id)
+                                                ->select('week_validations.*')
+                                                ->distinct('week_validations.*')
+                                                ->get();
+            $usr['weekValidation'] = $weekValidations;
+        }
+        return $users;
     }
 }
