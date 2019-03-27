@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Response;
+use App\Customer;
 use App\CustomerMeeting;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use App\Http\Requests\CustomerMeetingRequest;
 use App\Repositories\CustomerMeetingRepository;
 use App\Http\Controllers\Master\MasterController;
@@ -16,24 +19,28 @@ class CustomerMeetingController extends MasterController
     }
     
     public function addMeeting(CustomerMeetingRequest $request){
-        $id=$request->id;
-        $user = \Auth::user();
-        if(empty($id)){
-            $meeting=new CustomerMeeting();
-        } else{
-            $meeting=CustomerMeeting::find($id);
+        try {
+            $id=$request->id;
+            $user = \Auth::user();
+            if(empty($id)){
+                $meeting=new CustomerMeeting();
+            } else{
+                $meeting=CustomerMeeting::find($id);
+            }
+            $meeting->customer_id=$request->customer_id;        
+            $meeting->resp_user=$user->id;        
+            $meeting->dateFor=new \Datetime($request->dateFor);        
+            $meeting->status=$request->status;        
+            $meeting->details=$request->details;
+    
+            $meeting->save();
+            $customer=Customer::find($request->customer_id);
+            $customer->updated_at=new \Datetime();
+            $customer->save();
+            return $meeting;
+        }catch(\Exception $e){
+            return Response::json(['errors'=>['meeting'=>[$e->getMessage()]]], 422);
         }
-        $meeting->customer_id=$request->customer_id;        
-        $meeting->resp_user=$user->id;        
-        $meeting->dateFor=new \Datetime($request->dateFor);        
-        $meeting->status=$request->status;        
-        $meeting->details=$request->details;
-
-        $meeting->save();
-        $customer=Customer::find($request->customer_id);
-        $customer->updated_at=new \Datetime();
-        $customer->save();
-        return $meeting;
     }
 
     public function getByRelated(Request $request){
@@ -48,7 +55,7 @@ class CustomerMeetingController extends MasterController
             $pageSize=20;
         }
         $meeting = CustomerMeeting::leftJoin('customers','customers.id', '=', 'customer_meetings.customer_id')
-                                ->leftJoin('users as responsible', 'users.id', '=', 'customer_meetings.resp_user')
+                                ->leftJoin('users as responsible', 'responsible.id', '=', 'customer_meetings.resp_user')
                                 ->select('customer_meetings.id', 'customer_meetings.dateFor', 'customer_meetings.details', 'customer_meetings.resp_user', 'responsible.firstName as rFirstName', 'responsible.lastName as rLastName', 'customer_meetings.customer_id', 'customer_meetings.created_at', 'customer_meetings.updated_at', 'customer_meetings.status', 'customers.company');
         if(!empty($request->customer_id))
             $meeting = $meeting->where('customer_id','=',$request->customer_id);

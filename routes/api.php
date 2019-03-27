@@ -147,7 +147,7 @@ Route::prefix('v1')->group(function () {
         Route::post('call/by-related', 'CustomerCallController@getByRelated');
         Route::delete('call/{id}', 'CustomerCallController@delete');
         Route::get('call/{id}', 'CustomerCallController@get');
-        Route::post('call', 'CustomerCallController@addMeeting');
+        Route::post('call', 'CustomerCallController@addCall');
     });
 
      //Project routes
