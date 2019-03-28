@@ -16,18 +16,17 @@ class NotificationRepository extends Repository {
         parent::__construct(new Notification());
     }
 
-    public function sendNotification(User $from_user, User $to_user, $message, $notification_type, $linkId=null){
+    public function sendNotification(User $from_user=null, User $to_user, $message, $notification_type, $linkId=null){
         try{
             $notification = new Notification();
         $notification->title = $message;
         $notification->notificationType=$notification_type;
         $notification->linkId = $linkId;
-        $notification->from_user_id = $from_user->id;
+        $notification->from_user_id = ($from_user == null)?null:$from_user->id;
         $notification->to_user_id=$to_user->id;
         $notification->save();
         Event::fire(new NotificationFired($to_user->id));
         }catch(\excpetion $e){
-            dd($e);
         }
     }
 
