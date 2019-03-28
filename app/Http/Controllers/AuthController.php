@@ -378,11 +378,24 @@ class AuthController extends Controller
             ], 200);
     }
 
-    public function refresh()
+    public function refresh(Request $request)
     {
-        return response([
-         'status' => 'success'
-        ]);
+        $token = JWTAuth::getToken();
+        if(!$token){
+            return response()->json(['errors'=>'Token not provided'], 422);
+        }
+        try{
+            $token = JWTAuth::refresh($token);
+            // if (Auth::attempt(array('email' => $request->password, 'password' => $request->password))){
+                return response([
+                    'status' => $token
+                ]);
+            // } else {        
+            //     return response()->json(['errors'=>'Wrong credentials.'], 422);
+            // }
+        }catch(TokenInvalidException $e){
+            return response()->json(['errors'=>'Token is invalid'], 422);
+        }
     }
 
 

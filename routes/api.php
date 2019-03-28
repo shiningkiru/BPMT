@@ -46,7 +46,7 @@ Route::prefix('v1')->group(function () {
         Route::post('forgot-password', 'AuthController@forgotVerification');
         Route::post('forgot-password/reset', 'AuthController@forgotPasswordReset');
 
-    Route::middleware('jwt.refresh')->get('/token/refresh', 'AuthController@refresh');
+    Route::post('/token/refresh', 'AuthController@refresh');
     
 
 
@@ -169,7 +169,6 @@ Route::prefix('v1')->group(function () {
         Route::get('project-team/{id}', 'ProjectTeamController@show');
         Route::get('project-team/members/{id}', 'ProjectTeamController@teamMembers');
         Route::get('project-team/total-team-members/{id}', 'ProjectTeamController@TotalteamMembers');
-      
     });
    
     
