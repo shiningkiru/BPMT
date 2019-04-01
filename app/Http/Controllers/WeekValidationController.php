@@ -31,6 +31,11 @@ class WeekValidationController extends MasterController
             $helper = new HelperFunctions();
             $notificationRepository = new NotificationRepository();
             $user = \Auth::user();
+            
+            $teamLead = $user->dept_team_lead;
+            if(!($teamLead instanceof User)){
+                return response()->json(['errors'=>['team_lead'=>['You have no team leads. Check your management flow.']]], 422);
+            }
             $valid = $this->model->validateRules($request->all(), [
                 'weekNumber' => 'required|integer|between:1,53',
                 'year' => 'required|integer|between:2017,2030'
@@ -74,17 +79,31 @@ class WeekValidationController extends MasterController
         
             $weekProjects = $weekValidation->week_projects;
             $weekValidation->status='requested';
+            $teamLeadSend =false;
             if(sizeof($weekProjects) > 0){
+                $wpTrack = true;
                 foreach($weekProjects as $wproject){
                     $project_lead = $wproject->project->project_lead;
                     if($project_lead instanceof User){
-                        $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
-                        $notificationRepository->sendNotification($user, $project_lead, $message, "time-track-project-approval", $user->id.'///'.$request->weekNumber.'///'.$request->year);
+                        if($project_lead->id == $user->id){
+                            $wproject->status="accepted";
+                        }else {
+                            $wpTrack = false;
+                            $wproject->status="requested";
+                            $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
+                            $notificationRepository->sendNotification($user, $project_lead, $message, "time-track-project-approval", $user->id.'///'.$request->weekNumber.'///'.$request->year);
+                        }
+                    }else{
+                        $wpTrack = false;
+                        $wproject->status="requested";
                     }
-                    $wproject->status="requested";
                     $wproject->save();
                 }
+                if($wpTrack)$teamLeadSend=true;
             }else {
+                $teamLeadSend=true;
+            }
+            if($teamLeadSend){
                 $teamLead = $user->dept_team_lead;
                 if($teamLead instanceof User){
                     $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;

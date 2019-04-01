@@ -36,20 +36,26 @@ class HelperFunctions{
 
     public function getModels(){
         $modules = [
-            'project', 
-            'milestone', 
-            'sprint', 
-            'task', 
-            'project_team', 
             'customer', 
+            'project', 
+            // 'milestone', 
+            // 'sprint', 
+            // 'task', 
+            // 'project_team', 
+            // 'documents',
             'calendar', 
-            'user', 
-            'my_task', 
-            'time_sheet', 
-            'settings', 
+            // 'user', 
+            'employee',
+            // 'my_task', 
+            // 'time_sheet', 
+            'project_time_report_team_lead',//new
+            'project_time_report_project_lead',//new
+            'project_time_report_admin',//new
+            'project_time_tracker',//new
+            // 'settings', 
+            'app_master',//new
             'access_previlages',
-            'activity_logs',
-            'documents'
+            'activity_logs'
         ];
         return $modules;
     }
