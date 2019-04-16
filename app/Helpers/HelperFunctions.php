@@ -17,8 +17,12 @@ use App\Repositories\NotificationRepository;
 class HelperFunctions{
     public function getLastEmployeeId(){
         
-        $user = User::max('employeeId');
-        return $user+1;
+        $user = User::orderBy('employeeId', 'DESC')->first();
+        $emplyee=0;
+        if($user instanceof User){
+            $emplyee = (int)$user->employeeId+1;
+        }
+        return $emplyee;
     }
 
     public function getRoles(){
@@ -80,6 +84,7 @@ class HelperFunctions{
                                 $taskMember = new TaskMember();
                             $taskMember->task_identification = $directProjectTask->id;
                             $taskMember->member_identification = $user_id;
+                            $taskMember->estimatedHours = "00:00:00";
                             $taskMember->save();
                         }
                     }

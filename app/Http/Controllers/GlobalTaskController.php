@@ -33,6 +33,7 @@ class GlobalTaskController extends Controller
         }
 
         $task->title = $request->title;
+        $task->projectCode = $request->projectCode;
         $task->description = $request->description;
         $task->isActive = ($request->isActive=='active')?true:false;
 
@@ -61,6 +62,15 @@ class GlobalTaskController extends Controller
                 
             $user = \Auth::user();
 
+            if($user->roles == 'admin') {
+                return \Response::json(['errors'=>['time'=>['Access denied!']]], 422);
+            }
+            if(!empty($request->user_id)){
+                $currentUser = User::find($request->user_id);
+            }else {
+                $currentUser=$user;
+            }
+
             $task=GlobalTask::find($request->task_id);  
             $helper=new HelperFunctions();
             $date=new \Datetime($request->entryDate);
@@ -68,36 +78,47 @@ class GlobalTaskController extends Controller
                 return \Response::json(['errors'=>['time'=>['Cant add time for future dates.']]], 422);
             }
             $weekDetails=$helper->getYearWeekNumber($date);
-            $globalTaskUser=GlobalTaskUser::where('global_task_id','=',$request->task_id)->where('user_id','=',$request->user_id)->first();
+            $globalTaskUser=GlobalTaskUser::where('global_task_id','=',$request->task_id)->where('user_id','=',$currentUser->id)->first();
             $workTrack=WorkTimeTrack::where('dateOfEntry','=',$date)->where('global_task_user_id','=',$globalTaskUser->id)->first();
             
+            $weekValidationRepository = new WeekValidationRepository();
+            $weekValidation= $weekValidationRepository->getWeekValidation($currentUser->id, $weekDetails['week'], $weekDetails['year'])->first();
+            if(!($weekValidation instanceof WeekValidation)){
+                $weekValidation= new WeekValidation();
+                $dateGap=$helper->getStartAndEndDate($date);
+                $weekValidation->weekNumber=$weekDetails['week'];
+                $weekValidation->entryYear=$weekDetails['year'];
+                $weekValidation->user_id=$currentUser->id;
+                $weekValidation->startDate = $dateGap[0];
+                $weekValidation->endDate = $dateGap[1];
+                $weekValidation->save();
+                $weekValidation=WeekValidation::find($weekValidation->id);
+            }
+
+            //condition might need to be changed
+            if(($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned' && $currentUser->team_lead != $user->id)) {
+                return Response::json(['errors'=>['time'=>['PTT is already processed']]], 422);
+            }else if($currentUser->team_lead == $user->id && $weekValidation->status != 'requested'){
+                return Response::json(['errors'=>['time'=>['PTT is not yet submitted.']]], 422);
+            }
+
             if(!($workTrack instanceof WorkTimeTrack)){
                 $workTrack=new WorkTimeTrack();
                 $workTrack->dateOfEntry=$date;
                 $workTrack->global_task_user_id=$globalTaskUser->id;
-
-                
-                $weekValidationRepository = new WeekValidationRepository();
-                $weekValidation= $weekValidationRepository->getWeekValidation($request->user_id, $weekDetails['week'], $weekDetails['year'])->first();
-                if(!($weekValidation instanceof WeekValidation)){
-                    $weekValidation= new WeekValidation();
-                    $dateGap=$helper->getStartAndEndDate($date);
-                    $weekValidation->weekNumber=$weekDetails['week'];
-                    $weekValidation->entryYear=$weekDetails['year'];
-                    $weekValidation->user_id=$request->user_id;
-                    $weekValidation->startDate = $dateGap[0];
-                    $weekValidation->endDate = $dateGap[1];
-                    $weekValidation->save();
-                }
                 $workTrack->week_number=$weekValidation->id;
             }
             if($helper->timeToSec($helper->timeConversion($request->takenHours)) > 32400){
                 return Response::json(['errors'=>['time'=>['Per day work time crossed']]], 422);
             }
             $workTrack->takenHours=$helper->timeConversion($request->takenHours);
-            $workTrack->description=$request->description;
-            $workTrack->save();
-            return $workTrack;
+            $workTrack->description=$request->description ?? "NA";
+            try {
+                $workTrack->save();
+                return $workTrack;
+            }catch(\Exception $e) {
+                return $e;
+            }
         });
     }
 }

@@ -31,6 +31,7 @@ class MyTaskController extends Controller
         //declarations
         $user = \Auth::user();
         $currentUser = clone $user;
+        $userSubmission="submit";
 
         if($request->approvalType == 'project-lead' || $request->approvalType == 'team-lead' || $request->approvalType == 'admin') {
             if(!empty($request->user_id)){
@@ -78,13 +79,17 @@ class MyTaskController extends Controller
             $weekValidation=WeekValidation::find($weekValidation->id);
         }
 
+        if($weekValidation->status != 'entried'){
+            $userSubmission="none";
+        }
+
         if(($request->approvalType != 'project-lead' && $request->approvalType == 'team-lead') || $request->approvalType == 'my-task'|| $request->approvalType == 'admin') {
 
             //global task system
             $globalTasks = GlobalTask::leftJoin('global_task_users','global_task_users.global_task_id', '=', 'global_tasks.id')
                                         ->where('global_task_users.user_id', '=', $user->id)
                                         ->where('global_tasks.isActive','=',true)
-                                        ->select('global_tasks.id', 'global_tasks.title', 'global_tasks.description', 'global_task_users.id as guserId')
+                                        ->select('global_tasks.id', 'global_tasks.projectCode', 'global_tasks.title', 'global_tasks.description', 'global_task_users.id as guserId')
                                         ->get();
             foreach($globalTasks as $gtasks){
                 $workTrack=[];
@@ -135,7 +140,7 @@ class MyTaskController extends Controller
                             ->distinct('projects.*')
                             ->get();
         //find the current tasks which are available in each project
-        $projectLeadSubmission =false;
+        $projectLeadSubmission =true;
         $teamLeadSubmission=true;
 
         foreach($projects as $project){
@@ -145,7 +150,17 @@ class MyTaskController extends Controller
                                                             ->select('week_validation_projects.id', 'week_validation_projects.status', 'week_validation_projects.accept_time', 'users.id as acceptedUserId', 'users.firstName', 'users.lastName')
                                                             ->first();
             if($weekValidationProject instanceof WeekValidationProject){
-                if($weekValidationProject->status == 'requested' || $weekValidationProject->status == 'reassigned'){
+                if($weekValidationProject->status == 'accepted' || $weekValidationProject->status == 'entried'){
+                    $projectLeadSubmission=false;
+                }
+
+                if($weekValidationProject->status== "plead-reassigned"){
+                    $projectLeadSubmission=false;
+                    $teamLeadSubmission=false;
+                    $userSubmission="resubmit";
+                }
+                
+                if($weekValidationProject->status== "reassigned"){
                     $projectLeadSubmission=true;
                 }
 
@@ -244,6 +259,7 @@ class MyTaskController extends Controller
         $result['grandTotal'] = $helper->secToTime($grandTotal);
         $result['weekNumber']=$weekNumber;
         $result['year']=$year;
+        $result["userSubmission"]=$userSubmission;
         $result['user']=$userDetail;
         return $result;
     }
@@ -270,6 +286,8 @@ class MyTaskController extends Controller
                                                 ->where('week_validations.user_id', '=', $usr->id)
                                                 ->select('week_validations.*')
                                                 ->distinct('week_validations.*')
+                                                ->orderBy('week_validations.weekNumber', 'DESC')
+                                                ->orderBy('week_validations.entryYear', 'DESC')
                                                 ->get();
             $usr['weekValidation'] = $weekValidations;
         }
@@ -297,6 +315,8 @@ class MyTaskController extends Controller
                                                 ->where('week_validations.user_id', '=', $usr->id)
                                                 ->select('week_validations.*')
                                                 ->distinct('week_validations.*')
+                                                ->orderBy('week_validations.weekNumber', 'DESC')
+                                                ->orderBy('week_validations.entryYear', 'DESC')
                                                 ->get();
             $usr['weekValidation'] = $weekValidations;
         }

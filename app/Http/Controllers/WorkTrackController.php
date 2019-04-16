@@ -85,6 +85,10 @@ class WorkTrackController extends Controller
             $helper=new HelperFunctions();
             $date=new \Datetime($request->entryDate);
 
+            // if(\Auth::user()->roles == 'admin'){
+            //     return \Response::json(['errors'=>['admin'=>['Access denied!']]], 422);
+            // }
+
             //validations
             if($date > new \Datetime()){
                 return \Response::json(['errors'=>['time'=>['Cant add time for future dates.']]], 422);
@@ -118,6 +122,7 @@ class WorkTrackController extends Controller
                 $weekValidation->startDate = $dateGap[0];
                 $weekValidation->endDate = $dateGap[1];
                 $weekValidation->save();
+                $weekValidation=WeekValidation::find($weekValidation->id);
             }
 
             //logic project connection
@@ -129,24 +134,54 @@ class WorkTrackController extends Controller
                 $weekValidationProject->week_validation_id = $weekValidation->id;
                 $weekValidationProject->status='entried';
                 $weekValidationProject->save();
+                $weekValidationProject=WeekValidationProject::find($weekValidationProject->id);
             }
 
             //submit validation in tl level
-            if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned' && $project->project_lead_id != \Auth::user()->id){
-                return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
-            }
+            // if(($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned' && $project->project_lead_id != \Auth::user()->id)){
+            //     return \Response::json(['errors'=>['weekValidation'=>['PTT already submitted.']]], 422);
+            // }
 
-            if(($weekValidationProject->status != 'entried' && $weekValidation->status != 'reassigned')){
-                if($weekValidationProject->status == 'reassigned'){
-                    if($project->project_lead_id != \Auth::user()->id){
-                        return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you. Please contact team/project lead.']]], 422);
+            // if(($weekValidationProject->status != 'entried' && $weekValidation->status != 'reassigned')){
+            //     if($weekValidationProject->status == 'reassigned'){
+            //         if($project->project_lead_id != \Auth::user()->id){
+            //             return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you. Please contact team/project lead.']]], 422);
+            //         }
+            //     }else if($weekValidationProject->status == 'requested') {
+            //         if($project->project_lead_id != \Auth::user()->id){
+            //             return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you.']]], 422);
+            //         }
+            //     }else{
+            //         return \Response::json(['errors'=>['weekValidation'=>['PTT already '.$weekValidationProject->status]]], 422);
+            //     }
+            // }
+
+            if(\Auth::user()->roles != 'admin'){
+                //validation for current user
+                $currentUser=\Auth::user();
+                if($currentUser->id == $weekValidation->user_id){
+                    if($weekValidation->status != "entried"){
+                        if($weekValidation->status == 'requested' && $weekValidationProject->status != "plead-reassigned"){
+                            return \Response::json(['errors'=>['weekValidation'=>['PTT approval is under process.']]], 422);
+                        }else if($weekValidation->status != 'requested'){
+                            return \Response::json(['errors'=>['weekValidation'=>['PTT approval is under process.']]], 422);
+                        }
                     }
-                }else if($weekValidationProject->status == 'requested') {
-                    if($project->project_lead_id != \Auth::user()->id){
+                }else if($currentUser->id == $project->project_lead_id && $weekValidationProject->status !="accepted" ){
+
+                    //validation for project lead 
+                    if($weekValidation->status != "requested") {
+                        return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you.']]], 422);
+                    }else if($weekValidation->status == 'requested' && $weekValidationProject->status != 'requested' && $weekValidationProject->status != 'reassigned'){
                         return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you.']]], 422);
                     }
-                }else{
-                    return \Response::json(['errors'=>['weekValidation'=>['PTT already '.$weekValidationProject->status]]], 422);
+                }else if($currentUser->id == $weekValidation->user->team_lead){
+                    //validation for team lead
+                    if($weekValidation->status != 'requested') {
+                        return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you.']]], 422);
+                    }else if($weekValidation->status == 'requested' && $weekValidationProject->status != 'accepted'){
+                        return \Response::json(['errors'=>['weekValidation'=>['PTT is blocked for you.']]], 422);
+                    }
                 }
             }
 
@@ -165,7 +200,7 @@ class WorkTrackController extends Controller
             }
             $workTrack->task_project = $weekValidationProject->id;
             $workTrack->takenHours=$helper->timeConversion($request->takenHours);
-            $workTrack->description=$request->description;
+            $workTrack->description=$request->description ?? "NA";
             
             $task->takenHours=$helper->timeConversion($helper->secToTime($taskTaken + $takenHour));
             $taskMember->takenHours=$helper->timeConversion($helper->secToTime($taskMemberTaken + $takenHour));

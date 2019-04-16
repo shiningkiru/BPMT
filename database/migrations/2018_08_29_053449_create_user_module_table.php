@@ -427,7 +427,8 @@ class CreateUserModuleTable extends Migration
         
         Schema::create('global_tasks', function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('title')->unique();;
+                $table->string('projectCode')->unique();
+                $table->string('title')->unique();
                 $table->text('description')->nullable(true);
                 $table->boolean('isActive')->default(true);
                 $table->timestamps();
@@ -451,7 +452,7 @@ class CreateUserModuleTable extends Migration
 
         Schema::create('week_validation_projects', function (Blueprint $table) {
             $table->increments('id');
-            $table->enum('status', ['entried', 'requested', 'accepted', 'reassigned'])->default('entried');
+            $table->enum('status', ['entried', 'requested', 'accepted', 'reassigned', 'plead-reassigned'])->default('entried');
             $table->dateTimeTz('accept_time')->nullable(true);
             $table->unsignedInteger('project_id');
             $table->foreign('project_id')

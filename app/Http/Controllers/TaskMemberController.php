@@ -99,15 +99,15 @@ class TaskMemberController extends Controller
         //estimated hour calculation end
 
         try{
-            
             \DB::transaction(function() use ($helper, $request, $taskMember, $task){
                 $taskMember->save();
                 $notificationRepository = new NotificationRepository();
-                $message = $task->taskName." task is assigned to you";
+                $message = substr($task->taskName, 0, 50)." task is assigned to you";
                 $notificationRepository->sendNotification(\Auth::user(), User::find($taskMember->member_identification), $message, "task-assign", $taskMember->id);
             });
         }catch(\Exception $e){
-            return Response::json(['errors'=>['taskMember'=>['Member already assigned']]], 422);
+            
+            return Response::json(['errors'=>['taskMember'=>[$e->getMessage()]]], 422);
         }
         return $taskMember;
     }

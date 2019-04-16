@@ -47,7 +47,7 @@ class UserController extends MasterController
      *
      * Returns list of Users
      */
-    public function getAllUsers()
+    public function getAllUsers(Request $request)
     {
         //$allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.team_lead','users.relievingDate','mass_parameters.type','mass_parameters.title')->get();
         
@@ -57,9 +57,16 @@ class UserController extends MasterController
                         ->leftJoin('branch_departments', 'branch_departments.id', '=', 'users.branch_dept_id')
                         ->leftJoin('branches', 'branches.id', '=', 'branch_departments.branches_id')
                         ->leftJoin('mass_parameters as department_tb', 'department_tb.id', '=', 'branch_departments.dept_id')
-                        ->where('users.id', '<>', $user->id)
-                        ->select('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
+                        ->where('users.id', '<>', $user->id);
+        if(!empty($request->designationId)){
+            $users=$users->where('designation_t.id', '=', $request->designationId);
+        }
+        if(!empty($request->searchText)){
+            $users=$users->where('users.firstName', 'LIKE', "%".$request->searchText."%");
+        }
+        $users=$users->select('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'), 'users.mobileNumber', 'designation_t.title as designation', 'department_tb.title as department', 'branches.branchName')
                         ->distinct('users.id', 'users.firstName', 'users.lastName', 'users.email', 'users.employeeId', 'users.profilePic', 'users.mobileNumber', 'designation_t.title', 'department_tb.title', 'branches.branchName')
+                        ->orderBy('employeeId', 'ASC')
                         ->get();
         return $users;
     }
@@ -348,7 +355,7 @@ class UserController extends MasterController
  */
 public function projectleadAndManagementShow()
 {
-    return User::where('roles','project-lead')->orWhere('roles','management')->get();
+    return User::where('roles','project-lead')->orWhere('roles','management')->orWhere('roles','admin')->where('email','<>','admin@bixbytessolutions.com')->get();
 }
 
     
@@ -444,7 +451,10 @@ public function projectleadAndManagementShow()
    //rolewise user list end
    public function designationFilter($id)
     {
-        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')->where('designation_id','=', $id)->paginate(10);
+        $allusers=User::leftJoin('mass_parameters','mass_parameters.id','=','users.designation_id')
+                    ->select('users.id','users.employeeId', 'users.firstName','users.lastName','users.email','users.mobileNumber','users.dob','users.doj','users.roles','users.address','users.profilePic','users.salary','users.bloodGroup','users.relievingDate','mass_parameters.type','mass_parameters.title')
+                    ->where('designation_id','=', $id)
+                    ->paginate(10);
         return $allusers;
     }
 

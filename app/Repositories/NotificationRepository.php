@@ -4,8 +4,10 @@ namespace App\Repositories;
 use Event;
 use App\User;
 use App\Notification;
+use App\Mail\NotificationMail;
 use App\Events\NotificationFired;
 use App\Repositories\Master\Repository;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 
 class NotificationRepository extends Repository {
@@ -28,6 +30,10 @@ class NotificationRepository extends Repository {
         Event::fire(new NotificationFired($to_user->id));
         }catch(\excpetion $e){
         }
+    }
+
+    public function sendEmail(User $to_user, $message, $link) {
+        Mail::to($to_user)->send(new NotificationMail($to_user->firstName,$message, $link));
     }
 
     public function getReceivedNotification($user_id, $limit){

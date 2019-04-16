@@ -20,9 +20,9 @@
             <tr style="height: 250px;">
                 <td>
                     <h4>Hi {{$username}},</h4>
-                    <p>Click the following link to reset your email.</p>
+                    <p>{{ $content }}</p>
                     <br>
-                    <a href="https://tool.bixbytessolutions.com/authentication/forgot-password/reset/{{$email}}/{{urlencode($hash)}}">
+                    <a href="{{ $link }}">
                     <button style="background-color:#e97f26;color:#fff;padding-top:10px;padding-bottom:10px;padding-right:25px;padding-left:25px;text-decoration: none;">Open Link</button>
                     </a>
                 </td>

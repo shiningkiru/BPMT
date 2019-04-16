@@ -25,7 +25,7 @@ class GlobalTaskWorkTrackRequest extends FormRequest
     {
         return [
             'task_id' => 'required|exists:global_tasks,id',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'entryDate' => 'required|date',
             'takenHours' => 'required|time_format'
         ];

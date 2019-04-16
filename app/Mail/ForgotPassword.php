@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class ForgotPassword extends Mailable
 {
     use Queueable, SerializesModels;
+    public $username;
     public $email;
     public $hash;
 
@@ -18,8 +19,9 @@ class ForgotPassword extends Mailable
      *
      * @return void
      */
-    public function __construct($email, $hash)
+    public function __construct($username, $email, $hash)
     {
+        $this->username = $username;
         $this->email = $email;
         $this->hash = $hash;
     }
@@ -32,6 +34,7 @@ class ForgotPassword extends Mailable
     public function build()
     {
         return $this->view('email.forgotPassword',[
+                        'username'=>$this->username,
                         'email'=>$this->email,
                         'hash'=>$this->hash,
                     ]);

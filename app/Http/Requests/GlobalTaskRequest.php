@@ -25,6 +25,7 @@ class GlobalTaskRequest extends FormRequest
     {
         return [
             'id' => 'nullable|exists:global_tasks,id',
+            'projectCode' => 'required|unique:global_tasks,projectCode,'.$this->request->get('id').'|regex:/^([(IT)?(IT)?]{2})-[0-9]{4}-[0-9]{2}$/',
             'title'=>'required',
             'isActive' => 'required|in:active,inactive'
         ];

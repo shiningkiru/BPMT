@@ -193,22 +193,21 @@ class AuthController extends Controller
             $image->move($destinationPath, $imageName);
             $user->profilePic = '/uploads/profile/'.$imageName;
         }
-
-
         $user->dob = new \Datetime($request->dob);
         $user->doj = new \Datetime($request->doj);
         $user->salary = $request->salary;
         $user->bloodGroup = $request->bloodGroup;
         try{
             $user->save();
-            return $helper->synchMemberGlobalTasks($user);
+            $helper->synchMemberGlobalTasks($user);
+
+            return response([
+                'status' => 'success',
+                'data' => $user
+            ], 200);
         }catch(\Exception $e){
             return response("Cant update data error code : ".$e->getCode(), 400);
         }
-        return response([
-            'status' => 'success',
-            'data' => $user
-        ], 200);
     }
 
     /**
@@ -431,9 +430,10 @@ class AuthController extends Controller
             $hash = bcrypt(uniqid());
             $exi=User::where('reset_token','=',$hash)->first();
             if(!($exi instanceof User)){
+                $user=User::find($user->id);
                 $user->reset_token = $hash;
                 $user->save();
-                Mail::to($user)->send(new ForgotPassword($request->email, $hash));
+                Mail::to($user)->send(new ForgotPassword($user->firstName,$request->email, $hash));
                 $flag=false;
             }
         endwhile;

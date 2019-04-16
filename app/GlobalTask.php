@@ -14,6 +14,6 @@ class GlobalTask extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'description', 'isActive'
+        'projectCode', 'title', 'description', 'isActive'
     ];
 }

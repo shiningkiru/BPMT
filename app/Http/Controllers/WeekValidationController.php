@@ -57,9 +57,9 @@ class WeekValidationController extends MasterController
                 $weekValidation->save();
             }
 
-            if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned') {
-                return response()->json(['errors'=>['system'=>['You can\'t submit PTT twice.']]], 422);
-            }
+            // if($weekValidation->status != 'entried' && $weekValidation->status != 'reassigned') {
+            //     return response()->json(['errors'=>['system'=>['You can\'t submit PTT twice.']]], 422);
+            // }
 
 
             //after friday validation
@@ -78,26 +78,33 @@ class WeekValidationController extends MasterController
             //end of after friday validation
         
             $weekProjects = $weekValidation->week_projects;
-            $weekValidation->status='requested';
+            $secondTime=true;
+            if($weekValidation->status == 'entried' || $weekValidation->status == 'reassigned'){
+                $weekValidation->status='requested';
+                $secondTime=false;
+            }
             $teamLeadSend =false;
             if(sizeof($weekProjects) > 0){
                 $wpTrack = true;
                 foreach($weekProjects as $wproject){
-                    $project_lead = $wproject->project->project_lead;
-                    if($project_lead instanceof User){
-                        if($project_lead->id == $user->id){
-                            $wproject->status="accepted";
-                        }else {
+                    if(($secondTime && $wproject->status=="plead-reassigned") || !$secondTime){
+                        $project_lead = $wproject->project->project_lead;
+                        if($project_lead instanceof User){
+                            if($project_lead->id == $user->id){
+                                $wproject->status="accepted";
+                            }else {
+                                $wpTrack = false;
+                                $wproject->status="requested";
+                                $message = $user->firstName." ". $user->lastName. " submitted PTT for the project ".$wproject->project->projectName." of the week ".$request->weekNumber."/".$request->year;
+                                $notificationRepository->sendNotification($user, $project_lead, $message, "time-track-project-approval", $user->id.'///'.$request->weekNumber.'///'.$request->year);
+                                $notificationRepository->sendEmail( $project_lead, $message, "/track/lead-approve/".$user->id."/".$request->weekNumber."/".$request->year);
+                            }
+                        }else{
                             $wpTrack = false;
                             $wproject->status="requested";
-                            $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
-                            $notificationRepository->sendNotification($user, $project_lead, $message, "time-track-project-approval", $user->id.'///'.$request->weekNumber.'///'.$request->year);
                         }
-                    }else{
-                        $wpTrack = false;
-                        $wproject->status="requested";
+                        $wproject->save();
                     }
-                    $wproject->save();
                 }
                 if($wpTrack)$teamLeadSend=true;
             }else {
@@ -108,6 +115,7 @@ class WeekValidationController extends MasterController
                 if($teamLead instanceof User){
                     $message = $user->firstName." ". $user->lastName. " submitted PTT for the week ".$request->weekNumber."/".$request->year;
                     $notificationRepository->sendNotification($user, $teamLead, $message, "ptt-project-lead-approval-complete", $user->id.'///'.$request->weekNumber.'///'.$request->year);
+                    $notificationRepository->sendEmail( $teamLead, $message, "/track/t-lead-approve/".$user->id."/".$request->weekNumber."/".$request->year);
                 }else {
                     return response()->json(['errors'=>['team_lead'=>['You have no team leads. Check your management flow.']]], 422);
                 }
@@ -142,6 +150,7 @@ class WeekValidationController extends MasterController
                         $wproject->save();
                         $message = $user->firstName." ".$user->lastName." has approved ptt related to project ".$wproject->project->projectName." for the week ".$weekValidation->weekNumber."/".$weekValidation->entryYear;
                         $notificationRepository->sendNotification($user, $weekValidation->user, $message, 'ptt-project-lead-approved', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                        $notificationRepository->sendEmail($weekValidation->user, $message, "/track/my-task/".$weekValidation->weekNumber."/".$weekValidation->entryYear);
                     }else {
                         if($wproject->status != "accepted"){
                             $allCompleted=false;
@@ -152,6 +161,7 @@ class WeekValidationController extends MasterController
                     if($weekValidation->user->dept_team_lead instanceof User){
                         $message = "All projects of ".$weekValidation->user->firstName." ".$weekValidation->user->lastName."'s PTT ".$weekValidation->weekNumber."/".$weekValidation->entryYear." has been approved";
                         $notificationRepository->sendNotification($user, $weekValidation->user->dept_team_lead, $message, 'ptt-project-lead-approval-complete', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                        $notificationRepository->sendEmail( $weekValidation->user->dept_team_lead, $message, "/track/t-lead-approve/".$weekValidation->user_id."/".$weekValidation->weekNumber."/".$weekValidation->entryYear);
                     }
                 }
                 return $weekValidation->week_projects;
@@ -164,25 +174,27 @@ class WeekValidationController extends MasterController
     public function projectLeadResendPTT(Request $request) {
         $user = \Auth::user();
         $valid = $this->model->validateRules($request->all(), [
-            'week_validation' => 'required:exists:week_validations,id'
+            'week_validationProject' => 'required:exists:week_validation_projects,id'
         ]);
         if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
 
-        $weekValidation = $this->model->show($request->week_validation);
-        return \DB::transaction(function() use ($weekValidation, $user){
+        $weekValidationProject = WeekValidationProject::find($request->week_validationProject);
+        return \DB::transaction(function() use ($weekValidationProject, $user){
             try {
+                $weekValidation=$weekValidationProject->week_validation;
                 $notificationRepository = new NotificationRepository();
 
-                if($weekValidation->status == 'accepted')
+                if($weekValidation->status == 'accepted' || $weekValidationProject->status == 'accepted')
                     return response()->json(['errors'=>['approval'=>['PTT approval process already completed']]], 422);
 
 
-                $weekValidation->status = 'reassigned';
-                $weekValidation->save();
+                $weekValidationProject->status = 'plead-reassigned';
+                $weekValidationProject->save();
                 
                 $message = "PTT of week ".$weekValidation->weekNumber."/".$weekValidation->entryYear." is reassigned by project lead ".$user->firstName." ".$user->lastName;
                 $notificationRepository->sendNotification($user, $weekValidation->user, $message, 'ptt-proj-lead-resend-ptt', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
-                return $weekValidation;
+                $notificationRepository->sendEmail( $weekValidation->user, $message, "/track/my-task/".$weekValidation->weekNumber."/".$weekValidation->entryYear);
+                return $weekValidationProject;
             }catch(\Exception $e){
                 return response()->json(['errors'=>['approval'=>[$e->getMessage()]]], 422);
             }
@@ -213,6 +225,7 @@ class WeekValidationController extends MasterController
                 $weekValidationProject->save();
                 $message = $project->projectName." project of ".$weekValidation->user->firstName." ".$weekValidation->user->lastName. "(".$weekValidation->weekNumber."/".$weekValidation->entryYear.") is reassigned by team lead.";
                 $notificationRepository->sendNotification($user, $projectLead, $message, 'ptt-team-lead-reassign', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                $notificationRepository->sendEmail( $projectLead, $message, "/track/lead-approve/".$weekValidation->user_id."/".$weekValidation->weekNumber."/".$weekValidation->entryYear);
                 return $weekValidationProject;
             }catch(\Exception $e){
                 return response()->json(['errors'=>['reassign'=>[$e->getMessage()]]], 422);
@@ -238,10 +251,12 @@ class WeekValidationController extends MasterController
                 foreach($weekValidation->week_projects as $wproject){
                     $message = $ruser->firstName." ".$ruser->lastName."'s PTT for the week ".$weekValidation->weekNumber."/".$weekValidation->entryYear." is approved by team lead ".$user->firstName." ".$user->lastName;
                     $notificationRepository->sendNotification($user, $wproject->project->project_lead, $message, 'ptt-team-lead-approve', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                    $notificationRepository->sendEmail( $wproject->project->project_lead, $message, "/track/lead-approve/".$weekValidation->user_id."/".$weekValidation->weekNumber."/".$weekValidation->entryYear);
                 }
                 
                 $message = "PTT of week ".$weekValidation->weekNumber."/".$weekValidation->entryYear." is approved by team lead ".$user->firstName." ".$user->lastName;
                 $notificationRepository->sendNotification($user, $ruser, $message, 'ptt-team-lead-approve-user', $weekValidation->user_id.'///'.$weekValidation->weekNumber.'///'.$weekValidation->entryYear);
+                $notificationRepository->sendEmail( $ruser, $message, "/track/my-task/".$weekValidation->weekNumber."/".$weekValidation->entryYear);
                 return $weekValidation;
             }catch(\Exception $e){
                 return response()->json(['errors'=>['team-lead-approve'=>[$e->getMessage()]]], 422);
