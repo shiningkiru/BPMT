@@ -187,6 +187,9 @@ class CreateUserModuleTable extends Migration
             $table->date('dateFor');
             $table->enum('status', ['open', 'close', 'won', 'lost']);
             $table->text('details')->nullable(true);
+            $table->text('closeComment')->nullable(true);
+            $table->text('wonComment')->nullable(true);
+            $table->text('lostComment')->nullable(true);
             $table->unsignedInteger('customer_contact_person')->nullable();
             $table->foreign('customer_contact_person')
                     ->references('id')

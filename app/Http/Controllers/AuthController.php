@@ -427,7 +427,7 @@ class AuthController extends Controller
         $hash="";
         $flag=true;
         while($flag):
-            $hash = bcrypt(uniqid());
+            $hash = mt_rand(1000000, 9999999);
             $exi=User::where('reset_token','=',$hash)->first();
             if(!($exi instanceof User)){
                 $user=User::find($user->id);

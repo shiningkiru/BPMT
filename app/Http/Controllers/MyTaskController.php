@@ -130,8 +130,7 @@ class MyTaskController extends Controller
                                     });
                                     
                             });
-        
-        if($request->approvalType == 'project-lead' && ($currentUser->roles == 'project-lead' || $currentUser->roles == 'management')) {
+        if($request->approvalType == 'project-lead' && ($currentUser->roles == 'project-lead' || $currentUser->roles == 'team-lead' || $currentUser->roles == 'management')) {
             $projects = $projects->where('project_lead_id', '=', $currentUser->id);
         }
 
@@ -142,7 +141,7 @@ class MyTaskController extends Controller
         //find the current tasks which are available in each project
         $projectLeadSubmission =true;
         $teamLeadSubmission=true;
-
+        $blocked=false;
         foreach($projects as $project){
             $weekValidationProject = WeekValidationProject::leftJoin('users', 'users.id', '=', 'week_validation_projects.accepted_user_id')
                                                             ->where('project_id', '=', $project->id)
@@ -150,9 +149,11 @@ class MyTaskController extends Controller
                                                             ->select('week_validation_projects.id', 'week_validation_projects.status', 'week_validation_projects.accept_time', 'users.id as acceptedUserId', 'users.firstName', 'users.lastName')
                                                             ->first();
             if($weekValidationProject instanceof WeekValidationProject){
-                if($weekValidationProject->status == 'accepted' || $weekValidationProject->status == 'entried'){
+                if(($weekValidationProject->status == 'accepted' || $weekValidationProject->status == 'entried') && !$blocked){
                     $projectLeadSubmission=false;
                 }
+
+
 
                 if($weekValidationProject->status== "plead-reassigned"){
                     $projectLeadSubmission=false;
@@ -161,6 +162,7 @@ class MyTaskController extends Controller
                 }
                 
                 if($weekValidationProject->status== "reassigned"){
+                    $blocked=true;//kiran added
                     $projectLeadSubmission=true;
                 }
 
@@ -270,7 +272,7 @@ class MyTaskController extends Controller
         $users = User::leftJoin('project_teams', 'users.id', '=', 'project_teams.team_user_id')
                         ->leftJoin('projects', 'projects.id', '=', 'project_teams.team_project_id')
                         ->where('projects.project_lead_id', '=', $user->id)
-                        ->where('users.id', '<>', $user->id)
+                        // ->where('users.id', '<>', $user->id)
                         ->select('users.id', \DB::raw('CONCAT(users.firstName, " ", users.lastName) as fullName'))
                         ->distinct('users.id', 'users.firstName', 'users.lastName')
                         ->get();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use Response;
 use Validators;
 use App\GlobalTask;

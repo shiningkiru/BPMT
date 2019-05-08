@@ -15,6 +15,6 @@ class CustomerOpportunity extends Model
      * @var array
      */
     protected $fillable = [
-        'dateFor', 'status', 'details'
+        'dateFor', 'status', 'details', 'closeComment', 'wonComment', 'lostComment'
     ];
 }

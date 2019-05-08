@@ -401,34 +401,65 @@ class ProjectController extends Controller
         $projects = Project::leftJoin('customers','customers.id','=','customer_project_id')
                         ->select('projects.id','projects.projectName', 'projects.description','projects.projectCode','projects.projectType','projects.startDate','projects.endDate','projects.budget','projects.status','projects.customer_project_id','customers.email','customers.company')
                         ->where('projects.project_company_id','=',$user->company_id);
-        if (!empty($request->get('projectName')))
+        if (!empty($request->get('projectName'))){
             $projects->where('projects.projectName', 'like', '%'. $request->get('projectName').'%');
-        if (!empty($request->get('status')))
-            $projects->where('projects.status', $request->get('status'));
-        if (!empty($request->get('customer_name')))
+        } 
+        
+        if (!empty($request->get('status'))){
+            if($request->get('status') == 'New'){
+                $projects->where(function($query) {
+                    $query->where('projects.status', '=', 'new')
+                        ->orWhere('projects.status', '=', 'received');
+                });
+            }else if($request->get('status') == 'In Progress'){
+                $projects->where(function($query) {
+                    $query->where('projects.status', '=', 'started')
+                        ->orWhere('projects.status', '=', 'in-progress');
+                });
+            }else if($request->get('status') == 'On Hold'){
+                $projects->where(function($query) {
+                    $query->where('projects.status', '=', 'pending')
+                        ->orWhere('projects.status', '=', 'on-hold');
+                });
+            }else if($request->get('status') == 'Completed'){
+                $projects->where(function($query) {
+                    $query->where('projects.status', '=', 'completed')
+                        ->orWhere('projects.status', '=', 'cancelled');
+                });
+            }
+            // $projects->where('projects.status', $request->get('status'));
+        } 
+        
+        if (!empty($request->get('customer_name'))) {
             $projects->where('customers.company', 'like', '%'.$request->get('customer_name').'%');
-        if (!empty($request->get('startDate')) && !empty($request->get('endDate')))
+        } 
+        
+        if (!empty($request->get('startDate')) && !empty($request->get('endDate'))) {
             $projects->WhereBetween('projects.startDate', [$projectstart,$projectend]);
-        if (!empty($request->get('startDate')) && empty($request->get('endDate')))
+        } 
+        
+        if (!empty($request->get('startDate')) && empty($request->get('endDate'))) {
             $projects->where('projects.startDate','=',$projectstart);
+        }
+        
         if($user->roles != 'admin' && $user->roles != 'management'){
             $projects = $projects->leftJoin('project_teams','project_teams.team_project_id', '=', 'projects.id')
                                 ->where('project_teams.team_user_id','=',$user->id)
                                 ->distinct('projects.id');
         }
-        return  $projects->get();
+        return  $projects->orderBy('projects.endDate','DESC')->get();
     } 
 
     public function setProjectStatus(Request $request)
     {
-    $projectRepository=new ProjectRepository();
-    $valid = $projectRepository->validateRules($request->all(), [
-    'project_id' => 'required|exists:projects,id',
-    'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled'
-    ]);
+        $projectRepository=new ProjectRepository();
+        $valid = $projectRepository->validateRules($request->all(), [
+        'project_id' => 'required|exists:projects,id',
+        'status' => 'required|in:received,pending,started,in-progress,in-hold,completed,cancelled'
+        ]);
 
-    if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
-    return $projectRepository->updateProjectStatus($request->project_id,$request->status);    
+        if($valid->fails()) return response()->json(['errors'=>$valid->errors()], 422);
+        return $projectRepository->updateProjectStatus($request->project_id,$request->status);    
     }
 
     /**
